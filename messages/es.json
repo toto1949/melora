@@ -1,0 +1,22 @@
+{
+  "brand": {
+    "name": "Melora",
+    "tagline": "Convierte tus recuerdos en una canción que guardarán para siempre."
+  },
+  "nav": {
+    "examples": "Ejemplos",
+    "howItWorks": "Cómo funciona",
+    "occasions": "Ocasiones",
+    "reviews": "Reseñas",
+    "pricing": "Precios",
+    "faq": "Preguntas",
+    "trackOrder": "Seguir pedido",
+    "signIn": "Iniciar sesión",
+    "create": "Crea tu canción"
+  },
+  "cta": {
+    "createSong": "Crea tu canción",
+    "listenExamples": "Escuchar ejemplos",
+    "createTheirSong": "Crea su canción"
+  }
+}

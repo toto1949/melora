@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+:root {
+  --navy: #0b1426;
+  --navy-soft: #1a2740;
+  --cream: #f7f0e6;
+  --cream-deep: #ede3d4;
+  --rose: #c4848a;
+  --rose-soft: #e8c4c7;
+  --gold: #c9a96e;
+  --gold-soft: #e8d5a8;
+  --surface: #fffcfa;
+  --muted: #6b645a;
+  --border: #e5d9c8;
+  --background: var(--cream);
+  --foreground: var(--navy);
+  --ring: var(--gold);
+  --shadow-soft: 0 18px 50px rgba(11, 20, 38, 0.08);
+  --shadow-lift: 0 24px 60px rgba(11, 20, 38, 0.12);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-navy: var(--navy);
+  --color-navy-soft: var(--navy-soft);
+  --color-cream: var(--cream);
+  --color-cream-deep: var(--cream-deep);
+  --color-rose: var(--rose);
+  --color-rose-soft: var(--rose-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-manrope);
+  --shadow-soft: var(--shadow-soft);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--cream);
+  color: var(--navy);
+  font-family: var(--font-manrope), "Segoe UI", sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--gold) 35%, white);
+  color: var(--navy);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+
+.grain::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 1;
+}
+
+.atmosphere {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(196, 132, 138, 0.22), transparent 55%),
+    radial-gradient(900px 500px at 90% 10%, rgba(201, 169, 110, 0.18), transparent 50%),
+    linear-gradient(180deg, #f7f0e6 0%, #f3e8d8 45%, #efe4d4 100%);
+}
+
+.surface-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c9a96e 0%, #b8924f 100%);
+  color: #0b1426;
+  font-weight: 650;
+  padding: 0.9rem 1.4rem;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  box-shadow: 0 10px 30px rgba(201, 169, 110, 0.28);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 36px rgba(201, 169, 110, 0.35);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 252, 250, 0.75);
+  color: var(--navy);
+  font-weight: 600;
+  padding: 0.9rem 1.4rem;
+  backdrop-filter: blur(8px);
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.btn-secondary:hover {
+  background: var(--surface);
+  transform: translateY(-1px);
+}
+
+.waveform {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 36px;
+}
+
+.waveform span {
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--rose), var(--gold));
+  animation: wave 1.2s ease-in-out infinite;
+}
+
+.waveform span:nth-child(2) { animation-delay: 0.1s; }
+.waveform span:nth-child(3) { animation-delay: 0.2s; }
+.waveform span:nth-child(4) { animation-delay: 0.15s; }
+.waveform span:nth-child(5) { animation-delay: 0.25s; }
+.waveform span:nth-child(6) { animation-delay: 0.05s; }
+.waveform span:nth-child(7) { animation-delay: 0.3s; }
+.waveform span:nth-child(8) { animation-delay: 0.18s; }
+
+@keyframes wave {
+  0%, 100% { height: 28%; }
+  50% { height: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .waveform span { animation: none; height: 55%; }
+  .btn-primary, .btn-secondary { transition: none; }
+}
+
+.prose-muted {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.section-pad {
+  padding: 5rem 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .section-pad {
+    padding: 7rem 1.5rem;
+  }
+}

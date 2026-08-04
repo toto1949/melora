@@ -1,0 +1,22 @@
+{
+  "brand": {
+    "name": "Melora",
+    "tagline": "حوّل ذكرياتك إلى أغنية يحتفظون بها إلى الأبد."
+  },
+  "nav": {
+    "examples": "أمثلة",
+    "howItWorks": "كيف يعمل",
+    "occasions": "المناسبات",
+    "reviews": "الآراء",
+    "pricing": "الأسعار",
+    "faq": "الأسئلة الشائعة",
+    "trackOrder": "تتبع الطلب",
+    "signIn": "تسجيل الدخول",
+    "create": "أنشئ أغنيتك"
+  },
+  "cta": {
+    "createSong": "أنشئ أغنيتك",
+    "listenExamples": "استمع إلى الأمثلة",
+    "createTheirSong": "أنشئ أغنيتهم"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "brand": {
+    "name": "Melora",
+    "tagline": "Turn your memories into a song they'll keep forever."
+  },
+  "nav": {
+    "examples": "Examples",
+    "howItWorks": "How It Works",
+    "occasions": "Occasions",
+    "reviews": "Reviews",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "trackOrder": "Track Order",
+    "signIn": "Sign In",
+    "create": "Create Your Song"
+  },
+  "cta": {
+    "createSong": "Create Your Song",
+    "listenExamples": "Listen to Examples",
+    "createTheirSong": "Create Their Song"
+  }
+}

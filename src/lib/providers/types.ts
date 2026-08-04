@@ -1,0 +1,77 @@
+export interface CreativeBrief {
+  recipientName: string;
+  occasion: string;
+  relationship: string | null;
+  storyHighlights: string[];
+  genre: string;
+  mood: string;
+  vocalType: string;
+  language: string;
+  lyricTone: string;
+  mustInclude: string[];
+  mustExclude: string[];
+  chorusMessage: string | null;
+  personalMessage: string | null;
+}
+
+export interface LyricsResult {
+  title: string;
+  lyrics: string;
+  timedLyrics: Array<{ start: number; end: number; text: string }>;
+  provider: string;
+  raw?: unknown;
+}
+
+export interface MusicResult {
+  audioUrl: string;
+  durationSeconds: number;
+  format: "mp3" | "wav";
+  provider: string;
+  providerJobId?: string;
+}
+
+export interface CoverArtResult {
+  imageUrl: string;
+  provider: string;
+}
+
+export interface VideoResult {
+  videoUrl: string;
+  durationSeconds: number;
+  provider: string;
+  style: string;
+}
+
+export interface LyricsProvider {
+  name: string;
+  generateLyrics(brief: CreativeBrief): Promise<LyricsResult>;
+}
+
+export interface MusicProvider {
+  name: string;
+  generateMusic(input: {
+    brief: CreativeBrief;
+    lyrics: string;
+    title: string;
+  }): Promise<MusicResult>;
+}
+
+export interface VideoProvider {
+  name: string;
+  generateVideo(input: {
+    title: string;
+    audioUrl: string;
+    style: string;
+    photoUrls: string[];
+    lyrics?: string;
+  }): Promise<VideoResult>;
+}
+
+export interface CoverArtProvider {
+  name: string;
+  generateCover(input: {
+    title: string;
+    occasion: string;
+    mood: string;
+  }): Promise<CoverArtResult>;
+}
