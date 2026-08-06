@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ListenExperience } from "@/components/player/listen-experience";
+import { ListenPasswordGate } from "@/components/player/listen-password-gate";
 import { getCurrentUser } from "@/lib/auth/session";
+import { isListenUnlocked } from "@/lib/actions/listen";
 import { getOrderByShareToken } from "@/lib/db/repository";
 import { BRAND } from "@/lib/constants";
 
@@ -14,10 +16,18 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
   };
 }
 
-export default async function ListenPage({ params }: { params: Promise<{ token: string }> }) {
+export default async function ListenPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { token } = await params;
+  const query = await searchParams;
   const order = await getOrderByShareToken(token);
   if (!order) notFound();
+
   if (order.privacyMode === "private") {
     const user = await getCurrentUser();
     if (!user || (order.userId && user.id !== order.userId && user.role === "customer")) {
@@ -31,6 +41,18 @@ export default async function ListenPage({ params }: { params: Promise<{ token: 
             </Link>
           </div>
         </div>
+      );
+    }
+  }
+
+  if (order.privacyMode === "password") {
+    const unlocked = await isListenUnlocked(order.id);
+    if (!unlocked) {
+      return (
+        <ListenPasswordGate
+          shareToken={token}
+          error={query.error === "invalid_password" ? "Incorrect password. Try again." : null}
+        />
       );
     }
   }

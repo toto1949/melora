@@ -8,11 +8,11 @@ Melora is an original product experience. ForeverSongs was used only as high-lev
 
 - Next.js App Router + TypeScript + Tailwind CSS
 - Framer Motion, React Hook Form, Zod, TanStack Query-ready architecture
-- Supabase-ready auth/db/storage (local JSON store when credentials are absent)
+- Supabase Auth, PostgreSQL, and Storage (local JSON store when credentials are absent)
 - Stripe Checkout + webhooks (mock checkout in local mode)
 - Resend transactional emails (console transport in local mode)
-- Pluggable lyrics / music / video provider adapters
-- Background generation jobs with retries and dead-letter handling
+- Pluggable lyrics / music / video provider adapters (mock + OpenAI + HTTP)
+- Background generation jobs with retries, Vercel cron, and dead-letter handling
 
 ## Quick start
 
@@ -24,7 +24,7 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Demo accounts
+### Demo accounts (mock mode)
 
 - Any email + password (8+ chars) creates a customer session
 - `admin@melora.app` + any 8+ char password → Super Admin
@@ -38,6 +38,38 @@ When `USE_MOCK_PROVIDERS=true` or Stripe/Supabase keys are missing:
 - Lyrics/music/video use mock providers
 - Emails log to the server console
 
+## Production deployment
+
+Set `USE_MOCK_PROVIDERS=false` and configure all required services:
+
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | Auth, database, storage |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Payments |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Transactional email |
+| `OPENAI_API_KEY` | Lyrics generation (`LYRICS_PROVIDER=openai`) |
+| `MUSIC_PROVIDER=http`, `MUSIC_PROVIDER_URL`, `MUSIC_PROVIDER_API_KEY` | External music API |
+| `VIDEO_PROVIDER=http`, `VIDEO_PROVIDER_URL`, `VIDEO_PROVIDER_API_KEY` | External video API |
+| `JOB_WORKER_SECRET`, `CRON_SECRET` | Job worker + Vercel cron auth |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | API rate limiting (optional) |
+| `NEXT_PUBLIC_APP_URL` | Canonical app URL for emails and Stripe redirects |
+
+### Supabase setup
+
+1. Create a Supabase project
+2. Run migrations in order:
+   - `supabase/migrations/001_initial_schema.sql`
+   - `supabase/migrations/002_production_setup.sql`
+3. Seed reference data: `supabase/seed/seed.sql`
+4. Configure Auth redirect URL: `https://<domain>/auth/callback`
+
+### Vercel setup
+
+1. Import the repo and set environment variables from `.env.example`
+2. Configure Stripe webhook → `https://<domain>/api/stripe/webhook`
+3. Set `CRON_SECRET` — Vercel cron calls `GET /api/jobs/process` with `Authorization: Bearer <CRON_SECRET>` every 5 minutes (see `vercel.json`)
+4. Manual job trigger: `POST /api/jobs/process` with header `x-job-worker-secret`
+
 ## Product surfaces
 
 | Area | Path |
@@ -50,15 +82,6 @@ When `USE_MOCK_PROVIDERS=true` or Stripe/Supabase keys are missing:
 
 Architecture notes live in `docs/ARCHITECTURE.md`, route map in `docs/ROUTE_MAP.md`, and design system in `docs/DESIGN_SYSTEM.md`.
 
-## Database
-
-PostgreSQL schema + RLS policies:
-
-- `supabase/migrations/001_initial_schema.sql`
-- Seed reference: `supabase/seed/seed.sql`
-
-Apply with the Supabase CLI or your preferred migrator when connecting a real project.
-
 ## Scripts
 
 ```bash
@@ -70,34 +93,14 @@ pnpm test         # vitest
 pnpm jobs:process # process queued generation jobs (mock/local)
 ```
 
-## Environment
-
-See `.env.example` for all variables. Important groups:
-
-- App URL + brand
-- Supabase URL/keys + storage bucket
-- Stripe secret/publishable/webhook
-- Resend + from address
-- Lyrics/music/video provider selection
-- Job worker secret
-
-## Deployment (Vercel)
-
-1. Create a Vercel project from this repo
-2. Set environment variables from `.env.example`
-3. Provision Supabase (Auth, DB, Storage) and run migrations
-4. Configure Stripe webhook → `https://<domain>/api/stripe/webhook`
-5. Set Resend domain/sender
-6. Configure provider API keys or keep mocks for staging
-7. Optionally schedule `POST /api/jobs/process` with `x-job-worker-secret`
-
 ## Security & privacy
 
 - Provider API keys never ship to the browser
-- Secure headers via middleware
-- Private media + signed URL hooks
+- Secure headers + optional Upstash rate limiting via middleware
+- Private media stored in Supabase Storage with signed URLs
+- Password-protected share links with scrypt hashing
+- Account data export (`/api/account/export`) and soft-delete
 - Explicit training opt-in (default off)
-- GDPR-style cookie preferences
 - Guest projects claimable after authentication
 
 ## Testing

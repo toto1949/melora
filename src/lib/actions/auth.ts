@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { signInWithPassword, signOut } from "@/lib/auth/session";
+import { signInWithPassword, signOut, signUpWithPassword } from "@/lib/auth/session";
 import { sendEmail } from "@/lib/email/send";
 import { getEnv } from "@/lib/env";
 import { z } from "zod";
@@ -27,7 +27,7 @@ export async function signUpAction(formData: FormData) {
     password: formData.get("password"),
     name: formData.get("name") || undefined,
   });
-  const profile = await signInWithPassword(parsed.email, parsed.password, parsed.name);
+  const profile = await signUpWithPassword(parsed.email, parsed.password, parsed.name);
   const env = getEnv();
   await sendEmail({
     to: profile.email,

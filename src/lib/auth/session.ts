@@ -1,19 +1,43 @@
 import { cookies } from "next/headers";
+import { getSupabaseServer } from "@/lib/db/client";
 import {
   createOrGetProfile,
-  createSession,
-  destroySession,
-  getSessionUser,
+  getProfile,
 } from "@/lib/db/repository";
+import {
+  createSession as mockCreateSession,
+  destroySession as mockDestroySession,
+  getSessionUser as mockGetSessionUser,
+} from "@/lib/db/mock-repository";
+import { hasSupabase } from "@/lib/env";
 import type { Profile } from "@/types";
 
 export const SESSION_COOKIE = "melora_session";
 export const GUEST_COOKIE = "melora_guest";
 
 export async function getCurrentUser(): Promise<Profile | null> {
+  if (hasSupabase()) {
+    try {
+      const sb = await getSupabaseServer();
+      const {
+        data: { user },
+      } = await sb.auth.getUser();
+      if (!user?.email) return null;
+      const profile = await getProfile(user.id);
+      if (profile && !profile.deletedAt) return profile;
+      return createOrGetProfile({
+        id: user.id,
+        email: user.email,
+        fullName: (user.user_metadata?.full_name as string | undefined) ?? null,
+      });
+    } catch {
+      return null;
+    }
+  }
+
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE)?.value;
-  return getSessionUser(token);
+  return mockGetSessionUser(token);
 }
 
 export async function requireUser() {
@@ -29,15 +53,27 @@ export async function requireStaff() {
   return user;
 }
 
-export async function signInWithPassword(email: string, _password: string, name?: string) {
-  // Local/dev auth store. Wire to Supabase Auth when credentials are present.
-  void _password;
+export async function signInWithPassword(email: string, password: string, name?: string) {
+  if (hasSupabase()) {
+    const sb = await getSupabaseServer();
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
+    return (
+      (await getProfile(data.user.id)) ??
+      (await createOrGetProfile({
+        id: data.user.id,
+        email: data.user.email!,
+        fullName: name ?? (data.user.user_metadata?.full_name as string | undefined) ?? null,
+      }))
+    );
+  }
+
   const profile = await createOrGetProfile({
     email,
     fullName: name ?? null,
     role: email === "admin@melora.app" ? "super_admin" : "customer",
   });
-  const token = await createSession(profile.id);
+  const token = await mockCreateSession(profile.id);
   const jar = await cookies();
   jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
@@ -49,10 +85,39 @@ export async function signInWithPassword(email: string, _password: string, name?
   return profile;
 }
 
+export async function signUpWithPassword(email: string, password: string, name?: string) {
+  if (hasSupabase()) {
+    const sb = await getSupabaseServer();
+    const { data, error } = await sb.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: name } },
+    });
+    if (error) throw new Error(error.message);
+    if (!data.user) throw new Error("Sign up failed");
+    return (
+      (await getProfile(data.user.id)) ??
+      (await createOrGetProfile({
+        id: data.user.id,
+        email: data.user.email!,
+        fullName: name ?? null,
+      }))
+    );
+  }
+
+  return signInWithPassword(email, password, name);
+}
+
 export async function signOut() {
+  if (hasSupabase()) {
+    const sb = await getSupabaseServer();
+    await sb.auth.signOut();
+    return;
+  }
+
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE)?.value;
-  if (token) await destroySession(token);
+  if (token) await mockDestroySession(token);
   jar.delete(SESSION_COOKIE);
 }
 

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser, getGuestToken } from "@/lib/auth/session";
 import { addMedia, getProject } from "@/lib/db/repository";
+import { hasSupabase } from "@/lib/env";
+import { getSignedAssetUrl, uploadAsset } from "@/lib/storage/assets";
 
 const ALLOWED = new Set([
   "image/jpeg",
@@ -29,17 +31,29 @@ export async function POST(req: NextRequest) {
   const project = await getProject(projectId, guestToken);
   if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-  // Production: create signed upload URL to Supabase/S3 private bucket + malware scanning hook.
+  const storagePath = `uploads/${projectId}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  if (hasSupabase()) {
+    await uploadAsset(storagePath, buffer, file.type);
+  }
+
+  const url = hasSupabase()
+    ? (await getSignedAssetUrl(storagePath)) ?? undefined
+    : file.type.startsWith("video")
+      ? "/samples/covers/golden-hour.svg"
+      : "/samples/covers/golden-hour.svg";
+
   const media = await addMedia(projectId, {
     userId: user?.id ?? null,
     kind: file.type.startsWith("video") ? "video_clip" : "portrait",
-    storagePath: `uploads/${projectId}/${Date.now()}-${file.name}`,
+    storagePath,
     fileName: file.name,
     mimeType: file.type,
     sizeBytes: file.size,
     sortOrder: project.media?.length || 0,
     consentConfirmed: true,
-    url: "/samples/covers/golden-hour.svg",
+    url,
   });
 
   return NextResponse.json({ ok: true, media });

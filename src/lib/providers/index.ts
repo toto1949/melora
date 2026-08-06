@@ -1,8 +1,10 @@
-import { getEnv } from "@/lib/env";
+import { getEnv, isMockMode } from "@/lib/env";
 import { MockCoverArtProvider } from "./cover/mock";
 import { MockLyricsProvider } from "./lyrics/mock";
 import { OpenAICompatibleLyricsProvider } from "./lyrics/openai";
+import { HttpMusicProvider } from "./music/http";
 import { MockMusicProvider } from "./music/mock";
+import { HttpVideoProvider } from "./video/http";
 import { MockVideoProvider } from "./video/mock";
 import type {
   CoverArtProvider,
@@ -13,18 +15,25 @@ import type {
 
 export function getLyricsProvider(): LyricsProvider {
   const env = getEnv();
-  if (env.LYRICS_PROVIDER === "openai" || env.OPENAI_API_KEY) {
+  if (!isMockMode() && (env.LYRICS_PROVIDER === "openai" || env.OPENAI_API_KEY)) {
     return new OpenAICompatibleLyricsProvider();
   }
   return new MockLyricsProvider();
 }
 
 export function getMusicProvider(): MusicProvider {
-  // Swap this adapter for Suno/Udio/custom HTTP providers without touching UI.
+  const env = getEnv();
+  if (!isMockMode() && env.MUSIC_PROVIDER === "http" && env.MUSIC_PROVIDER_URL) {
+    return new HttpMusicProvider();
+  }
   return new MockMusicProvider();
 }
 
 export function getVideoProvider(): VideoProvider {
+  const env = getEnv();
+  if (!isMockMode() && env.VIDEO_PROVIDER === "http" && env.VIDEO_PROVIDER_URL) {
+    return new HttpVideoProvider();
+  }
   return new MockVideoProvider();
 }
 
