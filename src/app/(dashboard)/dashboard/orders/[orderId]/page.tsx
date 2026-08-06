@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getOrder, listOrderJobs, listSongVersions } from "@/lib/db/repository";
-import { updatePrivacyAction } from "@/lib/actions/orders";
+import { updatePrivacyAction } from "@/lib/actions/listen";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {
@@ -33,6 +33,19 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ or
           <input type="checkbox" name="giftRevealEnabled" defaultChecked={order.giftRevealEnabled} />
           Enable gift reveal mode
         </label>
+        <div>
+          <label htmlFor="sharePassword" className="mb-1.5 block text-sm font-medium">
+            Share password (required for password-protected links)
+          </label>
+          <input
+            id="sharePassword"
+            name="sharePassword"
+            type="password"
+            minLength={4}
+            placeholder="Set or update share password"
+            className="w-full rounded-2xl border border-border px-4 py-3"
+          />
+        </div>
         <button type="submit" className="btn-primary">Save privacy settings</button>
       </form>
       <section className="surface-card p-5">
