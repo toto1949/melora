@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { BRAND, LANGUAGES } from "@/lib/constants";
+import { BRAND } from "@/lib/constants";
+import { getLocale } from "@/lib/i18n";
+import { LocaleSwitcher } from "./locale-switcher";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const locale = await getLocale();
   return (
     <footer className="border-t border-border bg-navy text-cream">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-4 md:px-6">
@@ -40,33 +43,7 @@ export function SiteFooter() {
             <li><Link href="/legal/refunds">Refund policy</Link></li>
           </ul>
           <div className="mt-6 space-y-2">
-            <label className="block text-xs text-cream/60" htmlFor="footer-lang">
-              Language
-            </label>
-            <select
-              id="footer-lang"
-              className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm"
-              defaultValue="en"
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l.code} value={l.code}>
-                  {l.name}
-                </option>
-              ))}
-            </select>
-            <label className="block text-xs text-cream/60" htmlFor="footer-currency">
-              Country / currency
-            </label>
-            <select
-              id="footer-currency"
-              className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm"
-              defaultValue="usd"
-            >
-              <option value="usd">United States · USD</option>
-              <option value="eur">Europe · EUR</option>
-              <option value="gbp">United Kingdom · GBP</option>
-              <option value="cad">Canada · CAD</option>
-            </select>
+            <LocaleSwitcher current={locale} />
           </div>
         </div>
       </div>

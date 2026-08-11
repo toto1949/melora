@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Manrope } from "next/font/google";
 import { BRAND } from "@/lib/constants";
+import { getLocale, getTextDirection } from "@/lib/i18n";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -35,9 +36,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
   return (
-    <html lang="en">
+    <html lang={locale} dir={getTextDirection(locale)}>
       <body className={`${fraunces.variable} ${manrope.variable} antialiased`}>
         {children}
       </body>
