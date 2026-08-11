@@ -52,7 +52,6 @@ export async function createCheckoutSession(order: Order, successUrl: string, ca
         },
       },
     ],
-    automatic_tax: { enabled: true },
     allow_promotion_codes: true,
   });
 
