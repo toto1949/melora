@@ -64,6 +64,17 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    if (event.type === "charge.refunded") {
+      const charge = event.data.object as { metadata?: { orderId?: string } };
+      const orderId = charge.metadata?.orderId;
+      if (orderId) {
+        const order = await getOrder(orderId);
+        if (order && order.status !== "refunded") {
+          await updateOrderStatus(orderId, "refunded", { failedReason: "refunded" });
+        }
+      }
+    }
+
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error(error);

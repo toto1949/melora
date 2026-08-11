@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getCurrentUser, getGuestToken, setGuestToken, signInWithPassword } from "@/lib/auth/session";
+import { getCurrentUser, getGuestToken, setGuestToken, signUpWithPassword } from "@/lib/auth/session";
 import {
   addMedia,
   claimProject,
@@ -270,11 +270,10 @@ export async function checkoutAction(projectId: string, formData: FormData) {
 
   let userId = user?.id ?? null;
   if (!userId && parsed.createAccount) {
-    const profile = await signInWithPassword(
-      parsed.email,
-      parsed.password || "changeme-temp",
-      undefined,
-    );
+    if (!parsed.password || parsed.password.length < 8) {
+      throw new Error("A password of at least 8 characters is required to create an account");
+    }
+    const profile = await signUpWithPassword(parsed.email, parsed.password, undefined);
     userId = profile.id;
     await claimProject(projectId, userId);
   } else if (userId) {
@@ -306,21 +305,23 @@ export async function checkoutAction(projectId: string, formData: FormData) {
     `${env.NEXT_PUBLIC_APP_URL}/studio/${projectId}/checkout`,
   );
 
-  // Persist checkout session id
-  const { mutateStore } = await import("@/lib/db/store");
-  await mutateStore((store) => {
-    const o = store.orders.find((x) => x.id === order.id);
-    if (o) o.stripeCheckoutSessionId = session.id;
-  });
+  const { updateOrderStatus } = await import("@/lib/db/repository");
+  await updateOrderStatus(order.id, order.status, { stripeCheckoutSessionId: session.id });
 
   if (session.url) redirect(session.url);
   throw new Error("Unable to start checkout");
 }
 
 export async function completeMockPaymentAction(orderId: string) {
+  const { isMockMode } = await import("@/lib/env");
+  if (!isMockMode()) {
+    throw new Error("Mock payments are disabled in production");
+  }
+
   const { updateOrderStatus, getOrder, trackEvent } = await import("@/lib/db/repository");
   const order = await getOrder(orderId);
   if (!order) throw new Error("Order not found");
+  if (order.status !== "awaiting_payment") return { ok: true };
 
   await updateOrderStatus(orderId, "payment_confirmed");
   await sendEmail({

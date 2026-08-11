@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { completeMockPaymentAction } from "@/lib/actions/studio";
 import { getOrder } from "@/lib/db/repository";
-import { getEnv } from "@/lib/env";
+import { getEnv, isMockMode } from "@/lib/env";
 
 export async function GET(req: NextRequest) {
+  if (!isMockMode()) {
+    return NextResponse.json(
+      { error: "Mock checkout is disabled in production" },
+      { status: 403 },
+    );
+  }
+
   const orderId = req.nextUrl.searchParams.get("orderId");
   if (!orderId) {
     return NextResponse.json({ error: "Missing orderId" }, { status: 400 });

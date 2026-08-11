@@ -33,6 +33,12 @@ export async function createCheckoutSession(order: Order, successUrl: string, ca
       orderId: order.id,
       orderNumber: order.orderNumber,
     },
+    payment_intent_data: {
+      metadata: {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+      },
+    },
     line_items: [
       {
         quantity: 1,
