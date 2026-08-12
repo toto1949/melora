@@ -1,6 +1,10 @@
 import { trackOrderAction } from "@/lib/actions/orders";
 
-export const metadata = { title: "Track Order" };
+export const metadata = {
+  title: "Track Your Order",
+  description: "Check the status of your personalized song order with your order number and email.",
+  alternates: { canonical: "/track-order" },
+};
 
 export default function TrackOrderPage() {
   return (

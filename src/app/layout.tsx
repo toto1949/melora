@@ -23,16 +23,32 @@ export const metadata: Metadata = {
     template: `%s · ${BRAND.name}`,
   },
   description: BRAND.tagline,
+  keywords: [
+    "personalized song",
+    "custom song gift",
+    "song from memories",
+    "anniversary song",
+    "birthday song",
+    "wedding song",
+    "custom lyrics",
+    "personalized music gift",
+  ],
   openGraph: {
-    title: BRAND.name,
+    title: `${BRAND.name} — Personalized songs from your memories`,
     description: BRAND.tagline,
     type: "website",
     siteName: BRAND.name,
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: BRAND.name,
+    title: `${BRAND.name} — Personalized songs from your memories`,
     description: BRAND.tagline,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
 };
 

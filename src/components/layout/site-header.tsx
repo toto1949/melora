@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BRAND } from "@/lib/constants";
@@ -39,6 +40,16 @@ export function SiteHeader({
   labels?: HeaderLabels;
 }) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const links = [
     { href: "/examples", label: labels.examples },
     { href: "/how-it-works", label: labels.howItWorks },
@@ -50,9 +61,17 @@ export function SiteHeader({
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-cream/80 backdrop-blur-xl">
+    <header
+      className={cn(
+        "sticky top-0 z-40 border-b bg-cream/80 backdrop-blur-xl transition-shadow duration-300",
+        scrolled ? "border-border shadow-[0_8px_30px_rgba(11,20,38,0.08)]" : "border-border/40"
+      )}
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
-        <Link href="/" className="font-display text-2xl tracking-tight text-navy">
+        <Link
+          href="/"
+          className="font-display text-2xl tracking-tight text-navy transition-opacity hover:opacity-80"
+        >
           {BRAND.name}
         </Link>
 
@@ -61,7 +80,8 @@ export function SiteHeader({
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-navy/80 transition hover:text-navy"
+              data-active={pathname === link.href}
+              className="link-underline text-sm font-medium text-navy/80 transition hover:text-navy data-[active=true]:text-navy"
             >
               {link.label}
             </Link>

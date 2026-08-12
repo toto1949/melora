@@ -13,8 +13,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const genre = GENRES.find((g) => g.slug === slug);
   if (!genre) return {};
   return {
-    title: `${genre.name} personalized songs`,
-    description: `Create a personalized ${genre.name} song with Memories to Melody.`,
+    title: `Personalized ${genre.name} Songs`,
+    description: `Create a personalized ${genre.name} song from your memories — custom lyrics, studio-quality audio, and a private listening page.`,
+    alternates: { canonical: `/genres/${genre.slug}` },
   };
 }
 

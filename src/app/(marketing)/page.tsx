@@ -20,6 +20,8 @@ import {
   listSamples,
 } from "@/lib/db/repository";
 
+export const metadata = { alternates: { canonical: "/" } };
+
 export default async function HomePage() {
   const [settings, packages, samples, reactions, reviews, faqs] = await Promise.all([
     getSettings(),
