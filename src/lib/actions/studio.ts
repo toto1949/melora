@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ZodError } from "zod";
 import { getCurrentUser, getGuestToken, setGuestToken, signUpWithPassword } from "@/lib/auth/session";
 import {
   addMedia,
@@ -253,63 +254,88 @@ export async function applyCouponAction(code: string) {
   };
 }
 
-export async function checkoutAction(projectId: string, formData: FormData) {
-  const { user } = await assertProjectAccess(projectId);
-  const parsed = checkoutSchema.parse({
-    packageId: formData.get("packageId"),
-    addOnIds: formData.getAll("addOnIds"),
-    deliverySpeed: formData.get("deliverySpeed") || "standard",
-    couponCode: formData.get("couponCode") || null,
-    email: formData.get("email"),
-    phone: formData.get("phone") || null,
-    createAccount: formData.get("createAccount") === "on",
-    password: formData.get("password") || null,
-    termsAccepted: formData.get("termsAccepted") === "on" ? true : false,
-    idempotencyKey: formData.get("idempotencyKey"),
-  });
+export type CheckoutState = { error: string } | null;
 
-  let userId = user?.id ?? null;
-  if (!userId && parsed.createAccount) {
-    if (!parsed.password || parsed.password.length < 8) {
-      throw new Error("A password of at least 8 characters is required to create an account");
+export async function checkoutAction(
+  projectId: string,
+  _prevState: CheckoutState,
+  formData: FormData,
+): Promise<CheckoutState> {
+  let checkoutUrl: string | null = null;
+  try {
+    const { user } = await assertProjectAccess(projectId);
+    const parsed = checkoutSchema.parse({
+      packageId: formData.get("packageId"),
+      addOnIds: formData.getAll("addOnIds"),
+      deliverySpeed: formData.get("deliverySpeed") || "standard",
+      couponCode: formData.get("couponCode") || null,
+      email: formData.get("email"),
+      phone: formData.get("phone") || null,
+      createAccount: formData.get("createAccount") === "on",
+      password: formData.get("password") || null,
+      termsAccepted: formData.get("termsAccepted") === "on" ? true : false,
+      idempotencyKey: formData.get("idempotencyKey"),
+    });
+
+    let userId = user?.id ?? null;
+    if (!userId && parsed.createAccount) {
+      if (!parsed.password || parsed.password.length < 8) {
+        return { error: "Please choose a password of at least 8 characters to create your account, or uncheck the account option to continue as a guest." };
+      }
+      try {
+        const profile = await signUpWithPassword(parsed.email, parsed.password, undefined);
+        userId = profile.id;
+      } catch (signUpError) {
+        const message = signUpError instanceof Error ? signUpError.message : "";
+        if (/already registered|already exists/i.test(message)) {
+          return { error: "An account with this email already exists. Sign in first, or uncheck the account option to continue as a guest." };
+        }
+        return { error: message || "We couldn't create your account. Uncheck the account option to continue as a guest." };
+      }
+      await claimProject(projectId, userId);
+    } else if (userId) {
+      await claimProject(projectId, userId);
     }
-    const profile = await signUpWithPassword(parsed.email, parsed.password, undefined);
-    userId = profile.id;
-    await claimProject(projectId, userId);
-  } else if (userId) {
-    await claimProject(projectId, userId);
+
+    const order = await createOrder({
+      projectId,
+      packageId: parsed.packageId,
+      email: parsed.email,
+      phone: parsed.phone,
+      userId,
+      couponCode: parsed.couponCode,
+      addOnIds: parsed.addOnIds,
+      deliverySpeed: parsed.deliverySpeed,
+      idempotencyKey: parsed.idempotencyKey,
+    });
+
+    await trackEvent(
+      "checkout_started",
+      { packageId: parsed.packageId, total: order.totalCents },
+      { projectId, orderId: order.id, userId },
+    );
+
+    const env = getEnv();
+    const session = await createCheckoutSession(
+      order,
+      `${env.NEXT_PUBLIC_APP_URL}/studio/${projectId}/success?orderId=${order.id}`,
+      `${env.NEXT_PUBLIC_APP_URL}/studio/${projectId}/checkout`,
+    );
+
+    const { updateOrderStatus } = await import("@/lib/db/repository");
+    await updateOrderStatus(order.id, order.status, { stripeCheckoutSessionId: session.id });
+
+    checkoutUrl = session.url ?? null;
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return { error: error.issues[0]?.message ?? "Please review the form and try again." };
+    }
+    console.error("checkoutAction failed", error);
+    return { error: "Something went wrong starting your checkout. Please try again." };
   }
 
-  const order = await createOrder({
-    projectId,
-    packageId: parsed.packageId,
-    email: parsed.email,
-    phone: parsed.phone,
-    userId,
-    couponCode: parsed.couponCode,
-    addOnIds: parsed.addOnIds,
-    deliverySpeed: parsed.deliverySpeed,
-    idempotencyKey: parsed.idempotencyKey,
-  });
-
-  await trackEvent(
-    "checkout_started",
-    { packageId: parsed.packageId, total: order.totalCents },
-    { projectId, orderId: order.id, userId },
-  );
-
-  const env = getEnv();
-  const session = await createCheckoutSession(
-    order,
-    `${env.NEXT_PUBLIC_APP_URL}/studio/${projectId}/success?orderId=${order.id}`,
-    `${env.NEXT_PUBLIC_APP_URL}/studio/${projectId}/checkout`,
-  );
-
-  const { updateOrderStatus } = await import("@/lib/db/repository");
-  await updateOrderStatus(order.id, order.status, { stripeCheckoutSessionId: session.id });
-
-  if (session.url) redirect(session.url);
-  throw new Error("Unable to start checkout");
+  if (checkoutUrl) redirect(checkoutUrl);
+  return { error: "Unable to start checkout. Please try again." };
 }
 
 export async function completeMockPaymentAction(orderId: string) {
