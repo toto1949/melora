@@ -519,6 +519,11 @@ export async function enqueueJob(orderId: string, jobType: JobType, input: Recor
   });
 }
 
+export async function getJob(jobId: string) {
+  const store = await getStore();
+  return store.jobs.find((j) => j.id === jobId) ?? null;
+}
+
 export async function listJobs(status?: GenerationJob["status"]) {
   const store = await getStore();
   return store.jobs

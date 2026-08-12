@@ -697,6 +697,12 @@ export async function enqueueJob(orderId: string, jobType: JobType, input: Recor
   return mapJob(data);
 }
 
+export async function getJob(jobId: string) {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb.from("generation_jobs").select("*").eq("id", jobId).maybeSingle();
+  return data ? mapJob(data) : null;
+}
+
 export async function listJobs(status?: GenerationJob["status"]) {
   const sb = getSupabaseAdmin();
   let q = sb.from("generation_jobs").select("*").order("created_at");

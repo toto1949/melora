@@ -28,6 +28,10 @@ export interface MusicResult {
   format: "mp3" | "wav";
   provider: string;
   providerJobId?: string;
+  /** Cover art produced alongside the track (e.g. Suno), if any. */
+  coverUrl?: string;
+  /** Additional track variations beyond the primary audioUrl. */
+  alternateAudioUrls?: string[];
 }
 
 export interface CoverArtResult {

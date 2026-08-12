@@ -41,6 +41,7 @@ export const listAllOrders = db.listAllOrders;
 export const updateOrderStatus = db.updateOrderStatus;
 export const updateOrderPrivacy = db.updateOrderPrivacy;
 export const enqueueJob = db.enqueueJob;
+export const getJob = db.getJob;
 export const listJobs = db.listJobs;
 export const listOrderJobs = db.listOrderJobs;
 export const updateJob = db.updateJob;

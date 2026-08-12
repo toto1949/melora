@@ -6,6 +6,7 @@ const KUNAVO_MUSIC_URL = "https://api.kunavo.com/v1/audio/music";
 interface KunavoTrack {
   url?: string;
   audio_url?: string;
+  image_url?: string;
   duration?: number;
   duration_seconds?: number;
   id?: string;
@@ -48,7 +49,8 @@ export class KunavoMusicProvider implements MusicProvider {
     }
 
     const payload = (await res.json()) as { data?: KunavoTrack[] };
-    const track = payload.data?.[0];
+    const tracks = payload.data ?? [];
+    const track = tracks[0];
     const audioUrl = track?.url ?? track?.audio_url;
     if (!audioUrl) {
       throw new Error("Kunavo returned no audio track");
@@ -60,6 +62,11 @@ export class KunavoMusicProvider implements MusicProvider {
       format: "mp3",
       provider: this.name,
       providerJobId: track?.id,
+      coverUrl: track?.image_url,
+      alternateAudioUrls: tracks
+        .slice(1)
+        .map((t) => t.url ?? t.audio_url)
+        .filter((u): u is string => Boolean(u)),
     };
   }
 }

@@ -119,9 +119,8 @@ export async function processQueuedJobs(orderId?: string) {
 }
 
 export async function processJob(jobId: string) {
-  const { getStore } = await import("@/lib/db/store");
-  const store = await getStore();
-  const job = store.jobs.find((j) => j.id === jobId);
+  const { getJob } = await import("@/lib/db/repository");
+  const job = await getJob(jobId);
   if (!job) throw new Error("Job not found");
 
   const order = await getOrder(job.orderId);
@@ -192,6 +191,7 @@ export async function processJob(jobId: string) {
             versionNumber: current.versionNumber,
             audioUrl: result.audioUrl,
             durationSeconds: result.durationSeconds,
+            coverUrl: result.coverUrl ?? current.coverUrl,
             isCurrent: true,
           });
         }
@@ -200,9 +200,14 @@ export async function processJob(jobId: string) {
       return { jobType: job.jobType, music };
     }
     case "cover_art": {
+      const current = (await getOrder(order.id))?.currentVersion;
+      // The music provider may deliver real cover art (e.g. Suno) — keep it.
+      if (current?.coverUrl && !current.coverUrl.startsWith("/samples/")) {
+        await updateJob(job.id, { status: "succeeded", progress: 100, provider: "music-provider" });
+        return { jobType: job.jobType, skipped: true };
+      }
       const provider = getCoverArtProvider();
       const brief = (order.creativeBrief as unknown as CreativeBrief) || buildBrief(order);
-      const current = (await getOrder(order.id))?.currentVersion;
       const cover = await withRetry(job, async () => {
         await updateJob(job.id, { progress: 40, provider: provider.name });
         const result = await provider.generateCover({
