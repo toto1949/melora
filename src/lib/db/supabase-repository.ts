@@ -761,16 +761,34 @@ export async function saveSongVersion(version: Omit<SongVersion, "id" | "created
   if (error || !data) throw new Error(error?.message ?? "Failed to save version");
 
   const versionId = data.id;
-  if (version.audioUrl && version.audioUrl.startsWith("generated/")) {
-    await sb.from("generated_assets").upsert({
+  const persistAsset = async (kind: string, url: string | null | undefined, mimeType: string) => {
+    // Skip local mock/sample paths; store both external provider URLs and storage paths.
+    if (!url || url.startsWith("/")) return;
+    const { data: existingAsset } = await sb
+      .from("generated_assets")
+      .select("id")
+      .eq("song_version_id", versionId)
+      .eq("kind", kind)
+      .maybeSingle();
+    const assetPayload = {
       order_id: version.orderId,
       song_version_id: versionId,
-      kind: "audio",
-      storage_path: version.audioUrl,
-      mime_type: "audio/mpeg",
+      kind,
+      storage_path: url,
+      mime_type: mimeType,
+      size_bytes: 0,
+      metadata: {},
       is_primary: true,
-    });
-  }
+    };
+    if (existingAsset) {
+      await sb.from("generated_assets").update(assetPayload).eq("id", existingAsset.id);
+    } else {
+      await sb.from("generated_assets").insert(assetPayload);
+    }
+  };
+  await persistAsset("audio", version.audioUrl, "audio/mpeg");
+  await persistAsset("cover", version.coverUrl, "image/jpeg");
+  await persistAsset("music_video", version.videoUrl, "video/mp4");
 
   return mapSongVersion(data, {
     audioUrl: version.audioUrl,
@@ -786,7 +804,22 @@ export async function listSongVersions(orderId: string) {
     .select("*")
     .eq("order_id", orderId)
     .order("version_number", { ascending: false });
-  return (data ?? []).map((r) => mapSongVersion(r));
+  const rows = data ?? [];
+  if (rows.length === 0) return [];
+  const { data: assets } = await sb.from("generated_assets").select("*").eq("order_id", orderId);
+  return Promise.all(
+    rows.map(async (r) => {
+      const forVersion = (assets ?? []).filter((a) => a.song_version_id === r.id);
+      const audio = forVersion.find((a) => a.kind === "audio");
+      const cover = forVersion.find((a) => a.kind === "cover");
+      const video = forVersion.find((a) => a.kind === "music_video" || a.kind === "lyric_video");
+      return mapSongVersion(r, {
+        audioUrl: audio ? await getSignedAssetUrl(audio.storage_path) : null,
+        coverUrl: cover ? await getSignedAssetUrl(cover.storage_path) : null,
+        videoUrl: video ? await getSignedAssetUrl(video.storage_path) : null,
+      });
+    })
+  );
 }
 
 export async function createRevision(input: Omit<RevisionRequest, "id" | "createdAt" | "status">) {
