@@ -57,6 +57,8 @@ export interface MusicProvider {
     brief: CreativeBrief;
     lyrics: string;
     title: string;
+    /** Stable key so provider retries resume the same generation instead of paying for a new one. */
+    idempotencyKey?: string;
   }): Promise<MusicResult>;
 }
 

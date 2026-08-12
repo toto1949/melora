@@ -233,6 +233,7 @@ export async function processJob(jobId: string) {
           brief,
           lyrics: current?.lyrics || "",
           title: current?.title || "Untitled",
+          idempotencyKey: job.idempotencyKey,
         });
         await updateJob(job.id, { progress: 75 });
         if (current) {
