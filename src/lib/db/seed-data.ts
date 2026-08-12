@@ -18,8 +18,8 @@ export const defaultSettings: SiteSettings = {
   heroSupporting:
     "Share your story, choose your sound, and let our creative technology transform your favorite moments into a deeply personal song.",
   trustBadge: "Personalized music made from your memories",
-  brandName: "Melora",
-  supportEmail: "hello@melora.app",
+  brandName: "Memories to Melody",
+  supportEmail: "hello@memoriestomelody.com",
 };
 
 export const seedPackages: Package[] = [
@@ -325,7 +325,7 @@ export const seedReviews: Review[] = [
 export const seedFaqs: FaqItem[] = [
   {
     id: "faq-1",
-    question: "How are Melora songs generated?",
+    question: "How are Memories to Melody songs generated?",
     answer:
       "You share your story and preferences. Our system builds a creative brief, drafts lyrics, then generates studio-quality audio through configured music providers. Human-ready quality checks run before delivery.",
     category: "product",
@@ -389,7 +389,7 @@ export const seedFaqs: FaqItem[] = [
   },
   {
     id: "faq-9",
-    question: "Can I use Melora songs commercially?",
+    question: "Can I use Memories to Melody songs commercially?",
     answer:
       "Standard packages are for personal gifting and private sharing. Contact us for commercial licensing options.",
     category: "licensing",
@@ -409,7 +409,7 @@ export const seedCoupons: Coupon[] = [
   {
     id: "coupon-welcome",
     code: "WELCOME10",
-    description: "10% off your first Melora song",
+    description: "10% off your first Memories to Melody song",
     percentOff: 10,
     amountOffCents: null,
     currency: "usd",

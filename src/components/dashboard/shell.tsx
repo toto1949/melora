@@ -26,7 +26,7 @@ export function DashboardShell({
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 md:grid-cols-[220px_1fr] md:px-6">
         <aside className="surface-card h-fit p-4">
           <Link href="/" className="font-display text-2xl text-navy">
-            Melora
+            Memories to Melody
           </Link>
           <p className="mt-2 text-xs text-muted">{user.email}</p>
           <nav className="mt-6 space-y-1" aria-label="Dashboard">

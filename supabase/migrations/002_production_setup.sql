@@ -1,4 +1,4 @@
--- Melora production setup: auth profile trigger, storage bucket, policies
+-- Memories to Melody production setup: auth profile trigger, storage bucket, policies
 
 create or replace function public.handle_new_user()
 returns trigger

@@ -1,4 +1,4 @@
--- Melora initial schema
+-- Memories to Melody initial schema
 -- PostgreSQL + Supabase RLS
 
 create extension if not exists "pgcrypto";

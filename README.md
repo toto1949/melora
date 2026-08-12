@@ -1,8 +1,8 @@
-# Melora
+# Memories to Melody
 
 Premium AI-powered personalized music platform. Customers share a story, choose a sound, and receive a studio-quality song with a private listening page.
 
-Melora is an original product experience. ForeverSongs was used only as high-level product-flow inspiration — branding, copy, layout, and assets are entirely original.
+Memories to Melody (formerly "Melora") is an original product experience. ForeverSongs was used only as high-level product-flow inspiration — branding, copy, layout, and assets are entirely original.
 
 ## Stack
 

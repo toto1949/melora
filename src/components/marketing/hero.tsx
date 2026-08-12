@@ -74,7 +74,7 @@ export function Hero({ settings }: { settings: SiteSettings }) {
             id="hero-demo"
             src="https://files.kunavo.com/audio/2026-08/sF7SbcF5E8KuUu9hVwV7T/0m00jwd8s3cxrfme083i.mp3"
             title="Golden Hour With You"
-            subtitle="Anniversary · Acoustic · Created with Melora"
+            subtitle="Anniversary · Acoustic · Created with Memories to Melody"
             coverUrl="https://files.kunavo.com/image/2026-08/sF7SbcF5E8KuUu9hVwV7T/erfs8t1tagqc1fj5dlbw.jpg"
           />
         </motion.div>

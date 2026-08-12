@@ -97,7 +97,7 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
               checked={createAccount}
               onChange={(e) => setCreateAccount(e.target.checked)}
             />
-            Create a Melora account to manage songs and revisions
+            Create a Memories to Melody account to manage songs and revisions
           </label>
           {createAccount ? (
             <div>

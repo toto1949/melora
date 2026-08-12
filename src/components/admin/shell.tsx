@@ -24,7 +24,7 @@ export function AdminShell({ user, children }: { user: Profile; children: React.
     <div className="min-h-screen bg-navy text-cream">
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 md:grid-cols-[220px_1fr]">
         <aside className="rounded-3xl border border-white/10 bg-white/5 p-4">
-          <p className="font-display text-2xl">Melora Admin</p>
+          <p className="font-display text-2xl">Memories to Melody Admin</p>
           <p className="mt-1 text-xs text-cream/60">{user.role}</p>
           <nav className="mt-6 space-y-1 text-sm">
             {links.map(([href, label]) => (

@@ -13,7 +13,7 @@ export default async function StudioEntryPage({
   return (
     <div className="atmosphere grain flex min-h-screen items-center justify-center px-4">
       <div className="surface-card max-w-xl p-8 text-center">
-        <p className="font-display text-4xl text-navy">Melora Studio</p>
+        <p className="font-display text-4xl text-navy">Memories to Melody Studio</p>
         <p className="mt-3 prose-muted">
           {occasion
             ? `Let's create a ${occasion.name.toLowerCase()} song they'll never forget. We'll guide you step by step.`

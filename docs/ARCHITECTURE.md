@@ -1,10 +1,10 @@
-# Melora Product Architecture
+# Memories to Melody Product Architecture
 
-**Melora** is an AI-powered personalized music platform. Customers turn memories into studio-quality songs for people they care about.
+**Memories to Melody** is an AI-powered personalized music platform. Customers turn memories into studio-quality songs for people they care about.
 
 ## Brand
 
-- Name: Melora
+- Name: Memories to Melody
 - Position: Premium emotional gift experience
 - Promise: Personalized music made from your memories
 - Tone: Warm, trustworthy, cinematic, nontechnical

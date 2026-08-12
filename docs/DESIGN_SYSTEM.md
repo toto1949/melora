@@ -1,4 +1,4 @@
-# Melora Design System
+# Memories to Melody Design System
 
 ## Visual direction
 

@@ -28,7 +28,7 @@ export function ListenExperience({
     ? `For ${order.project.recipient.name}${
         order.project.recipient.fromName ? ` · From ${order.project.recipient.fromName}` : ""
       }`
-    : "A personalized Melora song";
+    : "A personalized song from Memories to Melody";
 
   return (
     <div className={fullscreen ? "fixed inset-0 z-50 overflow-auto bg-navy text-cream" : ""}>
@@ -92,7 +92,7 @@ export function ListenExperience({
                       try {
                         if (navigator.share) {
                           await navigator.share({
-                            title: version?.title || "Melora song",
+                            title: version?.title || "Memories to Melody song",
                             url: window.location.href,
                           });
                         } else {
@@ -123,7 +123,7 @@ export function ListenExperience({
                   {order.project?.occasion || "Personalized song"}
                 </p>
                 <h1 className={`mt-2 font-display text-4xl md:text-5xl ${fullscreen ? "text-cream" : "text-navy"}`}>
-                  {version?.title || "Your Melora song"}
+                  {version?.title || "Your personalized song"}
                 </h1>
                 <p className={`mt-2 ${fullscreen ? "text-cream/70" : "text-muted"}`}>{dedication}</p>
 

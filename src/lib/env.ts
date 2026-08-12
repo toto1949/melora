@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
-  NEXT_PUBLIC_BRAND_NAME: z.string().default("Melora"),
+  NEXT_PUBLIC_BRAND_NAME: z.string().default("Memories to Melody"),
   USE_MOCK_PROVIDERS: z
     .string()
     .optional()
@@ -14,7 +14,7 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().default("Melora <hello@melora.app>"),
+  EMAIL_FROM: z.string().default("Memories to Melody <hello@memoriestomelody.com>"),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_BASE_URL: z.string().optional(),
   OPENAI_MODEL: z.string().default("gpt-4o-mini"),

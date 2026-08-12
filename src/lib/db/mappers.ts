@@ -279,7 +279,7 @@ export function mapSettings(rows: Array<{ key: string; value: unknown }>): SiteS
       hero.supporting ??
       "Share your story, choose your sound, and let our creative technology transform your favorite moments into a deeply personal song.",
     trustBadge: hero.trustBadge ?? "Personalized music made from your memories",
-    brandName: hero.brandName ?? "Melora",
-    supportEmail: hero.supportEmail ?? "hello@melora.app",
+    brandName: hero.brandName ?? "Memories to Melody",
+    supportEmail: hero.supportEmail ?? "hello@memoriestomelody.com",
   };
 }
