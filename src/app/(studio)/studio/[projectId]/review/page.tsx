@@ -1,12 +1,20 @@
 import Link from "next/link";
 import { StudioShell } from "@/components/studio/studio-shell";
+import { FormError } from "@/components/studio/form-error";
 import { confirmReviewAction } from "@/lib/actions/studio";
 import { loadStudioProject } from "@/lib/studio/load-project";
 import { listPackages } from "@/lib/db/repository";
 import { formatCurrency } from "@/lib/utils";
 
-export default async function ReviewStep({ params }: { params: Promise<{ projectId: string }> }) {
+export default async function ReviewStep({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { projectId } = await params;
+  const { error } = await searchParams;
   const project = await loadStudioProject(projectId);
   const packages = await listPackages();
   const pkg = packages.find((p) => p.id === project.packageId) || packages[0];
@@ -14,6 +22,7 @@ export default async function ReviewStep({ params }: { params: Promise<{ project
     <StudioShell projectId={projectId} currentStep={7}>
       <h1 className="font-display text-4xl text-navy">Review your story</h1>
       <p className="mt-3 prose-muted">Everything look right? You can edit any section before checkout.</p>
+      <FormError message={error} />
       <div className="mt-8 space-y-4">
         {[
           ["Occasion", project.occasion, "occasion"],

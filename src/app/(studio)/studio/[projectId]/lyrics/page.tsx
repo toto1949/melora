@@ -1,11 +1,19 @@
 import Link from "next/link";
 import { StudioShell } from "@/components/studio/studio-shell";
+import { FormError } from "@/components/studio/form-error";
 import { LYRIC_TONES } from "@/lib/constants";
 import { saveLyricsAction } from "@/lib/actions/studio";
 import { loadStudioProject } from "@/lib/studio/load-project";
 
-export default async function LyricsStep({ params }: { params: Promise<{ projectId: string }> }) {
+export default async function LyricsStep({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { projectId } = await params;
+  const { error } = await searchParams;
   const project = await loadStudioProject(projectId);
   const p = project.preferences;
   const field = "w-full rounded-2xl border border-border bg-surface px-4 py-3";
@@ -13,6 +21,7 @@ export default async function LyricsStep({ params }: { params: Promise<{ project
     <StudioShell projectId={projectId} currentStep={5}>
       <h1 className="font-display text-4xl text-navy">Lyrics direction</h1>
       <p className="mt-3 prose-muted">Guide the emotional tone and any words that must (or must not) appear.</p>
+      <FormError message={error} />
       <form action={saveLyricsAction.bind(null, projectId)} className="mt-8 space-y-5">
         <fieldset>
           <legend className="mb-3 text-sm font-semibold">Lyric tone</legend>

@@ -1,4 +1,5 @@
 import { StudioShell } from "@/components/studio/studio-shell";
+import { FormError } from "@/components/studio/form-error";
 import { saveStoryAction } from "@/lib/actions/studio";
 import { loadStudioProject } from "@/lib/studio/load-project";
 import Link from "next/link";
@@ -15,8 +16,15 @@ const fields = [
   ["personalMessage", "Message you want communicated", "Optional", false],
 ] as const;
 
-export default async function StoryStep({ params }: { params: Promise<{ projectId: string }> }) {
+export default async function StoryStep({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { projectId } = await params;
+  const { error } = await searchParams;
   const project = await loadStudioProject(projectId);
   const s = project.story as Record<string, string | null | undefined> | null;
   return (
@@ -24,14 +32,19 @@ export default async function StoryStep({ params }: { params: Promise<{ projectI
       <h1 className="font-display text-4xl text-navy">Tell us their story</h1>
       <p className="mt-3 prose-muted">Guided prompts help us write lyrics that feel personal. Aim for a few vivid details.</p>
       <VoiceHint />
+      <FormError message={error} />
       <form action={saveStoryAction.bind(null, projectId)} className="mt-6 space-y-4">
         {fields.map(([name, label, hint, required]) => (
           <div key={name}>
-            <label className="mb-1.5 block text-sm font-medium" htmlFor={name}>{label}</label>
+            <label className="mb-1.5 block text-sm font-medium" htmlFor={name}>
+              {label}
+              {required ? <span className="ml-1 text-muted">(at least 10 characters)</span> : null}
+            </label>
             <textarea
               id={name}
               name={name}
               required={required}
+              minLength={required ? 10 : undefined}
               maxLength={2000}
               defaultValue={s?.[name] || ""}
               placeholder={hint}

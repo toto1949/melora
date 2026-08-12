@@ -41,6 +41,19 @@ async function assertProjectAccess(projectId: string) {
   return { project, user, guestToken };
 }
 
+/**
+ * Validates step input; on failure redirects back to the step with a
+ * friendly message instead of surfacing a raw error crash page.
+ */
+function parseStepInput<T>(schema: { safeParse: (input: unknown) => { success: boolean; data?: T; error?: ZodError } }, input: unknown, backPath: string): T {
+  const result = schema.safeParse(input);
+  if (!result.success || result.data === undefined) {
+    const message = result.error?.issues[0]?.message ?? "Please review the highlighted fields.";
+    redirect(`${backPath}?error=${encodeURIComponent(message)}`);
+  }
+  return result.data;
+}
+
 export async function startStudioAction(formData?: FormData) {
   const locale = String(formData?.get("locale") || "en");
   const project = await createGuestProject(locale);
@@ -51,7 +64,7 @@ export async function startStudioAction(formData?: FormData) {
 
 export async function saveOccasionAction(projectId: string, formData: FormData) {
   await assertProjectAccess(projectId);
-  const parsed = occasionSchema.parse({ occasion: formData.get("occasion") });
+  const parsed = parseStepInput(occasionSchema, { occasion: formData.get("occasion") }, `/studio/${projectId}/occasion`);
   await updateProjectStep(projectId, 2, { occasion: parsed.occasion });
   await trackEvent("studio_step_completed", { step: 1 }, { projectId });
   redirect(`/studio/${projectId}/recipient`);
@@ -59,14 +72,14 @@ export async function saveOccasionAction(projectId: string, formData: FormData) 
 
 export async function saveRecipientAction(projectId: string, formData: FormData) {
   await assertProjectAccess(projectId);
-  const parsed = recipientSchema.parse({
+  const parsed = parseStepInput(recipientSchema, {
     name: formData.get("name"),
     pronunciation: formData.get("pronunciation") || null,
     relationship: formData.get("relationship") || null,
     pronouns: formData.get("pronouns") || null,
     nickname: formData.get("nickname") || null,
     fromName: formData.get("fromName") || null,
-  });
+  }, `/studio/${projectId}/recipient`);
   await upsertRecipient(projectId, {
     name: parsed.name,
     pronunciation: parsed.pronunciation ?? null,
@@ -82,7 +95,7 @@ export async function saveRecipientAction(projectId: string, formData: FormData)
 
 export async function saveStoryAction(projectId: string, formData: FormData) {
   await assertProjectAccess(projectId);
-  const parsed = storySchema.parse({
+  const parsed = parseStepInput(storySchema, {
     howTheyMet: formData.get("howTheyMet") || null,
     favoriteMemory: formData.get("favoriteMemory"),
     importantDates: formData.get("importantDates") || null,
@@ -91,7 +104,7 @@ export async function saveStoryAction(projectId: string, formData: FormData) {
     challengesOvercome: formData.get("challengesOvercome") || null,
     whatMakesSpecial: formData.get("whatMakesSpecial"),
     personalMessage: formData.get("personalMessage") || null,
-  });
+  }, `/studio/${projectId}/story`);
   await upsertStory(projectId, {
     howTheyMet: parsed.howTheyMet ?? null,
     favoriteMemory: parsed.favoriteMemory,
@@ -114,7 +127,7 @@ export async function saveStyleAction(projectId: string, formData: FormData) {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const parsed = styleSchema.parse({
+  const parsed = parseStepInput(styleSchema, {
     genre: formData.get("genre"),
     customStyle: formData.get("customStyle") || null,
     mood: formData.get("mood"),
@@ -125,7 +138,7 @@ export async function saveStyleAction(projectId: string, formData: FormData) {
     language: formData.get("language") || "en",
     explicitContent: formData.get("explicitContent") === "on",
     instruments,
-  });
+  }, `/studio/${projectId}/style`);
 
   const existing = (await getProject(projectId))?.preferences;
   await upsertPreferences(projectId, {
@@ -162,13 +175,13 @@ export async function saveLyricsAction(projectId: string, formData: FormData) {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const parsed = lyricsDirectionSchema.parse({
+  const parsed = parseStepInput(lyricsDirectionSchema, {
     lyricTone: formData.get("lyricTone"),
     mustInclude,
     mustExclude,
     chorusMessage: formData.get("chorusMessage") || null,
     desiredLength: formData.get("desiredLength") || null,
-  });
+  }, `/studio/${projectId}/lyrics`);
 
   const existing = (await getProject(projectId))?.preferences;
   await upsertPreferences(projectId, {
@@ -197,7 +210,9 @@ export async function saveLyricsAction(projectId: string, formData: FormData) {
 export async function saveMediaAction(projectId: string, formData: FormData) {
   await assertProjectAccess(projectId);
   const consent = formData.get("consentConfirmed") === "on";
-  if (!consent) throw new Error("Consent required");
+  if (!consent) {
+    redirect(`/studio/${projectId}/media?error=${encodeURIComponent("Please confirm you have consent to use these photos and videos.")}`);
+  }
 
   const videoStyle = String(formData.get("videoStyle") || "") || null;
   const existing = (await getProject(projectId))?.preferences;
@@ -234,7 +249,7 @@ export async function saveMediaAction(projectId: string, formData: FormData) {
 export async function confirmReviewAction(projectId: string, formData: FormData) {
   await assertProjectAccess(projectId);
   if (formData.get("accuracyConfirmed") !== "on" || formData.get("rightsConfirmed") !== "on") {
-    throw new Error("Please confirm accuracy and content rights");
+    redirect(`/studio/${projectId}/review?error=${encodeURIComponent("Please confirm accuracy and content rights before continuing.")}`);
   }
   await updateProjectStep(projectId, 8);
   await trackEvent("studio_step_completed", { step: 7 }, { projectId });

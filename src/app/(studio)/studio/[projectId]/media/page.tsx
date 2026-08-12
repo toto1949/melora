@@ -1,11 +1,19 @@
 import Link from "next/link";
 import { StudioShell } from "@/components/studio/studio-shell";
+import { FormError } from "@/components/studio/form-error";
 import { VIDEO_STYLES } from "@/lib/constants";
 import { saveMediaAction } from "@/lib/actions/studio";
 import { loadStudioProject } from "@/lib/studio/load-project";
 
-export default async function MediaStep({ params }: { params: Promise<{ projectId: string }> }) {
+export default async function MediaStep({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { projectId } = await params;
+  const { error } = await searchParams;
   const project = await loadStudioProject(projectId);
   return (
     <StudioShell projectId={projectId} currentStep={6}>
@@ -14,6 +22,7 @@ export default async function MediaStep({ params }: { params: Promise<{ projectI
         Optional. Upload portraits, couple photos, family photos, or short clips for cover art and music videos.
         Files stay private and are never used for training without explicit opt-in.
       </p>
+      <FormError message={error} />
       <form action={saveMediaAction.bind(null, projectId)} className="mt-8 space-y-5" encType="multipart/form-data">
         <div className="rounded-3xl border border-dashed border-border bg-surface p-8 text-center">
           <label htmlFor="files" className="cursor-pointer">

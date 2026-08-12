@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const occasionSchema = z.object({
-  occasion: z.string().min(2),
+  occasion: z.string().min(2, "Please choose an occasion"),
 });
 
 export const recipientSchema = z.object({
@@ -15,22 +15,22 @@ export const recipientSchema = z.object({
 
 export const storySchema = z.object({
   howTheyMet: z.string().max(2000).optional().nullable(),
-  favoriteMemory: z.string().min(10, "Share at least one favorite memory").max(2000),
+  favoriteMemory: z.string().min(10, "Please share a favorite memory (at least 10 characters)").max(2000),
   importantDates: z.string().max(1000).optional().nullable(),
   meaningfulPlaces: z.string().max(1000).optional().nullable(),
   insideJokes: z.string().max(1000).optional().nullable(),
   challengesOvercome: z.string().max(2000).optional().nullable(),
-  whatMakesSpecial: z.string().min(10).max(2000),
+  whatMakesSpecial: z.string().min(10, "Tell us what makes them special (at least 10 characters)").max(2000),
   personalMessage: z.string().max(1000).optional().nullable(),
 });
 
 export const styleSchema = z.object({
-  genre: z.string().min(1),
+  genre: z.string().min(1, "Please choose a genre"),
   customStyle: z.string().max(200).optional().nullable(),
-  mood: z.string().min(1),
+  mood: z.string().min(1, "Please choose a mood"),
   energy: z.string().optional().nullable(),
   tempo: z.string().optional().nullable(),
-  vocalType: z.string().min(1),
+  vocalType: z.string().min(1, "Please choose a vocal type"),
   duetPreference: z.string().optional().nullable(),
   language: z.string().min(2),
   explicitContent: z.boolean(),
@@ -38,7 +38,7 @@ export const styleSchema = z.object({
 });
 
 export const lyricsDirectionSchema = z.object({
-  lyricTone: z.string().min(1),
+  lyricTone: z.string().min(1, "Please choose a lyric tone"),
   mustInclude: z.array(z.string()).default([]),
   mustExclude: z.array(z.string()).default([]),
   chorusMessage: z.string().max(280).optional().nullable(),

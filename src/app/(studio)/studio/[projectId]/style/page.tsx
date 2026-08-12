@@ -1,11 +1,19 @@
 import Link from "next/link";
 import { StudioShell } from "@/components/studio/studio-shell";
+import { FormError } from "@/components/studio/form-error";
 import { GENRES, LANGUAGES, MOODS, VOCAL_TYPES } from "@/lib/constants";
 import { saveStyleAction } from "@/lib/actions/studio";
 import { loadStudioProject } from "@/lib/studio/load-project";
 
-export default async function StyleStep({ params }: { params: Promise<{ projectId: string }> }) {
+export default async function StyleStep({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { projectId } = await params;
+  const { error } = await searchParams;
   const project = await loadStudioProject(projectId);
   const p = project.preferences;
   const field = "w-full rounded-2xl border border-border bg-surface px-4 py-3";
@@ -13,6 +21,7 @@ export default async function StyleStep({ params }: { params: Promise<{ projectI
     <StudioShell projectId={projectId} currentStep={4}>
       <h1 className="font-display text-4xl text-navy">Choose your sound</h1>
       <p className="mt-3 prose-muted">Pick a genre and vocal feel. Short demo clips use the same sample tone in local development.</p>
+      <FormError message={error} />
       <form action={saveStyleAction.bind(null, projectId)} className="mt-8 space-y-6">
         <fieldset>
           <legend className="mb-3 text-sm font-semibold">Genre</legend>
