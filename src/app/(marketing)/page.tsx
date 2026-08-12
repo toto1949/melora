@@ -63,7 +63,7 @@ export default async function HomePage() {
       <ProductShowcase />
       <Testimonials reviews={reviews.items} />
       <PricingSection packages={packages} />
-      <FaqSection faqs={faqs} />
+      <FaqSection faqs={faqs.slice(0, 6)} viewAllHref="/faq" />
       <FinalCta />
     </>
   );

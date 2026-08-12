@@ -21,12 +21,23 @@ import { formatCurrency } from "@/lib/utils";
 import type { FaqItem, Package, ReactionVideo, Review, SampleSong, SiteSettings } from "@/types";
 
 export function TrustBar({ settings }: { settings: SiteSettings }) {
-  const stats = [
-    { label: "Songs created", value: settings.songsCreated, format: (n: number) => Math.round(n).toLocaleString() },
-    { label: "Average rating", value: settings.averageRating, format: (n: number) => `${n.toFixed(1)} / 5` },
-    { label: "Music genres", value: settings.genresSupported, format: (n: number) => `${Math.round(n)}+` },
-    { label: "Countries served", value: settings.countriesServed, format: (n: number) => `${Math.round(n)}` },
+  const stats: Array<{ label: string; value: number; format: (n: number) => string }> = [
+    { label: "Typical delivery", value: 48, format: (n: number) => `${Math.round(n)}h` },
+    {
+      label: "Music genres",
+      value: settings.genresSupported || 16,
+      format: (n: number) => `${Math.round(n)}+`,
+    },
+    { label: "Languages sung", value: 4, format: (n: number) => `${Math.round(n)}` },
+    { label: "Private by default", value: 100, format: (n: number) => `${Math.round(n)}%` },
   ];
+  if (settings.songsCreated >= 100) {
+    stats[0] = {
+      label: "Songs created",
+      value: settings.songsCreated,
+      format: (n: number) => Math.round(n).toLocaleString(),
+    };
+  }
   return (
     <section className="border-y border-border bg-surface">
       <RevealGroup className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-6" stagger={0.1}>
@@ -56,18 +67,25 @@ export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
             A personalized song lands differently than any other gift — here are the moments people remember.
           </p>
         </Reveal>
-        <RevealGroup className="flex gap-4 overflow-x-auto pb-2 snap-x" stagger={0.09}>
+        <RevealGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.09}>
           {reactions.map((rx) => (
             <RevealItem key={rx.id}>
-              <article className="surface-card card-hover min-w-[260px] snap-start overflow-hidden">
+              <article className="surface-card card-hover group relative overflow-hidden">
                 <div
-                  className="relative aspect-[4/5] bg-cover bg-center"
+                  className="aspect-[4/5] bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                   style={{ backgroundImage: `url(${rx.thumbnailUrl})` }}
+                  role="img"
+                  aria-label={`${rx.customerFirstName}'s reaction to their ${rx.occasion} song`}
                 />
-                <div className="space-y-1 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-gold">{rx.occasion}</p>
-                  <p className="font-medium text-navy">{rx.customerFirstName}</p>
-                  {rx.quote ? <p className="text-sm text-muted">&ldquo;{rx.quote}&rdquo;</p> : null}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy/85 via-navy/40 to-transparent px-4 pb-4 pt-14">
+                  {rx.quote ? (
+                    <p className="font-display text-base italic leading-snug text-cream">
+                      &ldquo;{rx.quote}&rdquo;
+                    </p>
+                  ) : null}
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-gold-soft">
+                    {rx.customerFirstName} · {rx.occasion}
+                  </p>
                 </div>
               </article>
             </RevealItem>
@@ -446,7 +464,7 @@ export function PricingSection({ packages }: { packages: Package[] }) {
   );
 }
 
-export function FaqSection({ faqs }: { faqs: FaqItem[] }) {
+export function FaqSection({ faqs, viewAllHref }: { faqs: FaqItem[]; viewAllHref?: string }) {
   return (
     <section id="faq" className="section-pad bg-surface">
       <div className="mx-auto max-w-3xl">
@@ -457,6 +475,14 @@ export function FaqSection({ faqs }: { faqs: FaqItem[] }) {
         <Reveal delay={0.1}>
           <Accordion items={faqs.map((f) => ({ id: f.id, question: f.question, answer: f.answer }))} />
         </Reveal>
+        {viewAllHref ? (
+          <Reveal delay={0.15} className="mt-8 text-center">
+            <Link href={viewAllHref} className="btn-secondary">
+              See all questions
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Reveal>
+        ) : null}
       </div>
     </section>
   );
