@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { Check } from "lucide-react";
 import { STUDIO_STEPS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +18,7 @@ export function StudioShell({
   const progress = Math.round((currentStep / STUDIO_STEPS.length) * 100);
   return (
     <div className="min-h-screen bg-cream">
-      <div className="border-b border-border bg-surface/90 backdrop-blur">
+      <div className="sticky top-0 z-30 border-b border-border bg-surface/90 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4">
           <Link href="/" className="font-display text-xl text-navy">
             Melora Studio
@@ -32,22 +34,41 @@ export function StudioShell({
             aria-valuemax={100}
             aria-label="Studio progress"
           >
-            <div className="h-full rounded-full bg-gradient-to-r from-rose to-gold transition-all" style={{ width: `${progress}%` }} />
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-rose to-gold"
+              initial={false}
+              animate={{ width: `${progress}%` }}
+              transition={{ type: "spring", stiffness: 120, damping: 22 }}
+            />
           </div>
-          <ol className="mt-3 flex gap-2 overflow-x-auto text-xs">
-            {STUDIO_STEPS.map((step) => (
-              <li key={step.key}>
-                <Link
-                  href={`/studio/${projectId}/${step.path}`}
-                  className={cn(
-                    "inline-flex rounded-full px-3 py-1 whitespace-nowrap",
-                    step.step <= currentStep ? "bg-navy text-cream" : "bg-cream-deep text-muted",
+          <ol className="mt-3 flex gap-2 overflow-x-auto pb-1 text-xs">
+            {STUDIO_STEPS.map((step) => {
+              const isDone = step.step < currentStep;
+              const isCurrent = step.step === currentStep;
+              const pill = cn(
+                "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 whitespace-nowrap transition",
+                isCurrent
+                  ? "bg-navy text-cream shadow-sm"
+                  : isDone
+                    ? "bg-gold/20 text-navy hover:bg-gold/35"
+                    : "bg-cream-deep text-muted",
+              );
+              return (
+                <li key={step.key}>
+                  {isDone ? (
+                    <Link href={`/studio/${projectId}/${step.path}`} className={pill}>
+                      <Check className="h-3 w-3" strokeWidth={3} />
+                      {step.title}
+                    </Link>
+                  ) : (
+                    <span className={pill} aria-current={isCurrent ? "step" : undefined}>
+                      {isCurrent ? null : <span className="opacity-60">{step.step}.</span>}
+                      {step.title}
+                    </span>
                   )}
-                >
-                  {step.step}. {step.title}
-                </Link>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ol>
         </div>
       </div>

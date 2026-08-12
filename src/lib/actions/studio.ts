@@ -59,7 +59,35 @@ export async function startStudioAction(formData?: FormData) {
   const project = await createGuestProject(locale);
   if (project.guestToken) await setGuestToken(project.guestToken);
   await trackEvent("studio_started", {}, { projectId: project.id, sessionId: project.guestToken });
-  redirect(`/studio/${project.id}/occasion`);
+
+  // Honor entry-point intent (occasion pages, pricing, examples) so the
+  // customer never has to repeat a choice they already made.
+  const { OCCASIONS } = await import("@/lib/constants");
+  let occasion = String(formData?.get("occasion") || "");
+  const packageSlug = String(formData?.get("package") || "");
+  const inspiredBy = String(formData?.get("inspiredBy") || "");
+
+  if (!occasion && inspiredBy) {
+    const { listSamples } = await import("@/lib/db/repository");
+    const sample = (await listSamples()).find((s) => s.slug === inspiredBy);
+    if (sample) occasion = sample.occasion;
+  }
+  const validOccasion = OCCASIONS.some((o) => o.slug === occasion) ? occasion : null;
+
+  let packageId: string | undefined;
+  if (packageSlug) {
+    const { listPackages } = await import("@/lib/db/repository");
+    packageId = (await listPackages()).find((p) => p.slug === packageSlug)?.id;
+  }
+
+  if (validOccasion || packageId) {
+    await updateProjectStep(project.id, validOccasion ? 2 : 1, {
+      ...(validOccasion ? { occasion: validOccasion } : {}),
+      ...(packageId ? { packageId } : {}),
+    });
+  }
+
+  redirect(`/studio/${project.id}/${validOccasion ? "recipient" : "occasion"}`);
 }
 
 export async function saveOccasionAction(projectId: string, formData: FormData) {
