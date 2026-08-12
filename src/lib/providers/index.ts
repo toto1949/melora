@@ -3,6 +3,7 @@ import { MockCoverArtProvider } from "./cover/mock";
 import { MockLyricsProvider } from "./lyrics/mock";
 import { OpenAICompatibleLyricsProvider } from "./lyrics/openai";
 import { HttpMusicProvider } from "./music/http";
+import { KunavoMusicProvider } from "./music/kunavo";
 import { MockMusicProvider } from "./music/mock";
 import { HttpVideoProvider } from "./video/http";
 import { MockVideoProvider } from "./video/mock";
@@ -23,6 +24,9 @@ export function getLyricsProvider(): LyricsProvider {
 
 export function getMusicProvider(): MusicProvider {
   const env = getEnv();
+  if (!isMockMode() && env.MUSIC_PROVIDER === "kunavo" && env.MUSIC_PROVIDER_API_KEY) {
+    return new KunavoMusicProvider();
+  }
   if (!isMockMode() && env.MUSIC_PROVIDER === "http" && env.MUSIC_PROVIDER_URL) {
     return new HttpMusicProvider();
   }

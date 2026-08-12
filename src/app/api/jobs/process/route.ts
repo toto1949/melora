@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getEnv } from "@/lib/env";
 import { processQueuedJobs } from "@/lib/jobs/pipeline";
 
+export const maxDuration = 300;
+
 async function authorize(req: NextRequest) {
   const env = getEnv();
   const workerSecret = req.headers.get("x-job-worker-secret");

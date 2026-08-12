@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { constructWebhookEvent } from "@/lib/stripe/client";
 import { getOrder, trackEvent, updateOrderStatus } from "@/lib/db/repository";
 import { startGenerationPipeline } from "@/lib/jobs/pipeline";
 import { sendEmail } from "@/lib/email/send";
 import { isMockMode } from "@/lib/env";
+
+export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
   if (isMockMode()) {
@@ -40,7 +43,15 @@ export async function POST(req: NextRequest) {
             },
           });
           await trackEvent("purchase_completed", {}, { orderId });
-          await startGenerationPipeline(orderId);
+          // Respond to Stripe immediately; run the (slow) generation
+          // pipeline after the response is sent.
+          after(async () => {
+            try {
+              await startGenerationPipeline(orderId);
+            } catch (error) {
+              console.error("pipeline error", orderId, error);
+            }
+          });
         }
       }
     }
