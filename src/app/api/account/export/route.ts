@@ -12,7 +12,7 @@ export async function GET() {
   return new NextResponse(JSON.stringify(data, null, 2), {
     headers: {
       "Content-Type": "application/json",
-      "Content-Disposition": `attachment; filename="melora-export-${user.id}.json"`,
+      "Content-Disposition": `attachment; filename="memories-to-melody-export-${user.id}.json"`,
     },
   });
 }

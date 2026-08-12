@@ -159,7 +159,7 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">Examples</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Listen before you create</h2>
           <p className="mt-3 prose-muted">
-            Songs created with Melora — a taste of what your story could sound like.
+            Songs created with Memories to Melody — a taste of what your story could sound like.
           </p>
         </div>
 

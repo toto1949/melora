@@ -14,7 +14,7 @@ export default function SignInPage() {
         <SignInForm />
         <div className="mt-6 space-y-2 text-sm text-muted">
           <p>
-            New to Melora? <Link href="/auth/sign-up" className="underline">Create an account</Link>
+            New to Memories to Melody? <Link href="/auth/sign-up" className="underline">Create an account</Link>
           </p>
           <p>
             <Link href="/auth/reset-password" className="underline">Forgot password</Link>

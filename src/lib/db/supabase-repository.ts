@@ -1023,7 +1023,7 @@ export async function getAnalyticsSummary() {
 export async function ensureDemoAdmin() {
   return createOrGetProfile({
     email: "admin@melora.app",
-    fullName: "Melora Admin",
+    fullName: "Memories to Melody Admin",
     role: "super_admin",
   });
 }

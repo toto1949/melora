@@ -1,9 +1,9 @@
 import type { OccasionSlug, GenreSlug } from "@/types";
 
 export const BRAND = {
-  name: "Melora",
+  name: "Memories to Melody",
   tagline: "Turn your memories into a song they'll keep forever.",
-  supportEmail: "hello@melora.app",
+  supportEmail: "hello@memoriestomelody.com",
 };
 
 export const OCCASIONS: Array<{

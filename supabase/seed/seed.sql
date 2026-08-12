@@ -1,4 +1,4 @@
--- Melora seed / demo content
+-- Memories to Melody seed / demo content
 -- Safe for local/staging. Reviews are marked is_demo = true.
 
 insert into public.site_settings (key, value) values
@@ -14,11 +14,11 @@ values
 on conflict (slug) do nothing;
 
 insert into public.coupons (code, description, percent_off, is_active)
-values ('WELCOME10', '10% off your first Melora song', 10, true)
+values ('WELCOME10', '10% off your first Memories to Melody song', 10, true)
 on conflict (code) do nothing;
 
 insert into public.faq_items (question, answer, category, sort_order) values
-  ('How are Melora songs generated?', 'You share your story and preferences. We build a creative brief, draft lyrics, then generate audio through configured providers.', 'product', 1),
+  ('How are Memories to Melody songs generated?', 'You share your story and preferences. We build a creative brief, draft lyrics, then generate audio through configured providers.', 'product', 1),
   ('How long does delivery take?', 'Essential songs typically arrive within 48 hours. Priority packages are faster.', 'delivery', 2),
   ('Who owns the music?', 'You receive a personal-use license. Commercial use requires a separate license.', 'licensing', 3);
 

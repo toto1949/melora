@@ -46,7 +46,7 @@ export async function createCheckoutSession(order: Order, successUrl: string, ca
           currency: order.currency,
           unit_amount: order.totalCents,
           product_data: {
-            name: `Melora — ${order.package?.name || "Personalized Song"}`,
+            name: `Memories to Melody — ${order.package?.name || "Personalized Song"}`,
             description: `Order ${order.orderNumber}`,
           },
         },

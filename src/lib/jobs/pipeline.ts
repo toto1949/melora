@@ -262,7 +262,7 @@ export async function processJob(jobId: string) {
       const cover = await withRetry(job, async () => {
         await updateJob(job.id, { progress: 40, provider: provider.name });
         const result = await provider.generateCover({
-          title: current?.title || "Melora Song",
+          title: current?.title || "Your Personalized Song",
           occasion: brief.occasion,
           mood: brief.mood,
         });
@@ -289,7 +289,7 @@ export async function processJob(jobId: string) {
       const video = await withRetry(job, async () => {
         await updateJob(job.id, { progress: 35, provider: provider.name });
         const result = await provider.generateVideo({
-          title: current?.title || "Melora Song",
+          title: current?.title || "Your Personalized Song",
           audioUrl: current?.audioUrl || "/samples/audio/placeholder-tone.wav",
           style: "Minimal lyric video",
           photoUrls: [],
@@ -320,7 +320,7 @@ export async function processJob(jobId: string) {
       const video = await withRetry(job, async () => {
         await updateJob(job.id, { progress: 35, provider: provider.name });
         const result = await provider.generateVideo({
-          title: current?.title || "Melora Song",
+          title: current?.title || "Your Personalized Song",
           audioUrl: current?.audioUrl || "/samples/audio/placeholder-tone.wav",
           style,
           photoUrls: photos,
@@ -361,7 +361,7 @@ export async function processJob(jobId: string) {
           template: "song-ready",
           data: {
             orderNumber: order.orderNumber,
-            title: fresh?.currentVersion?.title || "Your Melora song",
+            title: fresh?.currentVersion?.title || "Your personalized song",
             listenUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/listen/${order.shareToken}`,
           },
         });
@@ -370,7 +370,7 @@ export async function processJob(jobId: string) {
             userId: order.userId,
             type: "song_ready",
             title: "Your song is ready",
-            body: "Your personalized Melora song is ready to listen and share.",
+            body: "Your personalized song from Memories to Melody is ready to listen and share.",
             href: `/listen/${order.shareToken}`,
           });
         }

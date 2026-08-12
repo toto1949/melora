@@ -49,7 +49,7 @@ export default async function MediaStep({
         <label className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4 text-sm">
           <input type="checkbox" name="consentConfirmed" required className="mt-1" />
           <span>
-            I confirm I have the rights to upload this content and Melora may process it solely to fulfill my order.
+            I confirm I have the rights to upload this content and Memories to Melody may process it solely to fulfill my order.
             I understand uploads are not used for model training unless I later opt in.
           </span>
         </label>

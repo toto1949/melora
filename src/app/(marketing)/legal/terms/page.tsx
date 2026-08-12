@@ -6,8 +6,8 @@ export default function TermsPage() {
       <div className="mx-auto max-w-3xl space-y-4">
         <h1 className="font-display text-4xl text-navy">Terms of Service</h1>
         <p className="prose-muted">
-          By creating a Melora project you confirm you have rights to the stories and media you submit.
-          Standard packages include a personal-use license for private listening, download, and sharing via Melora links.
+          By creating a Memories to Melody project you confirm you have rights to the stories and media you submit.
+          Standard packages include a personal-use license for private listening, download, and sharing via Memories to Melody links.
           Commercial use requires a separate license.
         </p>
       </div>

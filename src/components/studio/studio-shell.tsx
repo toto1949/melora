@@ -21,7 +21,7 @@ export function StudioShell({
       <div className="sticky top-0 z-30 border-b border-border bg-surface/90 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4">
           <Link href="/" className="font-display text-xl text-navy">
-            Melora Studio
+            Memories to Melody Studio
           </Link>
           <p className="text-sm text-muted">About {Math.max(1, 6 - currentStep)} min left · Autosaves</p>
         </div>

@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!genre) return {};
   return {
     title: `${genre.name} personalized songs`,
-    description: `Create a personalized ${genre.name} song with Melora.`,
+    description: `Create a personalized ${genre.name} song with Memories to Melody.`,
   };
 }
 

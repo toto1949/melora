@@ -708,7 +708,7 @@ export async function ensureDemoAdmin() {
   if (existing) return existing;
   return createOrGetProfile({
     email: "admin@melora.app",
-    fullName: "Melora Admin",
+    fullName: "Memories to Melody Admin",
     role: "super_admin",
   });
 }
