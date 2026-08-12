@@ -231,6 +231,46 @@ export async function listReviews(limit = 10, offset = 0) {
   return { items: (data ?? []).map(mapReview), total: count ?? 0 };
 }
 
+export async function getOrderReview(orderId: string) {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb
+    .from("reviews")
+    .select("*")
+    .eq("order_id", orderId)
+    .is("deleted_at", null)
+    .maybeSingle();
+  return data ? mapReview(data) : null;
+}
+
+export async function createReview(input: {
+  orderId: string;
+  userId?: string | null;
+  customerName: string;
+  occasion?: string | null;
+  rating: number;
+  body: string;
+}) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("reviews")
+    .insert({
+      order_id: input.orderId,
+      user_id: input.userId ?? null,
+      customer_name: input.customerName,
+      occasion: input.occasion ?? null,
+      rating: input.rating,
+      body: input.body,
+      is_verified_purchase: true,
+      is_demo: false,
+      is_published: true,
+      reviewed_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  return mapReview(data);
+}
+
 export async function listFaqs() {
   const sb = getSupabaseAdmin();
   const { data } = await sb

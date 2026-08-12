@@ -10,6 +10,7 @@ import type {
   Profile,
   Project,
   Recipient,
+  Review,
   RevisionRequest,
   SongPreferences,
   SongVersion,
@@ -104,6 +105,41 @@ export async function listReviews(limit = 10, offset = 0) {
     items: published.slice(offset, offset + limit),
     total: published.length,
   };
+}
+
+type StoredReview = Review & { orderId?: string; userId?: string | null };
+
+export async function getOrderReview(orderId: string) {
+  const store = await getStore();
+  return (store.reviews as StoredReview[]).find((r) => r.orderId === orderId) ?? null;
+}
+
+export async function createReview(input: {
+  orderId: string;
+  userId?: string | null;
+  customerName: string;
+  occasion?: string | null;
+  rating: number;
+  body: string;
+}) {
+  const review: StoredReview = {
+    id: `review-${Date.now()}`,
+    orderId: input.orderId,
+    userId: input.userId ?? null,
+    customerName: input.customerName,
+    occasion: input.occasion ?? null,
+    rating: input.rating,
+    body: input.body,
+    isVerifiedPurchase: true,
+    isDemo: false,
+    isPublished: true,
+    mediaUrl: null,
+    reviewedAt: new Date().toISOString(),
+  };
+  await mutateStore((store) => {
+    (store.reviews as StoredReview[]).unshift(review);
+  });
+  return review;
 }
 
 export async function listFaqs() {
