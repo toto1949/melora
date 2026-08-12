@@ -338,8 +338,25 @@ export function ProductShowcase() {
   );
 }
 
-export function Testimonials({ reviews }: { reviews: Review[] }) {
+export function Testimonials({ reviews, showEmptyState = false }: { reviews: Review[]; showEmptyState?: boolean }) {
   const [visible, setVisible] = useState(3);
+  if (reviews.length === 0 && !showEmptyState) return null;
+  if (reviews.length === 0) {
+    return (
+      <section id="reviews" className="section-pad bg-surface">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">Reviews</p>
+          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Be the first to share your story</h2>
+          <p className="mx-auto mt-4 max-w-xl prose-muted">
+            Customer reviews appear here after each song is delivered. Create yours and tell us how the moment landed.
+          </p>
+          <Link href="/studio" className="btn-primary mt-8 inline-flex">
+            Create Your Song
+          </Link>
+        </div>
+      </section>
+    );
+  }
   return (
     <section id="reviews" className="section-pad bg-surface">
       <div className="mx-auto max-w-6xl">

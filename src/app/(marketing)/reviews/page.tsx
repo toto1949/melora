@@ -10,5 +10,5 @@ export const metadata = {
 
 export default async function ReviewsPage() {
   const reviews = await listReviews(20);
-  return <Testimonials reviews={reviews.items} />;
+  return <Testimonials reviews={reviews.items} showEmptyState />;
 }
