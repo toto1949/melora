@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Manrope } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { BRAND } from "@/lib/constants";
 import { getLocale, getTextDirection } from "@/lib/i18n";
 import "./globals.css";
@@ -58,6 +59,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang={locale} dir={getTextDirection(locale)}>
       <body className={`${fraunces.variable} ${manrope.variable} antialiased`}>
         {children}
+        <Analytics />
       </body>
     </html>
   );

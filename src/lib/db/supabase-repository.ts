@@ -231,6 +231,79 @@ export async function listReviews(limit = 10, offset = 0) {
   return { items: (data ?? []).map(mapReview), total: count ?? 0 };
 }
 
+export async function listAllReviews() {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb
+    .from("reviews")
+    .select("*")
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false });
+  return (data ?? []).map(mapReview);
+}
+
+export async function setReviewPublished(id: string, published: boolean) {
+  const sb = getSupabaseAdmin();
+  await sb.from("reviews").update({ is_published: published }).eq("id", id);
+}
+
+export async function deleteReview(id: string) {
+  const sb = getSupabaseAdmin();
+  await sb.from("reviews").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+}
+
+export async function listCoupons() {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb.from("coupons").select("*").is("deleted_at", null).order("created_at");
+  return (data ?? []).map((c) => ({
+    id: c.id as string,
+    code: c.code as string,
+    description: (c.description as string) ?? "",
+    percentOff: (c.percent_off as number) ?? null,
+    amountOffCents: (c.amount_off_cents as number) ?? null,
+    currency: (c.currency as string) ?? "usd",
+    maxRedemptions: (c.max_redemptions as number) ?? null,
+    redemptionCount: (c.redemption_count as number) ?? 0,
+    expiresAt: (c.expires_at as string) ?? null,
+    isActive: Boolean(c.is_active),
+  }));
+}
+
+export async function setCouponActive(id: string, active: boolean) {
+  const sb = getSupabaseAdmin();
+  await sb.from("coupons").update({ is_active: active }).eq("id", id);
+}
+
+export async function listAllProfiles() {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb
+    .from("profiles")
+    .select("*")
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false });
+  return (data ?? []).map(mapProfile);
+}
+
+export async function updateTicketStatus(id: string, status: SupportTicket["status"]) {
+  const sb = getSupabaseAdmin();
+  await sb.from("support_tickets").update({ status }).eq("id", id);
+}
+
+export async function listRecentEvents(limit = 50) {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb
+    .from("analytics_events")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []).map((e) => ({
+    id: e.id as string,
+    eventName: e.event_name as string,
+    userId: (e.user_id as string) ?? null,
+    orderId: (e.order_id as string) ?? null,
+    createdAt: e.created_at as string,
+  }));
+}
+
 export async function getOrderReview(orderId: string) {
   const sb = getSupabaseAdmin();
   const { data } = await sb

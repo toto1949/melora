@@ -2,7 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { requireStaff } from "@/lib/auth/session";
-import { listAllOrders, updatePackage, updateSettings } from "@/lib/db/repository";
+import {
+  deleteReview,
+  listAllOrders,
+  setCouponActive,
+  setReviewPublished,
+  updatePackage,
+  updateSettings,
+  updateTicketStatus,
+} from "@/lib/db/repository";
 import { processQueuedJobs, retryJob } from "@/lib/jobs/pipeline";
 
 export async function processJobsAction() {
@@ -37,6 +45,37 @@ export async function updateSettingsAction(formData: FormData) {
   });
   revalidatePath("/admin/content");
   revalidatePath("/");
+}
+
+export async function setReviewPublishedAction(reviewId: string, published: boolean) {
+  await requireStaff();
+  await setReviewPublished(reviewId, published);
+  revalidatePath("/admin/reviews");
+  revalidatePath("/reviews");
+  revalidatePath("/");
+}
+
+export async function deleteReviewAction(reviewId: string) {
+  await requireStaff();
+  await deleteReview(reviewId);
+  revalidatePath("/admin/reviews");
+  revalidatePath("/reviews");
+  revalidatePath("/");
+}
+
+export async function setCouponActiveAction(couponId: string, active: boolean) {
+  await requireStaff();
+  await setCouponActive(couponId, active);
+  revalidatePath("/admin/coupons");
+}
+
+export async function updateTicketStatusAction(
+  ticketId: string,
+  status: "open" | "pending" | "resolved" | "closed",
+) {
+  await requireStaff();
+  await updateTicketStatus(ticketId, status);
+  revalidatePath("/admin/support");
 }
 
 export async function exportOrdersCsvAction() {

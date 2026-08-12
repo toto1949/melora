@@ -12,6 +12,14 @@ export function formatCurrency(cents: number, currency = "usd", locale = "en") {
   }).format(cents / 100);
 }
 
+export function formatDate(value: string, locale = "en") {
+  return new Date(value).toLocaleDateString(locale, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export function formatDuration(seconds: number) {
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);

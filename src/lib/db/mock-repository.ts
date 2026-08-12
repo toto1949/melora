@@ -109,6 +109,62 @@ export async function listReviews(limit = 10, offset = 0) {
 
 type StoredReview = Review & { orderId?: string; userId?: string | null };
 
+export async function listAllReviews() {
+  const store = await getStore();
+  return [...store.reviews];
+}
+
+export async function setReviewPublished(reviewId: string, published: boolean) {
+  await mutateStore((store) => {
+    const review = store.reviews.find((r) => r.id === reviewId);
+    if (review) review.isPublished = published;
+  });
+}
+
+export async function deleteReview(reviewId: string) {
+  await mutateStore((store) => {
+    store.reviews = store.reviews.filter((r) => r.id !== reviewId);
+  });
+}
+
+export async function listCoupons() {
+  const store = await getStore();
+  return [...store.coupons];
+}
+
+export async function setCouponActive(couponId: string, active: boolean) {
+  await mutateStore((store) => {
+    const coupon = store.coupons.find((c) => c.id === couponId);
+    if (coupon) coupon.isActive = active;
+  });
+}
+
+export async function listAllProfiles() {
+  const store = await getStore();
+  return [...store.profiles];
+}
+
+export async function updateTicketStatus(ticketId: string, status: SupportTicket["status"]) {
+  await mutateStore((store) => {
+    const ticket = store.tickets.find((t) => t.id === ticketId);
+    if (ticket) ticket.status = status;
+  });
+}
+
+export async function listRecentEvents(limit = 50) {
+  const store = await getStore();
+  return store.events
+    .slice(-limit)
+    .reverse()
+    .map((e) => ({
+      id: e.id,
+      eventName: e.eventName,
+      userId: e.userId ?? null,
+      orderId: e.orderId ?? null,
+      createdAt: e.createdAt,
+    }));
+}
+
 export async function getOrderReview(orderId: string) {
   const store = await getStore();
   return (store.reviews as StoredReview[]).find((r) => r.orderId === orderId) ?? null;
