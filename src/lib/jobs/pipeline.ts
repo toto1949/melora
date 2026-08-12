@@ -101,19 +101,69 @@ export async function startGenerationPipeline(orderId: string) {
   return processQueuedJobs(orderId);
 }
 
+/**
+ * Fire a fresh /api/jobs/process invocation so retriable failures (e.g. a
+ * music generation that outlived this function's time budget) get retried
+ * with a full time window instead of waiting for the daily cron.
+ */
+async function triggerRetryRun(orderId?: string) {
+  const { getEnv } = await import("@/lib/env");
+  const base = getEnv().NEXT_PUBLIC_APP_URL;
+  const secret = process.env.JOB_WORKER_SECRET;
+  if (!base || !secret) return;
+  try {
+    await fetch(`${base}/api/jobs/process`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-job-worker-secret": secret },
+      body: JSON.stringify(orderId ? { orderId } : {}),
+    });
+  } catch (error) {
+    console.error("retry trigger failed", error);
+  }
+}
+
+const STALE_RUNNING_MS = 15 * 60 * 1000;
+
 export async function processQueuedJobs(orderId?: string) {
   const { listJobs } = await import("@/lib/db/repository");
-  const jobs = orderId
-    ? (await listOrderJobs(orderId)).filter((j) => j.status === "queued" || j.status === "failed")
-    : (await listJobs()).filter((j) => j.status === "queued" || j.status === "failed");
+  const allJobs = orderId ? await listOrderJobs(orderId) : await listJobs();
+
+  // Group per order and process each order's jobs strictly in pipeline
+  // stage order; a stage failure stops that order's run so later stages
+  // (e.g. notify) never execute before their prerequisites succeed.
+  const byOrder = new Map<string, typeof allJobs>();
+  for (const job of allJobs) {
+    const group = byOrder.get(job.orderId) ?? [];
+    group.push(job);
+    byOrder.set(job.orderId, group);
+  }
 
   const results = [];
-  for (const job of jobs) {
-    try {
-      results.push(await processJob(job.id));
-    } catch (error) {
-      results.push({ jobId: job.id, error: error instanceof Error ? error.message : "failed" });
+  let hasRetriableFailure = false;
+  for (const [, group] of byOrder) {
+    group.sort((a, b) => PIPELINE.indexOf(a.jobType) - PIPELINE.indexOf(b.jobType));
+    for (const job of group) {
+      if (job.status === "succeeded") continue;
+      // Requires manual retry from the admin panel.
+      if (job.status === "dead_letter") break;
+      if (job.status === "running") {
+        const age = Date.now() - new Date(job.updatedAt).getTime();
+        // Another worker is likely on it; only reclaim if it looks stale.
+        if (age < STALE_RUNNING_MS) break;
+      }
+      try {
+        results.push(await processJob(job.id));
+      } catch (error) {
+        results.push({ jobId: job.id, error: error instanceof Error ? error.message : "failed" });
+        if (job.attempt + 1 < job.maxAttempts) hasRetriableFailure = true;
+        break;
+      }
     }
+  }
+
+  if (hasRetriableFailure) {
+    const { after } = await import("next/server");
+    after(() => triggerRetryRun(orderId));
   }
   return results;
 }

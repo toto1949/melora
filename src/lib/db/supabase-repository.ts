@@ -713,7 +713,11 @@ export async function listJobs(status?: GenerationJob["status"]) {
 
 export async function listOrderJobs(orderId: string) {
   const sb = getSupabaseAdmin();
-  const { data } = await sb.from("generation_jobs").select("*").eq("order_id", orderId);
+  const { data } = await sb
+    .from("generation_jobs")
+    .select("*")
+    .eq("order_id", orderId)
+    .order("created_at", { ascending: true });
   return (data ?? []).map(mapJob);
 }
 
