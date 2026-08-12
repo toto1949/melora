@@ -18,6 +18,7 @@ export function ListenExperience({
   const [revealed, setRevealed] = useState(!order.giftRevealEnabled);
   const [fullscreen, setFullscreen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shared, setShared] = useState(false);
   const shareUrl = useMemo(() => {
     if (typeof window === "undefined") return "";
     return window.location.href;
@@ -68,13 +69,11 @@ export function ListenExperience({
                   aria-label="Song cover artwork"
                 />
                 <div className="flex flex-wrap gap-2">
-                  <a
-                    className="btn-secondary !py-2"
-                    href={version?.audioUrl || "#"}
-                    download
-                  >
-                    <Download className="h-4 w-4" /> Download
-                  </a>
+                  {version?.audioUrl ? (
+                    <a className="btn-secondary !py-2" href={version.audioUrl} download>
+                      <Download className="h-4 w-4" /> Download
+                    </a>
+                  ) : null}
                   <button
                     type="button"
                     className="btn-secondary !py-2"
@@ -90,15 +89,24 @@ export function ListenExperience({
                     type="button"
                     className="btn-secondary !py-2"
                     onClick={async () => {
-                      if (navigator.share) {
-                        await navigator.share({
-                          title: version?.title || "Melora song",
-                          url: window.location.href,
-                        });
+                      try {
+                        if (navigator.share) {
+                          await navigator.share({
+                            title: version?.title || "Melora song",
+                            url: window.location.href,
+                          });
+                        } else {
+                          // No native share sheet (desktop) — copy instead.
+                          await navigator.clipboard.writeText(window.location.href);
+                          setShared(true);
+                          setTimeout(() => setShared(false), 1500);
+                        }
+                      } catch {
+                        // User dismissed the share sheet — nothing to do.
                       }
                     }}
                   >
-                    <Share2 className="h-4 w-4" /> Share
+                    <Share2 className="h-4 w-4" /> {shared ? "Link copied" : "Share"}
                   </button>
                   <button
                     type="button"
@@ -142,32 +150,31 @@ export function ListenExperience({
                     <pre className={`mt-3 whitespace-pre-wrap font-sans text-sm leading-7 ${fullscreen ? "text-cream/80" : "text-navy/80"}`}>
                       {version.lyrics}
                     </pre>
-                    <details className="mt-4 text-sm">
-                      <summary className="cursor-pointer font-semibold">Transcript / timed lyrics</summary>
-                      <ul className="mt-2 space-y-1 text-muted">
-                        {(version.timedLyrics || []).map((line, i) => (
-                          <li key={i}>
-                            [{line.start.toFixed(1)}s] {line.text}
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
+                    {version.timedLyrics?.length ? (
+                      <details className="mt-4 text-sm">
+                        <summary className="cursor-pointer font-semibold">Transcript / timed lyrics</summary>
+                        <ul className="mt-2 space-y-1 text-muted">
+                          {version.timedLyrics.map((line, i) => (
+                            <li key={i}>
+                              [{line.start.toFixed(1)}s] {line.text}
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    ) : null}
                   </div>
                 ) : null}
 
-                <div className={`mt-8 rounded-3xl border p-4 text-sm ${fullscreen ? "border-white/15 text-cream/70" : "border-border text-muted"}`}>
-                  <div className="flex items-center gap-2 font-semibold">
-                    <QrCode className="h-4 w-4" /> Share token
+                {canManage ? (
+                  <div className={`mt-8 rounded-3xl border p-4 text-sm ${fullscreen ? "border-white/15 text-cream/70" : "border-border text-muted"}`}>
+                    <div className="flex items-center gap-2 font-semibold">
+                      <QrCode className="h-4 w-4" /> Sharing
+                    </div>
+                    {shareUrl ? <p className="mt-2 break-all">{shareUrl}</p> : null}
+                    <p className="mt-2 capitalize">Privacy: {order.privacyMode}</p>
+                    <p className="mt-2">Manage privacy and revisions from your dashboard order page.</p>
                   </div>
-                  <p className="mt-2 break-all">{order.shareToken}</p>
-                  <p className="mt-2">Privacy: {order.privacyMode}</p>
-                  {canManage ? (
-                    <p className="mt-2">
-                      Manage privacy and revisions from your dashboard order page.
-                    </p>
-                  ) : null}
-                  {shareUrl ? <p className="mt-2 break-all">URL: {shareUrl}</p> : null}
-                </div>
+                ) : null}
               </div>
             </div>
           </motion.div>

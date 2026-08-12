@@ -7,18 +7,47 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BRAND } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-const links = [
-  { href: "/examples", label: "Examples" },
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/occasions", label: "Occasions" },
-  { href: "/reviews", label: "Reviews" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/track-order", label: "Track Order" },
-];
+export interface HeaderLabels {
+  examples: string;
+  howItWorks: string;
+  occasions: string;
+  reviews: string;
+  pricing: string;
+  faq: string;
+  trackOrder: string;
+  signIn: string;
+  create: string;
+}
 
-export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
+const DEFAULT_LABELS: HeaderLabels = {
+  examples: "Examples",
+  howItWorks: "How It Works",
+  occasions: "Occasions",
+  reviews: "Reviews",
+  pricing: "Pricing",
+  faq: "FAQ",
+  trackOrder: "Track Order",
+  signIn: "Sign In",
+  create: "Create Your Song",
+};
+
+export function SiteHeader({
+  signedIn = false,
+  labels = DEFAULT_LABELS,
+}: {
+  signedIn?: boolean;
+  labels?: HeaderLabels;
+}) {
   const [open, setOpen] = useState(false);
+  const links = [
+    { href: "/examples", label: labels.examples },
+    { href: "/how-it-works", label: labels.howItWorks },
+    { href: "/occasions", label: labels.occasions },
+    { href: "/reviews", label: labels.reviews },
+    { href: "/pricing", label: labels.pricing },
+    { href: "/faq", label: labels.faq },
+    { href: "/track-order", label: labels.trackOrder },
+  ];
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-cream/80 backdrop-blur-xl">
@@ -41,10 +70,10 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
 
         <div className="hidden items-center gap-2 lg:flex">
           <Link href={signedIn ? "/dashboard" : "/auth/sign-in"} className="btn-secondary !py-2.5 !px-4 text-sm">
-            {signedIn ? "Dashboard" : "Sign In"}
+            {signedIn ? "Dashboard" : labels.signIn}
           </Link>
           <Link href="/studio" className="btn-primary !py-2.5 !px-4 text-sm">
-            Create Your Song
+            {labels.create}
           </Link>
         </div>
 
@@ -86,10 +115,10 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
                 className="btn-secondary mt-2"
                 onClick={() => setOpen(false)}
               >
-                {signedIn ? "Dashboard" : "Sign In"}
+                {signedIn ? "Dashboard" : labels.signIn}
               </Link>
               <Link href="/studio" className="btn-primary" onClick={() => setOpen(false)}>
-                Create Your Song
+                {labels.create}
               </Link>
             </div>
           </motion.nav>
