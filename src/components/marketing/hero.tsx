@@ -41,9 +41,7 @@ export function Hero({ settings }: { settings: SiteSettings }) {
             transition={{ duration: 0.55, delay: 0.18 }}
             className="mt-8 flex flex-wrap gap-3"
           >
-            <Link href="/studio" className="btn-primary" onClick={() => {
-              // analytics via beacon optional
-            }}>
+            <Link href="/studio" className="btn-primary">
               Create Your Song
             </Link>
             <Link href="/examples" className="btn-secondary">
@@ -74,10 +72,10 @@ export function Hero({ settings }: { settings: SiteSettings }) {
           </div>
           <AudioPlayer
             id="hero-demo"
-            src="/samples/audio/placeholder-tone.wav"
-            title="Demo sample · Golden Hour With You"
-            subtitle="Acoustic · Romantic · Preview"
-            coverUrl="/samples/covers/golden-hour.svg"
+            src="https://files.kunavo.com/audio/2026-08/sF7SbcF5E8KuUu9hVwV7T/0m00jwd8s3cxrfme083i.mp3"
+            title="Golden Hour With You"
+            subtitle="Anniversary · Acoustic · Created with Melora"
+            coverUrl="https://files.kunavo.com/image/2026-08/sF7SbcF5E8KuUu9hVwV7T/erfs8t1tagqc1fj5dlbw.jpg"
           />
         </motion.div>
       </div>

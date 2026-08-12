@@ -48,7 +48,7 @@ export async function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-white/10 px-4 py-5 text-center text-xs text-cream/50 md:px-6">
-        © {new Date().getFullYear()} {BRAND.name}. All rights reserved. Demo content is labeled where used.
+        © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
       </div>
     </footer>
   );

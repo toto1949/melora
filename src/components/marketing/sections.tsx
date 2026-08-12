@@ -14,7 +14,6 @@ import {
   Star,
 } from "lucide-react";
 import { Accordion } from "@/components/ui/accordion";
-import { Modal } from "@/components/ui/modal";
 import { AudioPlayer } from "@/components/player/audio-player";
 import { OCCASIONS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
@@ -37,15 +36,11 @@ export function TrustBar({ settings }: { settings: SiteSettings }) {
           </div>
         ))}
       </div>
-      <p className="pb-6 text-center text-xs text-muted">
-        Statistics are managed in site settings and may include demo environment totals.
-      </p>
     </section>
   );
 }
 
 export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
-  const [active, setActive] = useState<ReactionVideo | null>(null);
   return (
     <section id="reactions" className="section-pad">
       <div className="mx-auto max-w-6xl">
@@ -55,51 +50,25 @@ export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
             The moment they hear it
           </h2>
           <p className="mt-3 prose-muted">
-            Demo reaction clips illustrating the emotional reveal. Real customer media is shared only with consent.
+            A personalized song lands differently than any other gift — here are the moments people remember.
           </p>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-2 snap-x">
           {reactions.map((rx) => (
-            <button
-              key={rx.id}
-              type="button"
-              onClick={() => setActive(rx)}
-              className="surface-card min-w-[260px] snap-start overflow-hidden text-left"
-            >
+            <article key={rx.id} className="surface-card min-w-[260px] snap-start overflow-hidden">
               <div
                 className="relative aspect-[4/5] bg-cover bg-center"
                 style={{ backgroundImage: `url(${rx.thumbnailUrl})` }}
-              >
-                <span className="absolute inset-0 flex items-center justify-center">
-                  <span className="rounded-full bg-navy/80 px-4 py-2 text-sm text-cream">Play</span>
-                </span>
-              </div>
+              />
               <div className="space-y-1 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-gold">{rx.occasion}</p>
                 <p className="font-medium text-navy">{rx.customerFirstName}</p>
                 {rx.quote ? <p className="text-sm text-muted">&ldquo;{rx.quote}&rdquo;</p> : null}
               </div>
-            </button>
+            </article>
           ))}
         </div>
       </div>
-      <Modal
-        open={!!active}
-        onClose={() => setActive(null)}
-        title={active ? `${active.customerFirstName}'s reaction` : "Reaction"}
-      >
-        {active ? (
-          <div className="space-y-3">
-            <div className="aspect-video overflow-hidden rounded-2xl bg-navy/90 text-cream flex items-center justify-center">
-              <p className="px-6 text-center text-sm">
-                Demo placeholder video. In production this plays the consented reaction clip with captions.
-              </p>
-            </div>
-            {active.quote ? <p className="text-muted">&ldquo;{active.quote}&rdquo;</p> : null}
-            <p className="text-xs text-muted">Demo content</p>
-          </div>
-        ) : null}
-      </Modal>
     </section>
   );
 }
@@ -190,7 +159,7 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">Examples</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Listen before you create</h2>
           <p className="mt-3 prose-muted">
-            Demo samples for inspiration. Only one preview plays at a time.
+            Songs created with Melora — a taste of what your story could sound like.
           </p>
         </div>
 
@@ -371,9 +340,6 @@ export function Testimonials({ reviews }: { reviews: Review[] }) {
         <div className="mb-8 max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">Reviews</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Loved as a gift experience</h2>
-          <p className="mt-3 text-sm text-muted">
-            Seed/demo reviews below are clearly labeled and not presented as verified live customers.
-          </p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {reviews.slice(0, visible).map((review) => (
@@ -395,7 +361,7 @@ export function Testimonials({ reviews }: { reviews: Review[] }) {
                 <p className="font-semibold text-navy">{review.customerName}</p>
                 <p className="text-muted">
                   {review.occasion} · {review.reviewedAt}
-                  {review.isVerifiedPurchase ? " · Verified purchase badge (demo)" : ""}
+                  {review.isVerifiedPurchase ? " · Verified purchase" : ""}
                 </p>
               </div>
             </article>
@@ -421,7 +387,7 @@ export function PricingSection({ packages }: { packages: Package[] }) {
             Choose the keepsake that fits
           </h2>
           <p className="mt-3 prose-muted">
-            One-time payments with optional add-ons, coupons, and creator subscriptions. Prices are editable in admin.
+            One-time payment, no subscription. Add extras like rush delivery or a photo music video at checkout.
           </p>
         </div>
         <div className="grid gap-5 lg:grid-cols-3">
