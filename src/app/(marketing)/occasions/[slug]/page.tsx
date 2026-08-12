@@ -13,8 +13,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const occasion = OCCASIONS.find((o) => o.slug === slug);
   if (!occasion) return {};
   return {
-    title: `${occasion.name} songs`,
-    description: occasion.description,
+    title: `Personalized ${occasion.name} Songs`,
+    description: `${occasion.description} Create a custom ${occasion.name.toLowerCase()} song from your memories with Memories to Melody.`,
+    alternates: { canonical: `/occasions/${occasion.slug}` },
   };
 }
 
@@ -47,7 +48,7 @@ export default async function OccasionPage({ params }: { params: Promise<{ slug:
             ))}
           </div>
         ) : (
-          <p className="mt-10 text-muted">No demo samples for this occasion yet—your story will lead the song.</p>
+          <p className="mt-10 text-muted">Every {occasion.name.toLowerCase()} song is created fresh from your story — start yours above.</p>
         )}
       </div>
     </section>

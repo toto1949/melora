@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import {
+  ArrowRight,
   Download,
   ImageIcon,
   Link2,
@@ -15,27 +15,30 @@ import {
 } from "lucide-react";
 import { Accordion } from "@/components/ui/accordion";
 import { AudioPlayer } from "@/components/player/audio-player";
+import { CountUp, Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { OCCASIONS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import type { FaqItem, Package, ReactionVideo, Review, SampleSong, SiteSettings } from "@/types";
 
 export function TrustBar({ settings }: { settings: SiteSettings }) {
   const stats = [
-    { label: "Songs created", value: settings.songsCreated.toLocaleString() },
-    { label: "Average rating", value: `${settings.averageRating.toFixed(1)} / 5` },
-    { label: "Music genres", value: `${settings.genresSupported}+` },
-    { label: "Countries served", value: `${settings.countriesServed}` },
+    { label: "Songs created", value: settings.songsCreated, format: (n: number) => Math.round(n).toLocaleString() },
+    { label: "Average rating", value: settings.averageRating, format: (n: number) => `${n.toFixed(1)} / 5` },
+    { label: "Music genres", value: settings.genresSupported, format: (n: number) => `${Math.round(n)}+` },
+    { label: "Countries served", value: settings.countriesServed, format: (n: number) => `${Math.round(n)}` },
   ];
   return (
     <section className="border-y border-border bg-surface">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-6">
+      <RevealGroup className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-6" stagger={0.1}>
         {stats.map((stat) => (
-          <div key={stat.label} className="text-center">
-            <p className="font-display text-3xl text-navy md:text-4xl">{stat.value}</p>
+          <RevealItem key={stat.label} className="text-center" y={16}>
+            <p className="font-display text-3xl text-navy md:text-4xl">
+              <CountUp value={stat.value} format={stat.format} />
+            </p>
             <p className="mt-1 text-sm text-muted">{stat.label}</p>
-          </div>
+          </RevealItem>
         ))}
-      </div>
+      </RevealGroup>
     </section>
   );
 }
@@ -44,7 +47,7 @@ export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
   return (
     <section id="reactions" className="section-pad">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8 max-w-2xl">
+        <Reveal className="mb-8 max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">Reactions</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
             The moment they hear it
@@ -52,22 +55,24 @@ export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
           <p className="mt-3 prose-muted">
             A personalized song lands differently than any other gift — here are the moments people remember.
           </p>
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-2 snap-x">
+        </Reveal>
+        <RevealGroup className="flex gap-4 overflow-x-auto pb-2 snap-x" stagger={0.09}>
           {reactions.map((rx) => (
-            <article key={rx.id} className="surface-card min-w-[260px] snap-start overflow-hidden">
-              <div
-                className="relative aspect-[4/5] bg-cover bg-center"
-                style={{ backgroundImage: `url(${rx.thumbnailUrl})` }}
-              />
-              <div className="space-y-1 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-gold">{rx.occasion}</p>
-                <p className="font-medium text-navy">{rx.customerFirstName}</p>
-                {rx.quote ? <p className="text-sm text-muted">&ldquo;{rx.quote}&rdquo;</p> : null}
-              </div>
-            </article>
+            <RevealItem key={rx.id}>
+              <article className="surface-card card-hover min-w-[260px] snap-start overflow-hidden">
+                <div
+                  className="relative aspect-[4/5] bg-cover bg-center"
+                  style={{ backgroundImage: `url(${rx.thumbnailUrl})` }}
+                />
+                <div className="space-y-1 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gold">{rx.occasion}</p>
+                  <p className="font-medium text-navy">{rx.customerFirstName}</p>
+                  {rx.quote ? <p className="text-sm text-muted">&ldquo;{rx.quote}&rdquo;</p> : null}
+                </div>
+              </article>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   );
@@ -95,35 +100,30 @@ export function HowItWorks() {
   return (
     <section id="how-it-works" className="section-pad bg-surface">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-10 max-w-2xl">
+        <Reveal className="mb-10 max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">How it works</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
             Four gentle steps to a song they&apos;ll keep
           </h2>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        </Reveal>
+        <RevealGroup className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" stagger={0.1}>
           {steps.map((step, index) => (
-            <motion.article
-              key={step.title}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
-              className="surface-card p-6"
-            >
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-cream-deep font-display text-xl text-navy">
-                {index + 1}
-              </div>
-              <h3 className="font-display text-xl text-navy">{step.title}</h3>
-              <p className="mt-2 text-sm prose-muted">{step.body}</p>
-            </motion.article>
+            <RevealItem key={step.title}>
+              <article className="surface-card card-hover h-full p-6">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-cream-deep font-display text-xl text-navy">
+                  {index + 1}
+                </div>
+                <h3 className="font-display text-xl text-navy">{step.title}</h3>
+                <p className="mt-2 text-sm prose-muted">{step.body}</p>
+              </article>
+            </RevealItem>
           ))}
-        </div>
-        <div className="mt-8">
+        </RevealGroup>
+        <Reveal className="mt-8" delay={0.15}>
           <Link href="/studio" className="btn-primary">
             Start creating
           </Link>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -155,13 +155,13 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
   return (
     <section id="examples" className="section-pad">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8 max-w-2xl">
+        <Reveal className="mb-8 max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">Examples</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Listen before you create</h2>
           <p className="mt-3 prose-muted">
             Songs created with Memories to Melody — a taste of what your story could sound like.
           </p>
-        </div>
+        </Reveal>
 
         <div className="mb-6 flex flex-wrap gap-2">
           <select
@@ -228,7 +228,7 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
 
         <div className="grid gap-5 lg:grid-cols-2">
           {filtered.map((sample) => (
-            <article key={sample.id} className="surface-card p-5">
+            <article key={sample.id} className="surface-card card-hover p-5">
               <AudioPlayer
                 id={sample.id}
                 src={sample.audioUrl}
@@ -255,26 +255,28 @@ export function OccasionsSection() {
   return (
     <section id="occasions" className="section-pad bg-surface">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8 max-w-2xl">
+        <Reveal className="mb-8 max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">Occasions</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
             Made for the moments that matter
           </h2>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        </Reveal>
+        <RevealGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" stagger={0.05}>
           {OCCASIONS.map((occasion) => (
-            <Link
-              key={occasion.slug}
-              href={`/occasions/${occasion.slug}`}
-              className="surface-card group p-5 transition hover:-translate-y-0.5"
-            >
-              <h3 className="font-display text-2xl text-navy group-hover:text-rose">
-                {occasion.name}
-              </h3>
-              <p className="mt-2 text-sm prose-muted">{occasion.description}</p>
-            </Link>
+            <RevealItem key={occasion.slug} className="h-full">
+              <Link
+                href={`/occasions/${occasion.slug}`}
+                className="surface-card card-hover group flex h-full flex-col p-5"
+              >
+                <h3 className="flex items-center justify-between font-display text-2xl text-navy transition-colors group-hover:text-rose">
+                  {occasion.name}
+                  <ArrowRight className="h-5 w-5 -translate-x-1 text-gold opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+                </h3>
+                <p className="mt-2 text-sm prose-muted">{occasion.description}</p>
+              </Link>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   );
@@ -295,19 +297,23 @@ export function ProductShowcase() {
     <section className="section-pad">
       <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">What you receive</p>
-          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
-            A complete keepsake, not just a file
-          </h2>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+          <Reveal>
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">What you receive</p>
+            <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
+              A complete keepsake, not just a file
+            </h2>
+          </Reveal>
+          <RevealGroup className="mt-8 grid gap-3 sm:grid-cols-2" stagger={0.06}>
             {items.map((item) => (
-              <div key={item.title} className="rounded-2xl border border-border bg-surface p-4">
-                <item.icon className="mb-2 h-5 w-5 text-gold" />
-                <p className="font-semibold text-navy">{item.title}</p>
-                <p className="mt-1 text-sm text-muted">{item.body}</p>
-              </div>
+              <RevealItem key={item.title} className="h-full" y={16}>
+                <div className="group h-full rounded-2xl border border-border bg-surface p-4 transition-colors duration-300 hover:border-gold/60">
+                  <item.icon className="mb-2 h-5 w-5 text-gold transition-transform duration-300 group-hover:scale-110" />
+                  <p className="font-semibold text-navy">{item.title}</p>
+                  <p className="mt-1 text-sm text-muted">{item.body}</p>
+                </div>
+              </RevealItem>
             ))}
-          </div>
+          </RevealGroup>
         </div>
         <div className="surface-card overflow-hidden p-4 md:p-6">
           <div className="rounded-[1.5rem] bg-navy p-5 text-cream shadow-inner">
@@ -337,36 +343,31 @@ export function Testimonials({ reviews }: { reviews: Review[] }) {
   return (
     <section id="reviews" className="section-pad bg-surface">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8 max-w-2xl">
+        <Reveal className="mb-8 max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">Reviews</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Loved as a gift experience</h2>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        </Reveal>
+        <RevealGroup className="grid gap-4 md:grid-cols-3" stagger={0.08}>
           {reviews.slice(0, visible).map((review) => (
-            <article key={review.id} className="surface-card p-5">
-              <div className="flex items-center justify-between gap-2">
+            <RevealItem key={review.id} className="h-full">
+              <article className="surface-card card-hover flex h-full flex-col p-5">
                 <div className="flex text-gold" aria-label={`${review.rating} out of 5 stars`}>
                   {Array.from({ length: review.rating }).map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-current" />
                   ))}
                 </div>
-                {review.isDemo ? (
-                  <span className="rounded-full bg-cream-deep px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-navy">
-                    Demo
-                  </span>
-                ) : null}
-              </div>
-              <p className="mt-4 text-sm prose-muted">{review.body}</p>
-              <div className="mt-5 border-t border-border pt-4 text-sm">
-                <p className="font-semibold text-navy">{review.customerName}</p>
-                <p className="text-muted">
-                  {review.occasion} · {review.reviewedAt}
-                  {review.isVerifiedPurchase ? " · Verified purchase" : ""}
-                </p>
-              </div>
-            </article>
+                <p className="mt-4 flex-1 text-sm prose-muted">{review.body}</p>
+                <div className="mt-5 border-t border-border pt-4 text-sm">
+                  <p className="font-semibold text-navy">{review.customerName}</p>
+                  <p className="text-muted">
+                    {review.occasion} · {review.reviewedAt}
+                    {review.isVerifiedPurchase ? " · Verified purchase" : ""}
+                  </p>
+                </div>
+              </article>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
         {visible < reviews.length ? (
           <button type="button" className="btn-secondary mt-6" onClick={() => setVisible((v) => v + 3)}>
             Load more
@@ -381,7 +382,7 @@ export function PricingSection({ packages }: { packages: Package[] }) {
   return (
     <section id="pricing" className="section-pad">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8 max-w-2xl">
+        <Reveal className="mb-8 max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">Pricing</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
             Choose the keepsake that fits
@@ -389,32 +390,40 @@ export function PricingSection({ packages }: { packages: Package[] }) {
           <p className="mt-3 prose-muted">
             One-time payment, no subscription. Add extras like rush delivery or a photo music video at checkout.
           </p>
-        </div>
-        <div className="grid gap-5 lg:grid-cols-3">
+        </Reveal>
+        <RevealGroup className="grid gap-5 lg:grid-cols-3" stagger={0.12}>
           {packages.map((pkg, index) => (
-            <article
-              key={pkg.id}
-              className={`surface-card flex flex-col p-6 ${index === 1 ? "ring-2 ring-gold" : ""}`}
-            >
-              <p className="text-sm font-semibold uppercase tracking-wider text-gold">{pkg.name}</p>
-              <p className="mt-3 font-display text-4xl text-navy">
-                {formatCurrency(pkg.priceCents, pkg.currency)}
-              </p>
-              <p className="mt-2 text-sm prose-muted">{pkg.description}</p>
-              <ul className="mt-6 flex-1 space-y-2 text-sm text-navy/85">
-                {pkg.features.map((feature) => (
-                  <li key={feature} className="flex gap-2">
-                    <span className="text-gold">✓</span>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link href={`/studio?package=${pkg.slug}`} className="btn-primary mt-8">
-                Choose {pkg.name}
-              </Link>
-            </article>
+            <RevealItem key={pkg.id} className="h-full">
+              <article
+                className={`surface-card card-hover relative flex h-full flex-col p-6 ${
+                  index === 1 ? "ring-2 ring-gold" : ""
+                }`}
+              >
+                {index === 1 ? (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-navy shadow-md">
+                    Most popular
+                  </span>
+                ) : null}
+                <p className="text-sm font-semibold uppercase tracking-wider text-gold">{pkg.name}</p>
+                <p className="mt-3 font-display text-4xl text-navy">
+                  {formatCurrency(pkg.priceCents, pkg.currency)}
+                </p>
+                <p className="mt-2 text-sm prose-muted">{pkg.description}</p>
+                <ul className="mt-6 flex-1 space-y-2 text-sm text-navy/85">
+                  {pkg.features.map((feature) => (
+                    <li key={feature} className="flex gap-2">
+                      <span className="text-gold">✓</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link href={`/studio?package=${pkg.slug}`} className="btn-primary mt-8">
+                  Choose {pkg.name}
+                </Link>
+              </article>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   );
@@ -424,11 +433,13 @@ export function FaqSection({ faqs }: { faqs: FaqItem[] }) {
   return (
     <section id="faq" className="section-pad bg-surface">
       <div className="mx-auto max-w-3xl">
-        <div className="mb-8 text-center">
+        <Reveal className="mb-8 text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">FAQ</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Questions, answered calmly</h2>
-        </div>
-        <Accordion items={faqs.map((f) => ({ id: f.id, question: f.question, answer: f.answer }))} />
+        </Reveal>
+        <Reveal delay={0.1}>
+          <Accordion items={faqs.map((f) => ({ id: f.id, question: f.question, answer: f.answer }))} />
+        </Reveal>
       </div>
     </section>
   );
@@ -437,25 +448,28 @@ export function FaqSection({ faqs }: { faqs: FaqItem[] }) {
 export function FinalCta() {
   return (
     <section className="section-pad">
-      <div className="atmosphere grain mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-border px-6 py-14 text-center md:px-12">
-        <h2 className="font-display text-3xl text-navy md:text-5xl">
-          Ready to give them a song they&apos;ll keep forever?
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl prose-muted">
-          Most customers finish the studio in under five minutes. Secure checkout, private delivery, and revision support when you need it.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link href="/studio" className="btn-primary">
-            Create Their Song
-          </Link>
-          <Link href="/pricing" className="btn-secondary">
-            View packages
-          </Link>
+      <Reveal y={32}>
+        <div className="atmosphere grain mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-border px-6 py-14 text-center md:px-12">
+          <h2 className="font-display text-3xl text-navy md:text-5xl">
+            Ready to give them a song they&apos;ll keep forever?
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl prose-muted">
+            Most customers finish the studio in under five minutes. Secure checkout, private delivery, and revision support when you need it.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href="/studio" className="btn-primary group">
+              Create Their Song
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
+            <Link href="/pricing" className="btn-secondary">
+              View packages
+            </Link>
+          </div>
+          <p className="mt-5 text-sm text-muted">
+            Satisfaction-minded guarantee · Encrypted payments via Stripe
+          </p>
         </div>
-        <p className="mt-5 text-sm text-muted">
-          Satisfaction-minded guarantee · Encrypted payments via Stripe
-        </p>
-      </div>
+      </Reveal>
     </section>
   );
 }
