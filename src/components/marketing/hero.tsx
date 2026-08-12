@@ -70,15 +70,22 @@ export function Hero({ settings }: { settings: SiteSettings }) {
           className="space-y-4"
         >
           <div className="group relative overflow-hidden rounded-[2rem] border border-border bg-navy p-2 shadow-[var(--shadow-lift)]">
-            <div
-              className="aspect-[4/3] rounded-[1.6rem] bg-cover bg-center transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
-              style={{
-                backgroundImage:
-                  "linear-gradient(135deg, rgba(11,20,38,0.15), rgba(196,132,138,0.28)), url('/samples/hero-lifestyle.svg')",
-              }}
-              role="img"
-              aria-label="Warm lifestyle scene representing a personal song gift moment"
-            />
+            <div className="relative overflow-hidden rounded-[1.6rem]">
+              <div
+                className="aspect-[4/3] bg-cover bg-center transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                style={{ backgroundImage: "url('/samples/hero-lifestyle.jpg')" }}
+                role="img"
+                aria-label="A woman closing her eyes, moved while listening to her personalized song"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy/80 via-navy/30 to-transparent px-6 pb-5 pt-16">
+                <p className="font-display text-xl italic text-cream md:text-2xl">
+                  A song for someone you love
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-gold-soft">
+                  Made from your memories
+                </p>
+              </div>
+            </div>
           </div>
           <AudioPlayer
             id="hero-demo"

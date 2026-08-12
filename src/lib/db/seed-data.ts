@@ -315,7 +315,7 @@ export const seedReactions: ReactionVideo[] = [
     customerFirstName: "Amelia",
     occasion: "Anniversary",
     quote: "I couldn't stop crying—in the best way.",
-    thumbnailUrl: "/samples/reactions/amelia.svg",
+    thumbnailUrl: "/samples/reactions/amelia.jpg",
     videoUrl: "/samples/reactions/demo-reaction.mp4",
     isDemo: true,
   },
@@ -324,7 +324,7 @@ export const seedReactions: ReactionVideo[] = [
     customerFirstName: "Jordan",
     occasion: "Birthday",
     quote: "He played it three times before dinner.",
-    thumbnailUrl: "/samples/reactions/jordan.svg",
+    thumbnailUrl: "/samples/reactions/jordan.jpg",
     videoUrl: "/samples/reactions/demo-reaction.mp4",
     isDemo: true,
   },
@@ -333,7 +333,7 @@ export const seedReactions: ReactionVideo[] = [
     customerFirstName: "Priya",
     occasion: "Wedding",
     quote: "Our whole table went quiet, then cheered.",
-    thumbnailUrl: "/samples/reactions/priya.svg",
+    thumbnailUrl: "/samples/reactions/priya.jpg",
     videoUrl: "/samples/reactions/demo-reaction.mp4",
     isDemo: true,
   },
@@ -342,7 +342,7 @@ export const seedReactions: ReactionVideo[] = [
     customerFirstName: "Marcus",
     occasion: "Father's Day",
     quote: "Dad asked for the lyrics on paper.",
-    thumbnailUrl: "/samples/reactions/marcus.svg",
+    thumbnailUrl: "/samples/reactions/marcus.jpg",
     videoUrl: "/samples/reactions/demo-reaction.mp4",
     isDemo: true,
   },
@@ -402,83 +402,99 @@ export const seedReviews: Review[] = [
 export const seedFaqs: FaqItem[] = [
   {
     id: "faq-1",
-    question: "How are Memories to Melody songs generated?",
+    question: 'How does Memories to Melody work?',
     answer:
-      "You share your story and preferences. Our system builds a creative brief, drafts lyrics, then generates studio-quality audio through configured music providers. Human-ready quality checks run before delivery.",
+      'You tell us your story in a guided five-minute studio — who the song is for, the occasion, the memories that matter, and the sound you love. We turn that into custom lyrics and a fully produced song, then deliver it on a private listening page you can share whenever the moment is right.',
     category: "product",
     sortOrder: 1,
   },
   {
     id: "faq-2",
-    question: "How long does delivery take?",
+    question: 'How long until my song is ready?',
     answer:
-      "Essential songs typically arrive within 48 hours. Premium and Cinematic packages include priority delivery windows shown at checkout.",
+      'Most songs are ready within 48 hours, and many arrive the same day. Priority delivery on Premium and Cinematic packages moves you to the front of the queue. You can follow progress live from your dashboard, and we email you the moment your song is ready.',
     category: "delivery",
     sortOrder: 2,
   },
   {
     id: "faq-3",
-    question: "Who owns the music and what are the licensing terms?",
+    question: 'What do I need to prepare before I start?',
     answer:
-      "You receive a personal-use license to stream, download, and share your song privately. Commercial synchronization or redistribution requires a separate commercial license.",
-    category: "licensing",
+      'Just a few memories. The studio asks simple questions — how you met, an inside joke, a moment you will never forget. Two or three honest details are enough; you do not need to write anything polished. The more specific the memory, the more personal the song feels.',
+    category: "product",
     sortOrder: 3,
   },
   {
     id: "faq-4",
-    question: "How is my story and media kept private?",
+    question: 'Can I choose the music style and voice?',
     answer:
-      "Uploads live in private storage with signed URLs. We never use your stories or photos for model training unless you explicitly opt in.",
-    category: "privacy",
+      'Yes. Pick from 16+ genres — pop, acoustic, R&B, country, gospel, Arabic, Latin and more — then set the mood and the vocal style: female, male, duet, or choir blend. Not sure? Our guided defaults produce a beautiful result every time.',
+    category: "product",
     sortOrder: 4,
   },
   {
     id: "faq-5",
-    question: "Can I request revisions?",
+    question: 'Can the song be in another language?',
     answer:
-      "Yes. Each package includes revision credits. You can request changes to lyrics, vocals, tempo, mood, instrumentation, or video with notes and timestamps.",
-    category: "revisions",
+      'Yes — songs can be written and sung in English, French, Spanish, or Arabic. Listen to Gracias Mamá (Spanish), Petite Étoile (French), or يا نور عيني (Arabic) on the examples page to hear how natural they sound.',
+    category: "languages",
     sortOrder: 5,
   },
   {
     id: "faq-6",
-    question: "What is your refund policy?",
+    question: 'What if I want changes to my song?',
     answer:
-      "If we fail to deliver a usable song, or a verified quality issue cannot be resolved through revisions, contact support for a refund review within 14 days of delivery.",
-    category: "refunds",
+      'Every package includes revision credits. From your dashboard you can request changes to lyrics, the pronunciation of names, tempo, mood, or vocals, and we will produce a new version of your song. Most revisions are delivered within 24 hours.',
+    category: "revisions",
     sortOrder: 6,
   },
   {
     id: "faq-7",
-    question: "Which languages are supported?",
+    question: 'Who owns the song — can I share it online?',
     answer:
-      "Song creation currently supports English, French, Spanish, and Arabic, with more languages added over time.",
-    category: "languages",
+      'You receive a lifetime personal-use license: listen, download, gift it, play it at your event, and share it with friends and family, including on your personal social media. Commercial use such as ads or monetized content requires a separate license — just contact us.',
+    category: "licensing",
     sortOrder: 7,
   },
   {
     id: "faq-8",
-    question: "What are the upload requirements for photos and videos?",
+    question: 'How do I give the song as a gift?',
     answer:
-      "Photos up to 20MB (JPG, PNG, WEBP). Short clips up to 100MB (MP4, MOV). Confirm you have rights to every file you upload.",
-    category: "uploads",
+      'Every order includes a private listening page with cover artwork, synchronized lyrics, and an optional gift-reveal mode that builds anticipation before the song plays. Share the link by text or email — or play it in person and watch their reaction.',
+    category: "gifting",
     sortOrder: 8,
   },
   {
     id: "faq-9",
-    question: "Can I use Memories to Melody songs commercially?",
+    question: 'Is my story kept private?',
     answer:
-      "Standard packages are for personal gifting and private sharing. Contact us for commercial licensing options.",
-    category: "licensing",
+      'Completely. Your answers and any uploaded photos are used only to create your song, and uploads live in private storage. Listening pages are private by default — you decide whether a link is private, password-protected, unlisted, or public, and you can change it anytime.',
+    category: "privacy",
     sortOrder: 9,
   },
   {
     id: "faq-10",
-    question: "How does music video generation work?",
+    question: 'What is included in each package?',
     answer:
-      "Cinematic Memory (or video add-ons) turn your approved photos into a styled music video synced to the final song. You choose a visual style during the studio flow.",
-    category: "video",
+      'Essential includes personalized lyrics, a fully produced song, a private listening page, and an MP3 download. Premium adds multiple song variations, studio-quality WAV, custom cover artwork, and a lyric video. Cinematic adds a music video made from your photos. All are one-time payments — no subscription.',
+    category: "pricing",
     sortOrder: 10,
+  },
+  {
+    id: "faq-11",
+    question: 'Can I download the song and keep it forever?',
+    answer:
+      'Yes. Every package includes an MP3 download, and your listening page does not expire. Premium and Cinematic packages add studio-quality WAV files. The song is yours to keep, replay, and pass on.',
+    category: "delivery",
+    sortOrder: 11,
+  },
+  {
+    id: "faq-12",
+    question: 'What if I am not happy with the result?',
+    answer:
+      'We will make it right. Start with your included revision credits — most concerns are solved with a lyric or vocal change. If a verified quality issue cannot be resolved through revisions, our refund policy applies within 14 days of delivery.',
+    category: "refunds",
+    sortOrder: 12,
   },
 ];
 
