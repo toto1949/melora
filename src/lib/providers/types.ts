@@ -59,6 +59,7 @@ export interface MusicProvider {
     title: string;
     /** Stable key so provider retries resume the same generation instead of paying for a new one. */
     idempotencyKey?: string;
+    onProviderJobId?: (providerJobId: string) => void | Promise<void>;
   }): Promise<MusicResult>;
 }
 

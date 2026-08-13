@@ -19,10 +19,13 @@ import {
   listReviews,
   listSamples,
 } from "@/lib/db/repository";
+import { getEnv } from "@/lib/env";
+import { filterFaqsForRelease, filterPackagesForRelease } from "@/lib/features";
 
 export const metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
+  const videoEnabled = getEnv().VIDEO_FEATURE_ENABLED;
   const [settings, packages, samples, reactions, reviews, faqs] = await Promise.all([
     getSettings(),
     listPackages(),
@@ -31,6 +34,7 @@ export default async function HomePage() {
     listReviews(8),
     listFaqs(),
   ]);
+  const releaseFaqs = filterFaqsForRelease(faqs, videoEnabled);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -43,7 +47,7 @@ export default async function HomePage() {
   const faqLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqs.map((f) => ({
+    mainEntity: releaseFaqs.map((f) => ({
       "@type": "Question",
       name: f.question,
       acceptedAnswer: { "@type": "Answer", text: f.answer },
@@ -60,10 +64,10 @@ export default async function HomePage() {
       <HowItWorks />
       <SampleSongsSection samples={samples} />
       <OccasionsSection />
-      <ProductShowcase />
+      <ProductShowcase videoEnabled={videoEnabled} />
       <Testimonials reviews={reviews.items} />
-      <PricingSection packages={packages} />
-      <FaqSection faqs={faqs.slice(0, 6)} viewAllHref="/faq" />
+      <PricingSection packages={filterPackagesForRelease(packages, videoEnabled)} videoEnabled={videoEnabled} />
+      <FaqSection faqs={releaseFaqs.slice(0, 6)} viewAllHref="/faq" />
       <FinalCta />
     </>
   );

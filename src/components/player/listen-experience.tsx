@@ -4,16 +4,19 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Copy, Download, Maximize2, QrCode, Share2 } from "lucide-react";
 import { AudioPlayer } from "@/components/player/audio-player";
+import { VideoPlayer } from "@/components/player/video-player";
 import type { Order, SongVersion } from "@/types";
 
 export function ListenExperience({
   order,
   version,
   canManage,
+  videoEnabled,
 }: {
   order: Order;
   version: SongVersion | null;
   canManage: boolean;
+  videoEnabled: boolean;
 }) {
   const [revealed, setRevealed] = useState(!order.giftRevealEnabled);
   const [fullscreen, setFullscreen] = useState(false);
@@ -127,6 +130,16 @@ export function ListenExperience({
                 </h1>
                 <p className={`mt-2 ${fullscreen ? "text-cream/70" : "text-muted"}`}>{dedication}</p>
 
+                {videoEnabled && version?.videoUrl ? (
+                  <div className="mt-6">
+                    <VideoPlayer
+                      src={version.videoUrl}
+                      poster={version.coverUrl || undefined}
+                      title={version.title}
+                    />
+                  </div>
+                ) : null}
+
                 {version?.audioUrl ? (
                   <div className="mt-6">
                     <AudioPlayer
@@ -139,8 +152,17 @@ export function ListenExperience({
                   </div>
                 ) : (
                   <div className="surface-card mt-6 p-6 text-sm text-muted">
-                    Your song is still being created. Status: {order.status.replaceAll("_", " ")}
-                    {typeof order.progress === "number" ? ` · ${order.progress}%` : ""}
+                    {order.status === "failed" ? (
+                      <>
+                        We hit a production issue while creating this song. Our team can safely retry it from the saved progress.
+                        {canManage ? " Please contact support or check the order dashboard." : " Please ask the sender to contact support."}
+                      </>
+                    ) : (
+                      <>
+                        Your song is still being created. Status: {order.status.replaceAll("_", " ")}
+                        {typeof order.progress === "number" ? ` · ${order.progress}%` : ""}
+                      </>
+                    )}
                   </div>
                 )}
 

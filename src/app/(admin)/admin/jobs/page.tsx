@@ -15,6 +15,8 @@ export default async function AdminJobsPage() {
             <div>
               <p className="font-semibold">{job.jobType} · {job.status}</p>
               <p className="text-muted">Order {job.orderId.slice(0, 8)} · attempt {job.attempt}/{job.maxAttempts} · {job.progress}%</p>
+              {job.provider ? <p className="text-muted">Provider: {job.provider}{job.providerJobId ? ` · job ${job.providerJobId}` : ""}</p> : null}
+              {job.nextRetryAt ? <p className="text-muted">Next retry: {new Date(job.nextRetryAt).toLocaleString()}</p> : null}
               {job.error ? <p className="text-rose">{job.error}</p> : null}
             </div>
             {(job.status === "failed" || job.status === "dead_letter") ? (

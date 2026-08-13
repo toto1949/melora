@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { ZodError } from "zod";
 import { getCurrentUser, getGuestToken, setGuestToken, signUpWithPassword } from "@/lib/auth/session";
 import {
-  addMedia,
   claimProject,
   createGuestProject,
   createOrder,
@@ -29,6 +28,8 @@ import {
   styleSchema,
 } from "@/lib/validation/studio";
 import { getEnv } from "@/lib/env";
+import { processMediaUpload } from "@/lib/uploads/process-upload";
+import { packageAvailableForRelease } from "@/lib/features";
 
 async function assertProjectAccess(projectId: string) {
   const guestToken = await getGuestToken();
@@ -77,7 +78,11 @@ export async function startStudioAction(formData?: FormData) {
   let packageId: string | undefined;
   if (packageSlug) {
     const { listPackages } = await import("@/lib/db/repository");
-    packageId = (await listPackages()).find((p) => p.slug === packageSlug)?.id;
+    packageId = (await listPackages()).find(
+      (pkg) =>
+        pkg.slug === packageSlug &&
+        packageAvailableForRelease(pkg, getEnv().VIDEO_FEATURE_ENABLED),
+    )?.id;
   }
 
   if (validOccasion || packageId) {
@@ -236,7 +241,7 @@ export async function saveLyricsAction(projectId: string, formData: FormData) {
 }
 
 export async function saveMediaAction(projectId: string, formData: FormData) {
-  await assertProjectAccess(projectId);
+  const { project, user } = await assertProjectAccess(projectId);
   const consent = formData.get("consentConfirmed") === "on";
   if (!consent) {
     redirect(`/studio/${projectId}/media?error=${encodeURIComponent("Please confirm you have consent to use these photos and videos.")}`);
@@ -249,24 +254,26 @@ export async function saveMediaAction(projectId: string, formData: FormData) {
   }
 
   const files = formData.getAll("files");
+  const totalUploadBytes = files.reduce(
+    (total, file) => total + (file instanceof File ? file.size : 0),
+    0,
+  );
+  if (totalUploadBytes > 10 * 1024 * 1024) {
+    redirect(`/studio/${projectId}/media?error=${encodeURIComponent("Uploads must be 10 MB or less in total.")}`);
+  }
   for (const [index, file] of files.entries()) {
     if (!(file instanceof File) || file.size === 0) continue;
-    const allowed = ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/quicktime"];
-    if (!allowed.includes(file.type)) continue;
-    if (file.size > 100 * 1024 * 1024) continue;
-
-    // In production, upload to Supabase/S3. Locally we store metadata + object URL placeholders.
-    await addMedia(projectId, {
-      userId: null,
-      kind: file.type.startsWith("video") ? "video_clip" : "portrait",
-      storagePath: `local/${projectId}/${file.name}`,
-      fileName: file.name,
-      mimeType: file.type,
-      sizeBytes: file.size,
-      sortOrder: index,
-      consentConfirmed: true,
-      url: `/samples/covers/golden-hour.svg`,
-    });
+    try {
+      await processMediaUpload({
+        projectId,
+        file,
+        userId: user?.id ?? null,
+        sortOrder: (project.media?.length ?? 0) + index,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Upload rejected";
+      redirect(`/studio/${projectId}/media?error=${encodeURIComponent(message)}`);
+    }
   }
 
   await updateProjectStep(projectId, 7);
@@ -319,6 +326,12 @@ export async function checkoutAction(
       termsAccepted: formData.get("termsAccepted") === "on" ? true : false,
       idempotencyKey: formData.get("idempotencyKey"),
     });
+
+    const { getPackage } = await import("@/lib/db/repository");
+    const selectedPackage = await getPackage(parsed.packageId);
+    if (!selectedPackage || !packageAvailableForRelease(selectedPackage, getEnv().VIDEO_FEATURE_ENABLED)) {
+      return { error: "That package is not available in this release. Please choose an available song package." };
+    }
 
     let userId = user?.id ?? null;
     if (!userId && parsed.createAccount) {

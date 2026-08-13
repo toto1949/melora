@@ -47,11 +47,13 @@
 
 1. Create order → sanitize input → creative brief
 2. Lyrics → safety/quality checks
-3. Music → cover art → optional video
+3. Music → cover art → optional video (guarded by `VIDEO_FEATURE_ENABLED`)
 4. Store assets → quality checks → mark ready
 5. Notify customer → publish private listening page
 
 All providers implement stable interfaces so adapters can be swapped via env config.
+
+Jobs are claimed atomically in PostgreSQL. A Supabase Cron task calls the worker every minute, failed jobs persist a retry timestamp with exponential backoff, and stale running jobs can be reclaimed after 15 minutes. The daily Vercel cron is only a fallback.
 
 ## Security
 

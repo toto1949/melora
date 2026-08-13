@@ -5,6 +5,7 @@ import { getOrder, trackEvent, updateOrderStatus } from "@/lib/db/repository";
 import { startGenerationPipeline } from "@/lib/jobs/pipeline";
 import { sendEmail } from "@/lib/email/send";
 import { isMockMode } from "@/lib/env";
+import { logEvent } from "@/lib/observability/logger";
 
 export const maxDuration = 300;
 
@@ -30,26 +31,43 @@ export async function POST(req: NextRequest) {
       const orderId = session.metadata?.orderId;
       if (orderId) {
         const order = await getOrder(orderId);
-        if (order && order.status === "awaiting_payment") {
-          await updateOrderStatus(orderId, "payment_confirmed", {
-            stripeCheckoutSessionId: undefined,
-          });
-          await sendEmail({
-            to: order.email,
-            template: "order-confirmation",
-            data: {
-              orderNumber: order.orderNumber,
-              estimatedDelivery: order.estimatedDeliveryAt || "soon",
-            },
-          });
-          await trackEvent("purchase_completed", {}, { orderId });
-          // Respond to Stripe immediately; run the (slow) generation
-          // pipeline after the response is sent.
+        if (order && ["awaiting_payment", "payment_confirmed"].includes(order.status)) {
+          const firstConfirmation = order.status === "awaiting_payment";
+          if (firstConfirmation) {
+            await updateOrderStatus(orderId, "payment_confirmed", {
+              stripeCheckoutSessionId: undefined,
+            });
+          }
+
+          // Enqueue every stage idempotently before responding. The production
+          // pipeline schedules a separate worker invocation and returns quickly.
+          await startGenerationPipeline(orderId);
+
           after(async () => {
-            try {
-              await startGenerationPipeline(orderId);
-            } catch (error) {
-              console.error("pipeline error", orderId, error);
+            if (firstConfirmation) {
+              try {
+                await trackEvent("purchase_completed", {}, { orderId });
+              } catch (error) {
+                logEvent("error", "purchase_tracking_failed", {
+                  orderId,
+                  error: error instanceof Error ? error.message : "Unknown tracking error",
+                });
+              }
+              try {
+                await sendEmail({
+                  to: order.email,
+                  template: "order-confirmation",
+                  data: {
+                    orderNumber: order.orderNumber,
+                    estimatedDelivery: order.estimatedDeliveryAt || "soon",
+                  },
+                });
+              } catch (error) {
+                logEvent("error", "order_confirmation_email_failed", {
+                  orderId,
+                  error: error instanceof Error ? error.message : "Unknown email error",
+                });
+              }
             }
           });
         }
@@ -88,7 +106,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error(error);
+    logEvent("error", "stripe_webhook_failed", {
+      error: error instanceof Error ? error.message : "Unknown webhook error",
+    });
     return NextResponse.json({ error: "Webhook error" }, { status: 400 });
   }
 }

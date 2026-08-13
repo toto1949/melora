@@ -300,7 +300,7 @@ export function OccasionsSection() {
   );
 }
 
-export function ProductShowcase() {
+export function ProductShowcase({ videoEnabled }: { videoEnabled: boolean }) {
   const items = [
     { icon: Music2, title: "Personalized song", body: "Studio-quality audio shaped around your story." },
     { icon: Mic2, title: "Custom lyrics", body: "Names, memories, and messages woven into the song." },
@@ -308,7 +308,9 @@ export function ProductShowcase() {
     { icon: Download, title: "Audio download", body: "Keep an MP3—or WAV on higher packages." },
     { icon: Share2, title: "Shareable link", body: "Secure tokens with privacy controls." },
     { icon: ImageIcon, title: "Cover artwork", body: "A keepsake visual for the song." },
-    { icon: Sparkles, title: "Optional videos", body: "Lyric videos and photo music videos." },
+    videoEnabled
+      ? { icon: Sparkles, title: "Optional videos", body: "Lyric videos and photo music videos." }
+      : { icon: Sparkles, title: "Video next release", body: "Video keepsakes are being prepared for a future release." },
     { icon: Star, title: "Revision tools", body: "Request guided changes with credits." },
   ];
   return (
@@ -413,7 +415,7 @@ export function Testimonials({ reviews, showEmptyState = false }: { reviews: Rev
   );
 }
 
-export function PricingSection({ packages }: { packages: Package[] }) {
+export function PricingSection({ packages, videoEnabled }: { packages: Package[]; videoEnabled: boolean }) {
   return (
     <section id="pricing" className="section-pad">
       <div className="mx-auto max-w-6xl">
@@ -423,7 +425,9 @@ export function PricingSection({ packages }: { packages: Package[] }) {
             Choose the keepsake that fits
           </h2>
           <p className="mt-3 prose-muted">
-            One-time payment, no subscription. Add extras like rush delivery or a photo music video at checkout.
+            {videoEnabled
+              ? "One-time payment, no subscription. Video packages are available at checkout."
+              : "One-time payment, no subscription. Video packages will return in the next release."}
           </p>
         </Reveal>
         <RevealGroup className="grid gap-5 lg:grid-cols-3" stagger={0.12}>

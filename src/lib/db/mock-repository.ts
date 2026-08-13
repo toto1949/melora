@@ -586,6 +586,7 @@ export async function verifyOrderSharePassword(orderId: string, password: string
 }
 
 export async function enqueueJob(orderId: string, jobType: JobType, input: Record<string, unknown> = {}) {
+  void input;
   return mutateStore((store) => {
     const idempotencyKey = `${orderId}:${jobType}`;
     const existing = store.jobs.find((j) => j.idempotencyKey === idempotencyKey);
@@ -602,7 +603,11 @@ export async function enqueueJob(orderId: string, jobType: JobType, input: Recor
       maxAttempts: 5,
       idempotencyKey: existing ? `${idempotencyKey}:${Date.now()}` : idempotencyKey,
       provider: null,
+      providerJobId: null,
       error: null,
+      nextRetryAt: null,
+      startedAt: null,
+      finishedAt: null,
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
@@ -623,6 +628,16 @@ export async function listJobs(status?: GenerationJob["status"]) {
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
+export async function listRunnableJobs(limit = 500) {
+  const store = await getStore();
+  return store.jobs
+    .filter((job) =>
+      ["queued", "failed", "running", "dead_letter", "cancelled"].includes(job.status),
+    )
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, limit);
+}
+
 export async function listOrderJobs(orderId: string) {
   const store = await getStore();
   return store.jobs.filter((j) => j.orderId === orderId);
@@ -633,6 +648,27 @@ export async function updateJob(jobId: string, patch: Partial<GenerationJob>) {
     const job = store.jobs.find((j) => j.id === jobId);
     if (!job) return null;
     Object.assign(job, patch, { updatedAt: nowIso() });
+    return job;
+  });
+}
+
+export async function claimJob(jobId: string) {
+  return mutateStore((store) => {
+    const job = store.jobs.find((item) => item.id === jobId);
+    if (!job || !["queued", "failed", "running"].includes(job.status)) return null;
+    if (job.nextRetryAt && new Date(job.nextRetryAt).getTime() > Date.now()) return null;
+    if (
+      job.status === "running" &&
+      Date.now() - new Date(job.updatedAt).getTime() < 15 * 60 * 1000
+    ) {
+      return null;
+    }
+    job.status = "running";
+    job.attempt += 1;
+    job.error = null;
+    job.nextRetryAt = null;
+    job.startedAt = nowIso();
+    job.updatedAt = nowIso();
     return job;
   });
 }

@@ -31,6 +31,7 @@ export class HttpVideoProvider implements VideoProvider {
         photo_urls: input.photoUrls,
         lyrics: input.lyrics,
       }),
+      signal: AbortSignal.timeout(210_000),
     });
 
     if (!res.ok) {
@@ -38,8 +39,10 @@ export class HttpVideoProvider implements VideoProvider {
     }
 
     const data = (await res.json()) as Record<string, unknown>;
+    const videoUrl = String(data.videoUrl ?? data.video_url ?? "");
+    if (!videoUrl) throw new Error("Video provider returned no video URL");
     return {
-      videoUrl: String(data.videoUrl ?? data.video_url ?? ""),
+      videoUrl,
       durationSeconds: Number(data.durationSeconds ?? data.duration_seconds ?? 180),
       provider: this.name,
       style: input.style,

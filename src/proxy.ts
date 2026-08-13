@@ -4,9 +4,9 @@ import type { NextRequest } from "next/server";
 import { getEnv, hasSupabase } from "@/lib/env";
 import { rateLimit } from "@/lib/security/rate-limit";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  let response = NextResponse.next({ request });
+  const response = NextResponse.next({ request });
 
   if (pathname.startsWith("/api/")) {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";

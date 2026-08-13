@@ -90,9 +90,7 @@ function emptyStore(): MeloraStore {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var __meloraStore: MeloraStore | undefined;
-  // eslint-disable-next-line no-var
   var __meloraStoreReady: Promise<MeloraStore> | undefined;
 }
 

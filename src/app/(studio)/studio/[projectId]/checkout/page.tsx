@@ -4,11 +4,14 @@ import { CheckoutForm } from "@/components/studio/checkout-form";
 import { loadStudioProject } from "@/lib/studio/load-project";
 import { listAddOns, listPackages } from "@/lib/db/repository";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getEnv } from "@/lib/env";
+import { filterPackagesForRelease } from "@/lib/features";
 
 export default async function CheckoutStep({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
   const project = await loadStudioProject(projectId);
-  const [packages, addOns, user] = await Promise.all([listPackages(), listAddOns(), getCurrentUser()]);
+  const [allPackages, addOns, user] = await Promise.all([listPackages(), listAddOns(), getCurrentUser()]);
+  const packages = filterPackagesForRelease(allPackages, getEnv().VIDEO_FEATURE_ENABLED);
   const idempotencyKey = nanoid(24);
   return (
     <StudioShell projectId={projectId} currentStep={8}>
@@ -23,7 +26,7 @@ export default async function CheckoutStep({ params }: { params: Promise<{ proje
           description: pkg.description,
           priceCents: pkg.priceCents,
           currency: pkg.currency,
-          defaultChecked: project.packageId === pkg.id || pkg.slug === "premium-story",
+          defaultChecked: project.packageId === pkg.id || pkg.slug === "essential-song",
         }))}
         addOns={addOns.map((addon) => ({
           id: addon.id,

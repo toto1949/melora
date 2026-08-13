@@ -1,12 +1,16 @@
 import { z } from "zod";
 
+const booleanString = (defaultValue: boolean) =>
+  z
+    .enum(["true", "false"])
+    .default(defaultValue ? "true" : "false")
+    .transform((value) => value === "true");
+
 const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   NEXT_PUBLIC_BRAND_NAME: z.string().default("Memories to Melody"),
-  USE_MOCK_PROVIDERS: z
-    .string()
-    .optional()
-    .transform((v) => v !== "false"),
+  USE_MOCK_PROVIDERS: booleanString(true),
+  VIDEO_FEATURE_ENABLED: booleanString(false),
   NEXT_PUBLIC_SUPABASE_URL: z.string().optional(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
@@ -25,11 +29,18 @@ const envSchema = z.object({
   MUSIC_PROVIDER_API_KEY: z.string().optional(),
   VIDEO_PROVIDER_URL: z.string().optional(),
   VIDEO_PROVIDER_API_KEY: z.string().optional(),
+  COVER_PROVIDER: z.string().default("music"),
+  COVER_PROVIDER_URL: z.string().optional(),
+  COVER_PROVIDER_API_KEY: z.string().optional(),
   JOB_WORKER_SECRET: z.string().default("dev-worker-secret"),
   CRON_SECRET: z.string().optional(),
+  LISTEN_TOKEN_SECRET: z.string().optional(),
   STORAGE_BUCKET: z.string().default("melora-media"),
   UPSTASH_REDIS_REST_URL: z.string().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+  MALWARE_SCAN_REQUIRED: booleanString(false),
+  MALWARE_SCANNER_URL: z.string().optional(),
+  MALWARE_SCANNER_API_KEY: z.string().optional(),
   TWILIO_ACCOUNT_SID: z.string().optional(),
   TWILIO_AUTH_TOKEN: z.string().optional(),
   TWILIO_FROM_NUMBER: z.string().optional(),
@@ -45,6 +56,7 @@ export function getEnv(): AppEnv {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_BRAND_NAME: process.env.NEXT_PUBLIC_BRAND_NAME,
     USE_MOCK_PROVIDERS: process.env.USE_MOCK_PROVIDERS,
+    VIDEO_FEATURE_ENABLED: process.env.VIDEO_FEATURE_ENABLED,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -63,11 +75,18 @@ export function getEnv(): AppEnv {
     MUSIC_PROVIDER_API_KEY: process.env.MUSIC_PROVIDER_API_KEY,
     VIDEO_PROVIDER_URL: process.env.VIDEO_PROVIDER_URL,
     VIDEO_PROVIDER_API_KEY: process.env.VIDEO_PROVIDER_API_KEY,
+    COVER_PROVIDER: process.env.COVER_PROVIDER,
+    COVER_PROVIDER_URL: process.env.COVER_PROVIDER_URL,
+    COVER_PROVIDER_API_KEY: process.env.COVER_PROVIDER_API_KEY,
     JOB_WORKER_SECRET: process.env.JOB_WORKER_SECRET,
     CRON_SECRET: process.env.CRON_SECRET,
+    LISTEN_TOKEN_SECRET: process.env.LISTEN_TOKEN_SECRET,
     STORAGE_BUCKET: process.env.STORAGE_BUCKET,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    MALWARE_SCAN_REQUIRED: process.env.MALWARE_SCAN_REQUIRED,
+    MALWARE_SCANNER_URL: process.env.MALWARE_SCANNER_URL,
+    MALWARE_SCANNER_API_KEY: process.env.MALWARE_SCANNER_API_KEY,
     TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
     TWILIO_FROM_NUMBER: process.env.TWILIO_FROM_NUMBER,
@@ -83,26 +102,14 @@ export function getEnv(): AppEnv {
 }
 
 export function isMockMode() {
-  const env = getEnv();
-  if (process.env.USE_MOCK_PROVIDERS === "false") return false;
-  return (
-    env.USE_MOCK_PROVIDERS ||
-    !env.NEXT_PUBLIC_SUPABASE_URL ||
-    !env.STRIPE_SECRET_KEY
-  );
+  return getEnv().USE_MOCK_PROVIDERS;
 }
 
 export function hasSupabase() {
   const env = getEnv();
-  return Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
-}
-
-export function isProductionReady() {
-  const env = getEnv();
-  return (
-    hasSupabase() &&
-    Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET) &&
-    Boolean(env.RESEND_API_KEY) &&
-    process.env.USE_MOCK_PROVIDERS === "false"
+  return Boolean(
+    env.NEXT_PUBLIC_SUPABASE_URL &&
+      env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+      env.SUPABASE_SERVICE_ROLE_KEY,
   );
 }

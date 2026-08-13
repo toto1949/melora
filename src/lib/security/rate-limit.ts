@@ -1,4 +1,5 @@
 import { getEnv } from "@/lib/env";
+import { logEvent } from "@/lib/observability/logger";
 
 type Bucket = { count: number; resetAt: number };
 const localBuckets = new Map<string, Bucket>();
@@ -10,7 +11,20 @@ export async function rateLimit(
 ): Promise<{ success: boolean; remaining: number }> {
   const env = getEnv();
   if (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) {
-    return upstashRateLimit(key, limit, windowMs, env.UPSTASH_REDIS_REST_URL, env.UPSTASH_REDIS_REST_TOKEN);
+    try {
+      return await upstashRateLimit(
+        key,
+        limit,
+        windowMs,
+        env.UPSTASH_REDIS_REST_URL,
+        env.UPSTASH_REDIS_REST_TOKEN,
+      );
+    } catch (error) {
+      logEvent("warn", "distributed_rate_limit_error", {
+        error: error instanceof Error ? error.message : "Unknown Upstash error",
+      });
+      return localRateLimit(key, limit, windowMs);
+    }
   }
   return localRateLimit(key, limit, windowMs);
 }
@@ -32,7 +46,10 @@ async function upstashRateLimit(
       ["EXPIRE", redisKey, windowSec.toString(), "NX"],
     ]),
   });
-  if (!res.ok) return { success: true, remaining: limit };
+  if (!res.ok) {
+    logEvent("warn", "distributed_rate_limit_unavailable", { status: res.status });
+    return localRateLimit(key, limit, windowMs);
+  }
   const data = (await res.json()) as Array<{ result: number }>;
   const count = data[0]?.result ?? 0;
   return { success: count <= limit, remaining: Math.max(0, limit - count) };

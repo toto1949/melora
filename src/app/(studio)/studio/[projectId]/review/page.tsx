@@ -5,6 +5,8 @@ import { confirmReviewAction } from "@/lib/actions/studio";
 import { loadStudioProject } from "@/lib/studio/load-project";
 import { listPackages } from "@/lib/db/repository";
 import { formatCurrency } from "@/lib/utils";
+import { getEnv } from "@/lib/env";
+import { filterPackagesForRelease } from "@/lib/features";
 
 export default async function ReviewStep({
   params,
@@ -16,7 +18,7 @@ export default async function ReviewStep({
   const { projectId } = await params;
   const { error } = await searchParams;
   const project = await loadStudioProject(projectId);
-  const packages = await listPackages();
+  const packages = filterPackagesForRelease(await listPackages(), getEnv().VIDEO_FEATURE_ENABLED);
   const pkg = packages.find((p) => p.id === project.packageId) || packages[0];
   return (
     <StudioShell projectId={projectId} currentStep={7}>

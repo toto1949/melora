@@ -179,6 +179,7 @@ export interface MediaUpload {
   sizeBytes: number;
   sortOrder: number;
   consentConfirmed: boolean;
+  malwareScanStatus?: "pending" | "clean" | "infected" | "failed";
   url?: string;
 }
 
@@ -274,7 +275,11 @@ export interface GenerationJob {
   maxAttempts: number;
   idempotencyKey: string;
   provider: string | null;
+  providerJobId: string | null;
   error: string | null;
+  nextRetryAt: string | null;
+  startedAt: string | null;
+  finishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

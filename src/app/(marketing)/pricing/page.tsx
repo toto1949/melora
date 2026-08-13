@@ -1,15 +1,18 @@
 import { PricingSection } from "@/components/marketing/sections";
 import { listPackages } from "@/lib/db/repository";
+import { getEnv } from "@/lib/env";
+import { filterPackagesForRelease } from "@/lib/features";
 
 export const metadata = {
   title: "Pricing",
   description:
-    "One-time pricing for personalized songs — custom lyrics, studio-quality audio, private listening pages, and optional videos. No subscription.",
+    "One-time pricing for personalized songs — custom lyrics, studio-quality audio, and private listening pages. No subscription.",
   alternates: { canonical: "/pricing" },
 };
 
 export default async function PricingPage() {
-  const packages = await listPackages();
+  const videoEnabled = getEnv().VIDEO_FEATURE_ENABLED;
+  const packages = filterPackagesForRelease(await listPackages(), videoEnabled);
   const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const productLd = {
     "@context": "https://schema.org",
@@ -31,7 +34,7 @@ export default async function PricingPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }} />
-      <PricingSection packages={packages} />
+      <PricingSection packages={packages} videoEnabled={videoEnabled} />
     </>
   );
 }

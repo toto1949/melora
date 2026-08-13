@@ -192,7 +192,11 @@ export function mapJob(row: Record<string, unknown>): GenerationJob {
     maxAttempts: row.max_attempts as number,
     idempotencyKey: row.idempotency_key as string,
     provider: (row.provider as string) ?? null,
+    providerJobId: (row.provider_job_id as string) ?? null,
     error: (row.error as string) ?? null,
+    nextRetryAt: (row.next_retry_at as string) ?? null,
+    startedAt: (row.started_at as string) ?? null,
+    finishedAt: (row.finished_at as string) ?? null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
   };

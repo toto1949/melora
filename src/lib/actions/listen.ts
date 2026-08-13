@@ -17,7 +17,10 @@ const LISTEN_UNLOCK_COOKIE = "melora_listen_unlock";
 
 async function listenUnlockSecret() {
   const env = getEnv();
-  return new TextEncoder().encode(env.JOB_WORKER_SECRET);
+  if (!env.LISTEN_TOKEN_SECRET && !env.USE_MOCK_PROVIDERS) {
+    throw new Error("LISTEN_TOKEN_SECRET is not configured");
+  }
+  return new TextEncoder().encode(env.LISTEN_TOKEN_SECRET || "dev-listen-secret");
 }
 
 async function setListenUnlocked(orderId: string) {

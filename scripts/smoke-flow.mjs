@@ -1,11 +1,7 @@
 import { randomUUID } from "crypto";
-import { pathToFileURL } from "url";
 
 // Dynamic import compiled via next is hard; exercise store JSON directly after
 // calling the TypeScript modules through vitest-like runtime.
-const { register } = await import("node:module");
-const { pathToFileURL: toUrl } = await import("node:url");
-
 // Use tsx register
 await import("tsx/esm/api").catch(() => null);
 

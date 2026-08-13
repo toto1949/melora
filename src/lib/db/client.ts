@@ -28,7 +28,7 @@ export async function getSupabaseServer() {
         try {
           cookiesToSet.forEach(({ name, value, options }) => jar.set(name, value, options));
         } catch {
-          // Called from Server Component — middleware handles refresh.
+          // Called from a Server Component — the application proxy handles refresh.
         }
       },
     },

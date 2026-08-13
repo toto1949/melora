@@ -8,6 +8,8 @@ export class HttpMusicProvider implements MusicProvider {
     brief: { genre: string; mood: string; vocalType: string };
     lyrics: string;
     title: string;
+    idempotencyKey?: string;
+    onProviderJobId?: (providerJobId: string) => void | Promise<void>;
   }): Promise<MusicResult> {
     const env = getEnv();
     if (!env.MUSIC_PROVIDER_URL) {
@@ -21,6 +23,9 @@ export class HttpMusicProvider implements MusicProvider {
         ...(env.MUSIC_PROVIDER_API_KEY
           ? { Authorization: `Bearer ${env.MUSIC_PROVIDER_API_KEY}` }
           : {}),
+        ...(input.idempotencyKey
+          ? { "Idempotency-Key": input.idempotencyKey.slice(0, 128) }
+          : {}),
       },
       body: JSON.stringify({
         title: input.title,
@@ -29,6 +34,7 @@ export class HttpMusicProvider implements MusicProvider {
         mood: input.brief.mood,
         vocal_type: input.brief.vocalType,
       }),
+      signal: AbortSignal.timeout(210_000),
     });
 
     if (!res.ok) {
@@ -36,12 +42,16 @@ export class HttpMusicProvider implements MusicProvider {
     }
 
     const data = (await res.json()) as Record<string, unknown>;
+    const providerJobId = String(data.jobId ?? data.job_id ?? "");
+    if (providerJobId) await input.onProviderJobId?.(providerJobId);
+    const audioUrl = String(data.audioUrl ?? data.audio_url ?? "");
+    if (!audioUrl) throw new Error("Music provider returned no audio URL");
     return {
-      audioUrl: String(data.audioUrl ?? data.audio_url ?? ""),
+      audioUrl,
       durationSeconds: Number(data.durationSeconds ?? data.duration_seconds ?? 180),
       format: (data.format as "mp3" | "wav") ?? "mp3",
       provider: this.name,
-      providerJobId: String(data.jobId ?? data.job_id ?? ""),
+      providerJobId: providerJobId || undefined,
     };
   }
 }

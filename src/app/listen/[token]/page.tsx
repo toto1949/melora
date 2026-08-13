@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { isListenUnlocked } from "@/lib/actions/listen";
 import { getOrderByShareToken } from "@/lib/db/repository";
 import { BRAND } from "@/lib/constants";
+import { getEnv } from "@/lib/env";
 
 export async function generateMetadata({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -72,7 +73,12 @@ export default async function ListenPage({
           </Link>
         </div>
       </header>
-      <ListenExperience order={order} version={order.currentVersion || null} canManage={canManage} />
+      <ListenExperience
+        order={order}
+        version={order.currentVersion || null}
+        canManage={canManage}
+        videoEnabled={getEnv().VIDEO_FEATURE_ENABLED}
+      />
     </div>
   );
 }

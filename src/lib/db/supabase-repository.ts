@@ -7,7 +7,6 @@ import type {
   OrderStatus,
   Package,
   PrivacyMode,
-  Profile,
   Project,
   Recipient,
   RevisionRequest,
@@ -17,7 +16,6 @@ import type {
   SupportTicket,
   UserRole,
 } from "@/types";
-import { getEnv } from "@/lib/env";
 import { orderNumber } from "@/lib/utils";
 import { getSupabaseAdmin } from "./client";
 import {
@@ -63,6 +61,7 @@ async function attachProject(project: Project): Promise<Project> {
       sizeBytes: m.size_bytes,
       sortOrder: m.sort_order,
       consentConfirmed: m.consent_confirmed,
+      malwareScanStatus: m.malware_scan_status,
       url: (await getSignedAssetUrl(m.storage_path)) ?? undefined,
     })),
   );
@@ -546,6 +545,7 @@ export async function addMedia(
       size_bytes: media.sizeBytes,
       sort_order: media.sortOrder,
       consent_confirmed: media.consentConfirmed,
+      malware_scan_status: media.malwareScanStatus ?? "pending",
     })
     .select()
     .single();
@@ -561,6 +561,7 @@ export async function addMedia(
     sizeBytes: row.size_bytes,
     sortOrder: row.sort_order,
     consentConfirmed: row.consent_confirmed,
+    malwareScanStatus: row.malware_scan_status,
     url: await getSignedAssetUrl(row.storage_path),
   };
 }
@@ -626,14 +627,17 @@ export async function getProfileByEmail(email: string) {
 
 // Session auth handled by Supabase Auth — stubs for interface compatibility
 export async function createSession(_userId: string) {
+  void _userId;
   throw new Error("Use Supabase Auth sessions in production");
 }
 
 export async function getSessionUser(_token: string | undefined | null) {
+  void _token;
   return null;
 }
 
 export async function destroySession(_token: string) {
+  void _token;
   return;
 }
 
@@ -824,6 +828,18 @@ export async function listJobs(status?: GenerationJob["status"]) {
   return (data ?? []).map(mapJob);
 }
 
+export async function listRunnableJobs(limit = 500) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb
+    .from("generation_jobs")
+    .select("*")
+    .in("status", ["queued", "failed", "running", "dead_letter", "cancelled"])
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`Failed to list runnable jobs: ${error.message}`);
+  return (data ?? []).map(mapJob);
+}
+
 export async function listOrderJobs(orderId: string) {
   const sb = getSupabaseAdmin();
   const { data } = await sb
@@ -840,17 +856,31 @@ export async function updateJob(jobId: string, patch: Partial<GenerationJob>) {
   if (patch.status != null) row.status = patch.status;
   if (patch.progress != null) row.progress = patch.progress;
   if (patch.attempt != null) row.attempt = patch.attempt;
-  if (patch.error != null) row.error = patch.error;
+  if (patch.error !== undefined) row.error = patch.error;
   if (patch.provider != null) row.provider = patch.provider;
+  if (patch.providerJobId !== undefined) row.provider_job_id = patch.providerJobId;
+  if (patch.nextRetryAt !== undefined) row.next_retry_at = patch.nextRetryAt;
+  if (patch.startedAt !== undefined) row.started_at = patch.startedAt;
+  if (patch.finishedAt !== undefined) row.finished_at = patch.finishedAt;
   const { data, error } = await sb.from("generation_jobs").update(row).eq("id", jobId).select().single();
   if (error || !data) return null;
   return mapJob(data);
 }
 
+export async function claimJob(jobId: string) {
+  const sb = getSupabaseAdmin();
+  const staleBefore = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const { data, error } = await sb.rpc("claim_generation_job", {
+    target_job_id: jobId,
+    stale_before: staleBefore,
+  });
+  if (error) throw new Error(`Failed to claim job: ${error.message}`);
+  if (!data) return null;
+  return mapJob(data as Record<string, unknown>);
+}
+
 export async function saveSongVersion(version: Omit<SongVersion, "id" | "createdAt"> & { id?: string }) {
   const sb = getSupabaseAdmin();
-  await sb.from("song_versions").update({ is_current: false }).eq("order_id", version.orderId);
-
   const { data: existing } = await sb
     .from("song_versions")
     .select("*")
@@ -877,6 +907,13 @@ export async function saveSongVersion(version: Omit<SongVersion, "id" | "created
     : await sb.from("song_versions").insert(payload).select().single();
   if (error || !data) throw new Error(error?.message ?? "Failed to save version");
 
+  const { error: currentError } = await sb
+    .from("song_versions")
+    .update({ is_current: false })
+    .eq("order_id", version.orderId)
+    .neq("id", data.id);
+  if (currentError) throw new Error(`Failed to select current song version: ${currentError.message}`);
+
   const versionId = data.id;
   const persistAsset = async (kind: string, url: string | null | undefined, mimeType: string) => {
     // Skip local mock/sample paths; store both external provider URLs and storage paths.
@@ -886,6 +923,7 @@ export async function saveSongVersion(version: Omit<SongVersion, "id" | "created
       .select("id")
       .eq("song_version_id", versionId)
       .eq("kind", kind)
+      .limit(1)
       .maybeSingle();
     const assetPayload = {
       order_id: version.orderId,
@@ -898,9 +936,14 @@ export async function saveSongVersion(version: Omit<SongVersion, "id" | "created
       is_primary: true,
     };
     if (existingAsset) {
-      await sb.from("generated_assets").update(assetPayload).eq("id", existingAsset.id);
+      const { error: assetError } = await sb
+        .from("generated_assets")
+        .update(assetPayload)
+        .eq("id", existingAsset.id);
+      if (assetError) throw new Error(`Failed to update ${kind} asset: ${assetError.message}`);
     } else {
-      await sb.from("generated_assets").insert(assetPayload);
+      const { error: assetError } = await sb.from("generated_assets").insert(assetPayload);
+      if (assetError) throw new Error(`Failed to save ${kind} asset: ${assetError.message}`);
     }
   };
   await persistAsset("audio", version.audioUrl, "audio/mpeg");

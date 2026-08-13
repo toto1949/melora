@@ -11,7 +11,7 @@ const MAX_TITLE_CHARS = 80;
 
 // Leave headroom under the route's 300s maxDuration; on timeout the job
 // worker retries and the Idempotency-Key resumes this same generation.
-const POLL_DEADLINE_MS = 250_000;
+const POLL_DEADLINE_MS = 210_000;
 const POLL_INTERVAL_MS = 10_000;
 
 interface KunavoTrack {
@@ -35,6 +35,7 @@ export class KunavoMusicProvider implements MusicProvider {
     lyrics: string;
     title: string;
     idempotencyKey?: string;
+    onProviderJobId?: (providerJobId: string) => void | Promise<void>;
   }): Promise<MusicResult> {
     const env = getEnv();
     const apiKey = env.MUSIC_PROVIDER_API_KEY;
@@ -74,6 +75,8 @@ export class KunavoMusicProvider implements MusicProvider {
     }
 
     let job = (await submitRes.json()) as KunavoJob;
+    if (!job.id) throw new Error("Kunavo returned no job id");
+    await input.onProviderJobId?.(job.id);
     const deadline = Date.now() + POLL_DEADLINE_MS;
     while (job.status !== "completed" && job.status !== "failed") {
       if (Date.now() > deadline) {

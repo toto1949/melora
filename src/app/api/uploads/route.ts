@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser, getGuestToken } from "@/lib/auth/session";
-import { addMedia, getProject } from "@/lib/db/repository";
-import { hasSupabase } from "@/lib/env";
-import { getSignedAssetUrl, uploadAsset } from "@/lib/storage/assets";
+import { getProject } from "@/lib/db/repository";
+import { logEvent } from "@/lib/observability/logger";
+import { processMediaUpload } from "@/lib/uploads/process-upload";
 
 const ALLOWED = new Set([
   "image/jpeg",
@@ -22,39 +22,30 @@ export async function POST(req: NextRequest) {
   if (!ALLOWED.has(file.type)) {
     return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
   }
-  if (file.size > 100 * 1024 * 1024) {
-    return NextResponse.json({ error: "File too large" }, { status: 400 });
-  }
-
   const guestToken = await getGuestToken();
   const user = await getCurrentUser();
   const project = await getProject(projectId, guestToken);
   if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-  const storagePath = `uploads/${projectId}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  if (hasSupabase()) {
-    await uploadAsset(storagePath, buffer, file.type);
+  let media;
+  try {
+    media = await processMediaUpload({
+      projectId,
+      file,
+      userId: user?.id ?? null,
+      sortOrder: project.media?.length || 0,
+    });
+  } catch (error) {
+    logEvent("warn", "media_upload_rejected", {
+      projectId,
+      fileName: file.name,
+      error: error instanceof Error ? error.message : "Unknown upload error",
+    });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Upload rejected" },
+      { status: 422 },
+    );
   }
-
-  const url = hasSupabase()
-    ? (await getSignedAssetUrl(storagePath)) ?? undefined
-    : file.type.startsWith("video")
-      ? "/samples/covers/golden-hour.svg"
-      : "/samples/covers/golden-hour.svg";
-
-  const media = await addMedia(projectId, {
-    userId: user?.id ?? null,
-    kind: file.type.startsWith("video") ? "video_clip" : "portrait",
-    storagePath,
-    fileName: file.name,
-    mimeType: file.type,
-    sizeBytes: file.size,
-    sortOrder: project.media?.length || 0,
-    consentConfirmed: true,
-    url,
-  });
 
   return NextResponse.json({ ok: true, media });
 }

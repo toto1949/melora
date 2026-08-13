@@ -1,5 +1,7 @@
 import { FaqSection } from "@/components/marketing/sections";
 import { listFaqs } from "@/lib/db/repository";
+import { getEnv } from "@/lib/env";
+import { filterFaqsForRelease } from "@/lib/features";
 
 export const metadata = {
   title: "FAQ",
@@ -9,7 +11,10 @@ export const metadata = {
 };
 
 export default async function FaqPage() {
-  const faqs = await listFaqs();
+  const faqs = filterFaqsForRelease(
+    await listFaqs(),
+    getEnv().VIDEO_FEATURE_ENABLED,
+  );
   const faqLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
