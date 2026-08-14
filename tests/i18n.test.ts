@@ -22,9 +22,20 @@ describe("i18n dictionaries", () => {
     ["ar", ar],
   ])("%s has full key parity with en", (_name, dict) => {
     const keys = new Set(flattenKeys(dict as Record<string, unknown>));
+    expect(keys.size).toBe(enKeys.size);
     for (const key of enKeys) {
       expect(keys.has(key), `missing key: ${key}`).toBe(true);
     }
+  });
+
+  it.each([
+    ["fr", fr, "Langue", "Tous droits réservés."],
+    ["es", es, "Idioma", "Todos los derechos reservados."],
+    ["ar", ar, "اللغة", "جميع الحقوق محفوظة."],
+  ])("%s localizes the language control and footer", (_name, dict, language, rights) => {
+    expect(dict.language.label).toBe(language);
+    expect(dict.footer.rights).toBe(rights);
+    expect(dict.hero.headline).not.toBe(en.hero.headline);
   });
 
   it("translate resolves nested keys", () => {

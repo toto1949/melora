@@ -12,11 +12,224 @@
     "faq": "FAQ",
     "trackOrder": "Suivre une commande",
     "signIn": "Connexion",
-    "create": "Créer votre chanson"
+    "create": "Créer votre chanson",
+    "dashboard": "Tableau de bord",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
   },
   "cta": {
     "createSong": "Créer votre chanson",
     "listenExamples": "Écouter des exemples",
     "createTheirSong": "Créer leur chanson"
+  },
+  "language": {
+    "label": "Langue",
+    "names": {
+      "en": "Anglais",
+      "fr": "Français",
+      "es": "Espagnol",
+      "ar": "Arabe"
+    }
+  },
+  "footer": {
+    "description": "Des chansons personnalisées créées à partir des souvenirs qui comptent le plus.",
+    "product": "Produit",
+    "company": "Entreprise",
+    "legal": "Mentions légales",
+    "examples": "Exemples",
+    "pricing": "Tarifs",
+    "create": "Créer votre chanson",
+    "occasions": "Occasions",
+    "howItWorks": "Comment ça marche",
+    "help": "Centre d'aide",
+    "contact": "Contact",
+    "reviews": "Avis",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions",
+    "refunds": "Politique de remboursement",
+    "rights": "Tous droits réservés."
+  },
+  "cookie": {
+    "title": "Préférences de cookies",
+    "aria": "Préférences de cookies",
+    "body": "Nous utilisons des cookies essentiels pour l'authentification et le paiement. Les cookies d'analyse sont facultatifs et respectueux de la vie privée.",
+    "privacy": "Politique de confidentialité",
+    "accept": "Tout accepter",
+    "essential": "Essentiels uniquement"
+  },
+  "hero": {
+    "trustBadge": "Une musique personnalisée créée à partir de vos souvenirs",
+    "headline": "Transformez vos souvenirs en une chanson qu'ils garderont pour toujours.",
+    "supporting": "Racontez votre histoire, choisissez votre univers musical et laissez notre technologie créative transformer vos moments préférés en une chanson profondément personnelle.",
+    "create": "Créer votre chanson",
+    "listen": "Écouter des exemples",
+    "assurance": "Généralement prête sous 48 heures · Révisions pensées pour votre satisfaction · Paiement sécurisé",
+    "imageAlt": "Une femme émue ferme les yeux en écoutant sa chanson personnalisée",
+    "imageTitle": "Une chanson pour quelqu'un que vous aimez",
+    "imageEyebrow": "Créée à partir de vos souvenirs",
+    "demoSubtitle": "Anniversaire · Acoustique · Créée avec Memories to Melody"
+  },
+  "trust": {
+    "delivery": "Délai habituel",
+    "genres": "Genres musicaux",
+    "languages": "Langues chantées",
+    "private": "Privé par défaut",
+    "songs": "Chansons créées"
+  },
+  "reactions": {
+    "eyebrow": "Réactions",
+    "title": "Le moment où ils l'entendent",
+    "body": "Une chanson personnalisée touche autrement que n'importe quel autre cadeau — voici les moments dont les gens se souviennent.",
+    "aria": "réagit à sa chanson pour"
+  },
+  "howItWorks": {
+    "eyebrow": "Comment ça marche",
+    "title": "Quatre étapes simples vers une chanson qu'ils garderont",
+    "start": "Commencer la création",
+    "steps": {
+      "one": {
+        "title": "Racontez-nous votre histoire",
+        "body": "Présentez la personne, l'occasion et les souvenirs qui la rendent irremplaçable."
+      },
+      "two": {
+        "title": "Choisissez votre son",
+        "body": "Choisissez le genre, l'ambiance, les voix et la direction des paroles, ou laissez-vous guider par nos réglages."
+      },
+      "three": {
+        "title": "Nous créons votre chanson",
+        "body": "Notre processus créatif écrit les paroles, produit la chanson et prépare votre page d'écoute."
+      },
+      "four": {
+        "title": "Écoutez, partagez et célébrez",
+        "body": "Dévoilez le cadeau, téléchargez l'audio et partagez un lien privé au bon moment."
+      }
+    }
+  },
+  "examples": {
+    "eyebrow": "Exemples",
+    "title": "Écoutez avant de créer",
+    "body": "Des chansons créées avec Memories to Melody — un aperçu de ce que votre histoire pourrait devenir.",
+    "allOccasions": "Toutes les occasions",
+    "allGenres": "Tous les genres",
+    "allMoods": "Toutes les ambiances",
+    "allVocals": "Toutes les voix",
+    "allLanguages": "Toutes les langues",
+    "filterOccasion": "Filtrer par occasion",
+    "filterGenre": "Filtrer par genre",
+    "filterMood": "Filtrer par ambiance",
+    "filterVocal": "Filtrer par type de voix",
+    "filterLanguage": "Filtrer par langue",
+    "createSimilar": "Créer quelque chose de similaire",
+    "noResults": "Aucun exemple ne correspond encore à ces filtres."
+  },
+  "occasions": {
+    "eyebrow": "Occasions",
+    "title": "Créée pour les moments qui comptent",
+    "detailEyebrow": "Occasion",
+    "createPrefix": "Créer une chanson pour",
+    "createSuffix": "",
+    "emptyPrefix": "Chaque chanson pour",
+    "emptySuffix": "est créée spécialement à partir de votre histoire — commencez la vôtre ci-dessus.",
+    "items": {
+      "birthday": { "name": "Anniversaire", "description": "Une mélodie qui rendra cette journée inoubliable." },
+      "anniversary": { "name": "Anniversaire de couple", "description": "Célébrez les chapitres que vous avez écrits ensemble." },
+      "wedding": { "name": "Mariage", "description": "Une première danse, des vœux ou une surprise venue du cœur." },
+      "mothers-day": { "name": "Fête des Mères", "description": "Rendez hommage à celle qui vous a accompagné à chaque étape." },
+      "fathers-day": { "name": "Fête des Pères", "description": "Dites ce que les mots seuls ne parviennent pas à exprimer." },
+      "graduation": { "name": "Remise de diplôme", "description": "Marquez cette réussite avec une chanson pleine de fierté." },
+      "memorial": { "name": "Hommage", "description": "Un doux hommage qui garde sa lumière présente." },
+      "apology": { "name": "Pardon", "description": "Retrouvez le chemin de la paix avec sincérité et douceur." },
+      "thank-you": { "name": "Remerciement", "description": "Votre gratitude portée par une voix dont ils se souviendront." },
+      "friendship": { "name": "Amitié", "description": "Pour ces personnes auprès desquelles on se sent chez soi." },
+      "new-baby": { "name": "Naissance", "description": "Accueillez une nouvelle vie avec une berceuse d'amour." },
+      "just-because": { "name": "Juste comme ça", "description": "Pas besoin d'occasion, seulement d'une belle intention." }
+    }
+  },
+  "product": {
+    "eyebrow": "Ce que vous recevez",
+    "title": "Un souvenir complet, pas seulement un fichier",
+    "preview": "Aperçu de la page d'écoute",
+    "forAvery": "Pour Avery",
+    "songFrom": "Une chanson de Jordan · Anniversaire",
+    "previewBody": "Les paroles synchronisées, le mode révélation, les téléchargements et les options de partage se trouvent ici.",
+    "items": {
+      "song": { "title": "Chanson personnalisée", "body": "Un son de qualité studio façonné autour de votre histoire." },
+      "lyrics": { "title": "Paroles sur mesure", "body": "Les noms, souvenirs et messages sont tissés dans la chanson." },
+      "page": { "title": "Page d'écoute privée", "body": "Une belle page conçue pour dévoiler le cadeau." },
+      "download": { "title": "Téléchargement audio", "body": "Gardez un MP3, ou un WAV avec les formules supérieures." },
+      "share": { "title": "Lien à partager", "body": "Des liens sécurisés avec des contrôles de confidentialité." },
+      "cover": { "title": "Pochette personnalisée", "body": "Un visuel souvenir pour accompagner la chanson." },
+      "video": { "title": "Vidéos en option", "body": "Vidéos avec paroles et clips créés à partir de photos." },
+      "videoLater": { "title": "Vidéo à la prochaine version", "body": "Les souvenirs vidéo sont en préparation pour une prochaine version." },
+      "revisions": { "title": "Outils de révision", "body": "Demandez des modifications guidées grâce à vos crédits." }
+    }
+  },
+  "reviews": {
+    "eyebrow": "Avis",
+    "emptyTitle": "Soyez le premier à raconter votre histoire",
+    "emptyBody": "Les avis clients apparaissent ici après la livraison de chaque chanson. Créez la vôtre et racontez-nous ce que ce moment vous a fait ressentir.",
+    "create": "Créer votre chanson",
+    "title": "Un cadeau qui touche le cœur",
+    "verified": "Achat vérifié",
+    "loadMore": "Afficher plus",
+    "ratingSuffix": "étoiles sur 5"
+  },
+  "pricing": {
+    "eyebrow": "Tarifs",
+    "title": "Choisissez le souvenir qui vous correspond",
+    "bodyVideo": "Paiement unique, sans abonnement. Les formules vidéo sont disponibles au paiement.",
+    "bodyNoVideo": "Paiement unique, sans abonnement. Les formules vidéo reviendront dans la prochaine version.",
+    "popular": "Le plus populaire",
+    "choose": "Choisir",
+    "packages": {
+      "essential-song": {
+        "name": "Chanson Essentielle",
+        "description": "Une chanson magnifiquement personnalisée avec écoute privée et téléchargement.",
+        "features": ["Paroles personnalisées", "Une chanson créée", "Page d'écoute privée", "Téléchargement MP3", "Livraison standard"]
+      },
+      "premium-story": {
+        "name": "Histoire Premium",
+        "description": "Plus de versions, une pochette, une vidéo avec paroles et une livraison plus rapide.",
+        "features": ["Tout le contenu Essentiel", "Plusieurs versions de la chanson", "WAV haute qualité", "Pochette personnalisée", "Vidéo avec paroles", "Livraison prioritaire", "Crédits de révision"]
+      },
+      "cinematic-memory": {
+        "name": "Souvenir Cinématographique",
+        "description": "Le souvenir complet : chanson, vidéo avec paroles et clip créé à partir de photos.",
+        "features": ["Tout le contenu Premium", "Clip à partir de photos", "Plusieurs styles visuels", "Téléchargement Full HD", "Durée prolongée", "Traitement prioritaire"]
+      }
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Des réponses simples à vos questions",
+    "viewAll": "Voir toutes les questions",
+    "items": {
+      "faq-1": { "question": "Comment fonctionne Memories to Melody ?", "answer": "Racontez-nous votre histoire dans un studio guidé de cinq minutes : à qui s'adresse la chanson, l'occasion, les souvenirs importants et le son que vous aimez. Nous en faisons des paroles sur mesure et une chanson entièrement produite, puis nous la livrons sur une page d'écoute privée à partager au bon moment." },
+      "faq-2": { "question": "Quand ma chanson sera-t-elle prête ?", "answer": "La plupart des chansons sont prêtes sous 48 heures, et beaucoup arrivent le jour même. La livraison prioritaire des formules Premium et Cinématographique vous place en tête de file. Suivez l'avancement depuis votre tableau de bord et recevez un e-mail dès que votre chanson est prête." },
+      "faq-3": { "question": "Que dois-je préparer avant de commencer ?", "answer": "Quelques souvenirs suffisent. Le studio pose des questions simples : votre rencontre, une plaisanterie entre vous, un moment inoubliable. Deux ou trois détails sincères suffisent et vous n'avez rien à rédiger parfaitement. Plus le souvenir est précis, plus la chanson sera personnelle." },
+      "faq-4": { "question": "Puis-je choisir le style musical et la voix ?", "answer": "Oui. Choisissez parmi plus de 16 genres — pop, acoustique, R&B, country, gospel, arabe, latin et bien d'autres — puis réglez l'ambiance et le type de voix. Nos choix guidés donnent aussi un très beau résultat." },
+      "faq-5": { "question": "La chanson peut-elle être dans une autre langue ?", "answer": "Oui, les chansons peuvent être écrites et chantées en anglais, français, espagnol ou arabe. Écoutez les chansons multilingues de la page d'exemples pour découvrir leur rendu naturel." },
+      "faq-6": { "question": "Et si je souhaite modifier ma chanson ?", "answer": "Chaque formule inclut des crédits de révision. Depuis votre tableau de bord, demandez des changements de paroles, de prononciation, de tempo, d'ambiance ou de voix et nous produirons une nouvelle version. La plupart des révisions sont livrées sous 24 heures." },
+      "faq-7": { "question": "À qui appartient la chanson et puis-je la partager en ligne ?", "answer": "Vous recevez une licence personnelle à vie : écoutez, téléchargez, offrez et partagez la chanson avec vos proches ou sur vos réseaux personnels. L'utilisation commerciale exige une licence séparée ; contactez-nous simplement." },
+      "faq-8": { "question": "Comment offrir la chanson ?", "answer": "Chaque commande comprend une page d'écoute privée avec pochette, paroles synchronisées et mode de révélation facultatif. Partagez le lien par message ou e-mail, ou lancez la chanson en personne pour voir leur réaction." },
+      "faq-9": { "question": "Mon histoire reste-t-elle privée ?", "answer": "Absolument. Vos réponses et fichiers servent uniquement à créer votre chanson et sont conservés dans un stockage privé. Les pages d'écoute sont privées par défaut et vous contrôlez leur partage." },
+      "faq-10": { "question": "Que comprend chaque formule ?", "answer": "La formule Essentielle comprend des paroles personnalisées, une chanson produite, une page d'écoute privée et un téléchargement MP3. Les formules supérieures ajoutent des formats, une pochette et des révisions. Chaque formule est un paiement unique, sans abonnement." },
+      "faq-11": { "question": "Puis-je télécharger la chanson et la garder pour toujours ?", "answer": "Oui. Chaque formule comprend un téléchargement MP3 et votre page d'écoute n'expire pas. Les formules supérieures peuvent ajouter des fichiers WAV de qualité studio. La chanson est à vous pour toujours." },
+      "faq-12": { "question": "Que se passe-t-il si le résultat ne me plaît pas ?", "answer": "Nous ferons le nécessaire. Utilisez d'abord vos crédits de révision : la plupart des problèmes se règlent par une modification des paroles ou de la voix. Si un problème de qualité vérifié ne peut être résolu, notre politique de remboursement s'applique dans les 14 jours suivant la livraison." }
+    }
+  },
+  "finalCta": {
+    "title": "Prêt à leur offrir une chanson qu'ils garderont pour toujours ?",
+    "body": "La plupart des clients terminent le studio en moins de cinq minutes. Paiement sécurisé, livraison privée et aide à la révision quand vous en avez besoin.",
+    "create": "Créer leur chanson",
+    "packages": "Voir les formules",
+    "assurance": "Garantie pensée pour votre satisfaction · Paiements chiffrés via Stripe"
+  },
+  "trackOrder": {
+    "title": "Suivre votre commande",
+    "body": "Saisissez le numéro indiqué dans votre e-mail de confirmation et l'adresse e-mail utilisée lors du paiement.",
+    "orderNumber": "Numéro de commande",
+    "email": "E-mail",
+    "submit": "Suivre la commande"
   }
 }

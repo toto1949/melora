@@ -18,6 +18,9 @@ export interface HeaderLabels {
   trackOrder: string;
   signIn: string;
   create: string;
+  dashboard: string;
+  openMenu: string;
+  closeMenu: string;
 }
 
 const DEFAULT_LABELS: HeaderLabels = {
@@ -30,6 +33,9 @@ const DEFAULT_LABELS: HeaderLabels = {
   trackOrder: "Track Order",
   signIn: "Sign In",
   create: "Create Your Song",
+  dashboard: "Dashboard",
+  openMenu: "Open menu",
+  closeMenu: "Close menu",
 };
 
 export function SiteHeader({
@@ -90,7 +96,7 @@ export function SiteHeader({
 
         <div className="hidden items-center gap-2 lg:flex">
           <Link href={signedIn ? "/dashboard" : "/auth/sign-in"} className="btn-secondary !py-2.5 !px-4 text-sm">
-            {signedIn ? "Dashboard" : labels.signIn}
+            {signedIn ? labels.dashboard : labels.signIn}
           </Link>
           <Link href="/studio" className="btn-primary !py-2.5 !px-4 text-sm">
             {labels.create}
@@ -104,7 +110,7 @@ export function SiteHeader({
           aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}
         >
-          <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
+          <span className="sr-only">{open ? labels.closeMenu : labels.openMenu}</span>
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
@@ -135,7 +141,7 @@ export function SiteHeader({
                 className="btn-secondary mt-2"
                 onClick={() => setOpen(false)}
               >
-                {signedIn ? "Dashboard" : labels.signIn}
+                {signedIn ? labels.dashboard : labels.signIn}
               </Link>
               <Link href="/studio" className="btn-primary" onClick={() => setOpen(false)}>
                 {labels.create}

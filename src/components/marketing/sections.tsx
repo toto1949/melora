@@ -18,22 +18,25 @@ import { AudioPlayer } from "@/components/player/audio-player";
 import { CountUp, Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { OCCASIONS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
+import { useLocale } from "@/components/i18n/locale-provider";
 import type { FaqItem, Package, ReactionVideo, Review, SampleSong, SiteSettings } from "@/types";
 
 export function TrustBar({ settings }: { settings: SiteSettings }) {
+  const { messages } = useLocale();
+  const copy = messages.trust;
   const stats: Array<{ label: string; value: number; format: (n: number) => string }> = [
-    { label: "Typical delivery", value: 48, format: (n: number) => `${Math.round(n)}h` },
+    { label: copy.delivery, value: 48, format: (n: number) => `${Math.round(n)}h` },
     {
-      label: "Music genres",
+      label: copy.genres,
       value: settings.genresSupported || 16,
       format: (n: number) => `${Math.round(n)}+`,
     },
-    { label: "Languages sung", value: 4, format: (n: number) => `${Math.round(n)}` },
-    { label: "Private by default", value: 100, format: (n: number) => `${Math.round(n)}%` },
+    { label: copy.languages, value: 4, format: (n: number) => `${Math.round(n)}` },
+    { label: copy.private, value: 100, format: (n: number) => `${Math.round(n)}%` },
   ];
   if (settings.songsCreated >= 100) {
     stats[0] = {
-      label: "Songs created",
+      label: copy.songs,
       value: settings.songsCreated,
       format: (n: number) => Math.round(n).toLocaleString(),
     };
@@ -55,16 +58,18 @@ export function TrustBar({ settings }: { settings: SiteSettings }) {
 }
 
 export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
+  const { messages } = useLocale();
+  const copy = messages.reactions;
   return (
     <section id="reactions" className="section-pad">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mb-8 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">Reactions</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">{copy.eyebrow}</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
-            The moment they hear it
+            {copy.title}
           </h2>
           <p className="mt-3 prose-muted">
-            A personalized song lands differently than any other gift — here are the moments people remember.
+            {copy.body}
           </p>
         </Reveal>
         <RevealGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.09}>
@@ -75,7 +80,7 @@ export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
                   className="aspect-[4/5] bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                   style={{ backgroundImage: `url(${rx.thumbnailUrl})` }}
                   role="img"
-                  aria-label={`${rx.customerFirstName}'s reaction to their ${rx.occasion} song`}
+                  aria-label={`${rx.customerFirstName} ${copy.aria} ${rx.occasion}`}
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy/85 via-navy/40 to-transparent px-4 pb-4 pt-14">
                   {rx.quote ? (
@@ -97,31 +102,21 @@ export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
 }
 
 export function HowItWorks() {
+  const { messages } = useLocale();
+  const copy = messages.howItWorks;
   const steps = [
-    {
-      title: "Tell Us Your Story",
-      body: "Share the recipient, occasion, and the memories that make them irreplaceable.",
-    },
-    {
-      title: "Choose Your Sound",
-      body: "Pick genre, mood, vocals, and lyric direction—or keep it simple with guided defaults.",
-    },
-    {
-      title: "We Create Your Song",
-      body: "Our creative pipeline writes lyrics, produces the song, and prepares your listening page.",
-    },
-    {
-      title: "Listen, Share and Celebrate",
-      body: "Reveal the gift, download the audio, and share a private link when the moment is right.",
-    },
+    copy.steps.one,
+    copy.steps.two,
+    copy.steps.three,
+    copy.steps.four,
   ];
   return (
     <section id="how-it-works" className="section-pad bg-surface">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mb-10 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">How it works</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">{copy.eyebrow}</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
-            Four gentle steps to a song they&apos;ll keep
+            {copy.title}
           </h2>
         </Reveal>
         <RevealGroup className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" stagger={0.1}>
@@ -139,7 +134,7 @@ export function HowItWorks() {
         </RevealGroup>
         <Reveal className="mt-8" delay={0.15}>
           <Link href="/studio" className="btn-primary">
-            Start creating
+            {copy.start}
           </Link>
         </Reveal>
       </div>
@@ -148,6 +143,8 @@ export function HowItWorks() {
 }
 
 export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
+  const { messages } = useLocale();
+  const copy = messages.examples;
   const [filters, setFilters] = useState({
     occasion: "all",
     genre: "all",
@@ -174,10 +171,10 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
     <section id="examples" className="section-pad">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mb-8 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">Examples</p>
-          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Listen before you create</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">{copy.eyebrow}</p>
+          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">{copy.title}</h2>
           <p className="mt-3 prose-muted">
-            Songs created with Memories to Melody — a taste of what your story could sound like.
+            {copy.body}
           </p>
         </Reveal>
 
@@ -187,9 +184,9 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
             className={selectClass}
             value={filters.occasion}
             onChange={(e) => setFilters((f) => ({ ...f, occasion: e.target.value }))}
-            aria-label="Filter by occasion"
+            aria-label={copy.filterOccasion}
           >
-            <option value="all">All occasions</option>
+            <option value="all">{copy.allOccasions}</option>
             {[...new Set(samples.map((s) => s.occasion))].map((v) => (
               <option key={v} value={v}>{v}</option>
             ))}
@@ -199,9 +196,9 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
             className={selectClass}
             value={filters.genre}
             onChange={(e) => setFilters((f) => ({ ...f, genre: e.target.value }))}
-            aria-label="Filter by genre"
+            aria-label={copy.filterGenre}
           >
-            <option value="all">All genres</option>
+            <option value="all">{copy.allGenres}</option>
             {[...new Set(samples.map((s) => s.genre))].map((v) => (
               <option key={v} value={v}>{v}</option>
             ))}
@@ -211,9 +208,9 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
             className={selectClass}
             value={filters.mood}
             onChange={(e) => setFilters((f) => ({ ...f, mood: e.target.value }))}
-            aria-label="Filter by mood"
+            aria-label={copy.filterMood}
           >
-            <option value="all">All moods</option>
+            <option value="all">{copy.allMoods}</option>
             {[...new Set(samples.map((s) => s.mood))].map((v) => (
               <option key={v} value={v}>{v}</option>
             ))}
@@ -223,9 +220,9 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
             className={selectClass}
             value={filters.vocalType}
             onChange={(e) => setFilters((f) => ({ ...f, vocalType: e.target.value }))}
-            aria-label="Filter by vocal type"
+            aria-label={copy.filterVocal}
           >
-            <option value="all">All vocals</option>
+            <option value="all">{copy.allVocals}</option>
             {[...new Set(samples.map((s) => s.vocalType))].map((v) => (
               <option key={v} value={v}>{v}</option>
             ))}
@@ -235,9 +232,9 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
             className={selectClass}
             value={filters.language}
             onChange={(e) => setFilters((f) => ({ ...f, language: e.target.value }))}
-            aria-label="Filter by language"
+            aria-label={copy.filterLanguage}
           >
-            <option value="all">All languages</option>
+            <option value="all">{copy.allLanguages}</option>
             {[...new Set(samples.map((s) => s.language))].map((v) => (
               <option key={v} value={v}>{v}</option>
             ))}
@@ -259,10 +256,13 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
                 href={`/studio?inspiredBy=${sample.slug}`}
                 className="btn-secondary mt-4 !w-full"
               >
-                Create Something Like This
+                {copy.createSimilar}
               </Link>
             </article>
           ))}
+          {filtered.length === 0 ? (
+            <p className="col-span-full py-10 text-center text-muted">{copy.noResults}</p>
+          ) : null}
         </div>
       </div>
     </section>
@@ -270,13 +270,15 @@ export function SampleSongsSection({ samples }: { samples: SampleSong[] }) {
 }
 
 export function OccasionsSection() {
+  const { messages } = useLocale();
+  const copy = messages.occasions;
   return (
     <section id="occasions" className="section-pad bg-surface">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mb-8 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">Occasions</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">{copy.eyebrow}</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
-            Made for the moments that matter
+            {copy.title}
           </h2>
         </Reveal>
         <RevealGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" stagger={0.05}>
@@ -287,10 +289,10 @@ export function OccasionsSection() {
                 className="surface-card card-hover group flex h-full flex-col p-5"
               >
                 <h3 className="flex items-center justify-between font-display text-2xl text-navy transition-colors group-hover:text-rose">
-                  {occasion.name}
+                  {copy.items[occasion.slug].name}
                   <ArrowRight className="h-5 w-5 -translate-x-1 text-gold opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
                 </h3>
-                <p className="mt-2 text-sm prose-muted">{occasion.description}</p>
+                <p className="mt-2 text-sm prose-muted">{copy.items[occasion.slug].description}</p>
               </Link>
             </RevealItem>
           ))}
@@ -301,26 +303,28 @@ export function OccasionsSection() {
 }
 
 export function ProductShowcase({ videoEnabled }: { videoEnabled: boolean }) {
+  const { messages } = useLocale();
+  const copy = messages.product;
   const items = [
-    { icon: Music2, title: "Personalized song", body: "Studio-quality audio shaped around your story." },
-    { icon: Mic2, title: "Custom lyrics", body: "Names, memories, and messages woven into the song." },
-    { icon: Link2, title: "Private listening page", body: "A beautiful page made for the reveal." },
-    { icon: Download, title: "Audio download", body: "Keep an MP3—or WAV on higher packages." },
-    { icon: Share2, title: "Shareable link", body: "Secure tokens with privacy controls." },
-    { icon: ImageIcon, title: "Cover artwork", body: "A keepsake visual for the song." },
+    { icon: Music2, ...copy.items.song },
+    { icon: Mic2, ...copy.items.lyrics },
+    { icon: Link2, ...copy.items.page },
+    { icon: Download, ...copy.items.download },
+    { icon: Share2, ...copy.items.share },
+    { icon: ImageIcon, ...copy.items.cover },
     videoEnabled
-      ? { icon: Sparkles, title: "Optional videos", body: "Lyric videos and photo music videos." }
-      : { icon: Sparkles, title: "Video next release", body: "Video keepsakes are being prepared for a future release." },
-    { icon: Star, title: "Revision tools", body: "Request guided changes with credits." },
+      ? { icon: Sparkles, ...copy.items.video }
+      : { icon: Sparkles, ...copy.items.videoLater },
+    { icon: Star, ...copy.items.revisions },
   ];
   return (
     <section className="section-pad">
       <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
         <div>
           <Reveal>
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">What you receive</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">{copy.eyebrow}</p>
             <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
-              A complete keepsake, not just a file
+              {copy.title}
             </h2>
           </Reveal>
           <RevealGroup className="mt-8 grid gap-3 sm:grid-cols-2" stagger={0.06}>
@@ -337,9 +341,9 @@ export function ProductShowcase({ videoEnabled }: { videoEnabled: boolean }) {
         </div>
         <div className="surface-card overflow-hidden p-4 md:p-6">
           <div className="rounded-[1.5rem] bg-navy p-5 text-cream shadow-inner">
-            <p className="text-xs uppercase tracking-[0.16em] text-gold-soft">Listening page preview</p>
-            <p className="mt-3 font-display text-3xl">For Avery</p>
-            <p className="mt-1 text-sm text-cream/70">A song from Jordan · Anniversary</p>
+            <p className="text-xs uppercase tracking-[0.16em] text-gold-soft">{copy.preview}</p>
+            <p className="mt-3 font-display text-3xl">{copy.forAvery}</p>
+            <p className="mt-1 text-sm text-cream/70">{copy.songFrom}</p>
             <div className="mt-6 rounded-2xl bg-white/5 p-4">
               <div className="mb-4 aspect-square rounded-2xl bg-[url('/samples/covers/tomorrows.svg')] bg-cover" />
               <div className="waveform" aria-hidden>
@@ -348,7 +352,7 @@ export function ProductShowcase({ videoEnabled }: { videoEnabled: boolean }) {
                 ))}
               </div>
               <p className="mt-4 text-sm text-cream/80">
-                Synchronized lyrics, gift reveal mode, downloads, and share controls live here.
+                {copy.previewBody}
               </p>
             </div>
           </div>
@@ -359,19 +363,21 @@ export function ProductShowcase({ videoEnabled }: { videoEnabled: boolean }) {
 }
 
 export function Testimonials({ reviews, showEmptyState = false }: { reviews: Review[]; showEmptyState?: boolean }) {
+  const { messages } = useLocale();
+  const copy = messages.reviews;
   const [visible, setVisible] = useState(3);
   if (reviews.length === 0 && !showEmptyState) return null;
   if (reviews.length === 0) {
     return (
       <section id="reviews" className="section-pad bg-surface">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">Reviews</p>
-          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Be the first to share your story</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">{copy.eyebrow}</p>
+          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">{copy.emptyTitle}</h2>
           <p className="mx-auto mt-4 max-w-xl prose-muted">
-            Customer reviews appear here after each song is delivered. Create yours and tell us how the moment landed.
+            {copy.emptyBody}
           </p>
           <Link href="/studio" className="btn-primary mt-8 inline-flex">
-            Create Your Song
+            {copy.create}
           </Link>
         </div>
       </section>
@@ -381,14 +387,14 @@ export function Testimonials({ reviews, showEmptyState = false }: { reviews: Rev
     <section id="reviews" className="section-pad bg-surface">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mb-8 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">Reviews</p>
-          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Loved as a gift experience</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">{copy.eyebrow}</p>
+          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">{copy.title}</h2>
         </Reveal>
         <RevealGroup className="grid gap-4 md:grid-cols-3" stagger={0.08}>
           {reviews.slice(0, visible).map((review) => (
             <RevealItem key={review.id} className="h-full">
               <article className="surface-card card-hover flex h-full flex-col p-5">
-                <div className="flex text-gold" aria-label={`${review.rating} out of 5 stars`}>
+                <div className="flex text-gold" aria-label={`${review.rating} ${copy.ratingSuffix}`}>
                   {Array.from({ length: review.rating }).map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-current" />
                   ))}
@@ -398,7 +404,7 @@ export function Testimonials({ reviews, showEmptyState = false }: { reviews: Rev
                   <p className="font-semibold text-navy">{review.customerName}</p>
                   <p className="text-muted">
                     {review.occasion} · {review.reviewedAt}
-                    {review.isVerifiedPurchase ? " · Verified purchase" : ""}
+                    {review.isVerifiedPurchase ? ` · ${copy.verified}` : ""}
                   </p>
                 </div>
               </article>
@@ -407,7 +413,7 @@ export function Testimonials({ reviews, showEmptyState = false }: { reviews: Rev
         </RevealGroup>
         {visible < reviews.length ? (
           <button type="button" className="btn-secondary mt-6" onClick={() => setVisible((v) => v + 3)}>
-            Load more
+            {copy.loadMore}
           </button>
         ) : null}
       </div>
@@ -416,22 +422,29 @@ export function Testimonials({ reviews, showEmptyState = false }: { reviews: Rev
 }
 
 export function PricingSection({ packages, videoEnabled }: { packages: Package[]; videoEnabled: boolean }) {
+  const { locale, messages } = useLocale();
+  const copy = messages.pricing;
   return (
     <section id="pricing" className="section-pad">
       <div className="mx-auto max-w-6xl">
         <Reveal className="mb-8 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">Pricing</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">{copy.eyebrow}</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
-            Choose the keepsake that fits
+            {copy.title}
           </h2>
           <p className="mt-3 prose-muted">
             {videoEnabled
-              ? "One-time payment, no subscription. Video packages are available at checkout."
-              : "One-time payment, no subscription. Video packages will return in the next release."}
+              ? copy.bodyVideo
+              : copy.bodyNoVideo}
           </p>
         </Reveal>
         <RevealGroup className="grid gap-5 lg:grid-cols-3" stagger={0.12}>
-          {packages.map((pkg, index) => (
+          {packages.map((pkg, index) => {
+            const localized = copy.packages[pkg.slug as keyof typeof copy.packages];
+            const name = localized?.name ?? pkg.name;
+            const description = localized?.description ?? pkg.description;
+            const features = localized?.features ?? pkg.features;
+            return (
             <RevealItem key={pkg.id} className="h-full">
               <article
                 className={`surface-card card-hover relative flex h-full flex-col p-6 ${
@@ -440,16 +453,16 @@ export function PricingSection({ packages, videoEnabled }: { packages: Package[]
               >
                 {index === 1 ? (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-navy shadow-md">
-                    Most popular
+                    {copy.popular}
                   </span>
                 ) : null}
-                <p className="text-sm font-semibold uppercase tracking-wider text-gold">{pkg.name}</p>
+                <p className="text-sm font-semibold uppercase tracking-wider text-gold">{name}</p>
                 <p className="mt-3 font-display text-4xl text-navy">
-                  {formatCurrency(pkg.priceCents, pkg.currency)}
+                  {formatCurrency(pkg.priceCents, pkg.currency, locale)}
                 </p>
-                <p className="mt-2 text-sm prose-muted">{pkg.description}</p>
+                <p className="mt-2 text-sm prose-muted">{description}</p>
                 <ul className="mt-6 flex-1 space-y-2 text-sm text-navy/85">
-                  {pkg.features.map((feature) => (
+                  {features.map((feature) => (
                     <li key={feature} className="flex gap-2">
                       <span className="text-gold">✓</span>
                       <span>{feature}</span>
@@ -457,11 +470,11 @@ export function PricingSection({ packages, videoEnabled }: { packages: Package[]
                   ))}
                 </ul>
                 <Link href={`/studio?package=${pkg.slug}`} className="btn-primary mt-8">
-                  Choose {pkg.name}
+                  {copy.choose} {name}
                 </Link>
               </article>
             </RevealItem>
-          ))}
+          );})}
         </RevealGroup>
       </div>
     </section>
@@ -469,20 +482,30 @@ export function PricingSection({ packages, videoEnabled }: { packages: Package[]
 }
 
 export function FaqSection({ faqs, viewAllHref }: { faqs: FaqItem[]; viewAllHref?: string }) {
+  const { messages } = useLocale();
+  const copy = messages.faq;
+  const items = faqs.map((faq) => {
+    const localized = copy.items[faq.id as keyof typeof copy.items];
+    return {
+      id: faq.id,
+      question: localized?.question ?? faq.question,
+      answer: localized?.answer ?? faq.answer,
+    };
+  });
   return (
     <section id="faq" className="section-pad bg-surface">
       <div className="mx-auto max-w-3xl">
         <Reveal className="mb-8 text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">FAQ</p>
-          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">Questions, answered calmly</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-gold">{copy.eyebrow}</p>
+          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">{copy.title}</h2>
         </Reveal>
         <Reveal delay={0.1}>
-          <Accordion items={faqs.map((f) => ({ id: f.id, question: f.question, answer: f.answer }))} />
+          <Accordion items={items} />
         </Reveal>
         {viewAllHref ? (
           <Reveal delay={0.15} className="mt-8 text-center">
             <Link href={viewAllHref} className="btn-secondary">
-              See all questions
+              {copy.viewAll}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Reveal>
@@ -493,27 +516,29 @@ export function FaqSection({ faqs, viewAllHref }: { faqs: FaqItem[]; viewAllHref
 }
 
 export function FinalCta() {
+  const { messages } = useLocale();
+  const copy = messages.finalCta;
   return (
     <section className="section-pad">
       <Reveal y={32}>
         <div className="atmosphere grain mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-border px-6 py-14 text-center md:px-12">
           <h2 className="font-display text-3xl text-navy md:text-5xl">
-            Ready to give them a song they&apos;ll keep forever?
+            {copy.title}
           </h2>
           <p className="mx-auto mt-4 max-w-2xl prose-muted">
-            Most customers finish the studio in under five minutes. Secure checkout, private delivery, and revision support when you need it.
+            {copy.body}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/studio" className="btn-primary group">
-              Create Their Song
+              {copy.create}
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <Link href="/pricing" className="btn-secondary">
-              View packages
+              {copy.packages}
             </Link>
           </div>
           <p className="mt-5 text-sm text-muted">
-            Satisfaction-minded guarantee · Encrypted payments via Stripe
+            {copy.assurance}
           </p>
         </div>
       </Reveal>

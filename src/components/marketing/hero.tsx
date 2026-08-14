@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Heart, Music2, Music4 } from "lucide-react";
 import { AudioPlayer } from "@/components/player/audio-player";
+import { useLocale } from "@/components/i18n/locale-provider";
 import type { SiteSettings } from "@/types";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -18,6 +19,8 @@ function rise(delay: number) {
 
 export function Hero({ settings }: { settings: SiteSettings }) {
   const reduced = useReducedMotion();
+  const { locale, messages } = useLocale();
+  const copy = messages.hero;
   return (
     <section className="atmosphere grain relative overflow-hidden">
       {/* Floating decorative notes */}
@@ -37,29 +40,29 @@ export function Hero({ settings }: { settings: SiteSettings }) {
             {...rise(0)}
             className="mb-4 inline-flex rounded-full border border-border bg-surface/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-navy/70"
           >
-            {settings.trustBadge}
+            {locale === "en" ? settings.trustBadge : copy.trustBadge}
           </motion.p>
           <motion.h1
             {...rise(0.08)}
             className="font-display text-4xl leading-[1.05] text-navy sm:text-5xl md:text-6xl"
           >
             <span className="block text-gold">{settings.brandName}</span>
-            <span className="mt-3 block">{settings.heroHeadline}</span>
+            <span className="mt-3 block">{locale === "en" ? settings.heroHeadline : copy.headline}</span>
           </motion.h1>
           <motion.p {...rise(0.16)} className="mt-5 max-w-xl text-base prose-muted md:text-lg">
-            {settings.heroSupporting}
+            {locale === "en" ? settings.heroSupporting : copy.supporting}
           </motion.p>
           <motion.div {...rise(0.24)} className="mt-8 flex flex-wrap gap-3">
             <Link href="/studio" className="btn-primary group">
-              Create Your Song
+              {copy.create}
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <Link href="/examples" className="btn-secondary">
-              Listen to Examples
+              {copy.listen}
             </Link>
           </motion.div>
           <motion.p {...rise(0.32)} className="mt-5 text-sm text-muted">
-            Typically ready within 48 hours · Satisfaction-minded revision support · Secure checkout
+            {copy.assurance}
           </motion.p>
         </div>
 
@@ -75,14 +78,14 @@ export function Hero({ settings }: { settings: SiteSettings }) {
                 className="aspect-[4/3] bg-cover bg-center transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                 style={{ backgroundImage: "url('/samples/hero-lifestyle.jpg')" }}
                 role="img"
-                aria-label="A woman closing her eyes, moved while listening to her personalized song"
+                aria-label={copy.imageAlt}
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy/80 via-navy/30 to-transparent px-6 pb-5 pt-16">
                 <p className="font-display text-xl italic text-cream md:text-2xl">
-                  A song for someone you love
+                  {copy.imageTitle}
                 </p>
                 <p className="mt-1 text-xs uppercase tracking-[0.18em] text-gold-soft">
-                  Made from your memories
+                  {copy.imageEyebrow}
                 </p>
               </div>
             </div>
@@ -91,7 +94,7 @@ export function Hero({ settings }: { settings: SiteSettings }) {
             id="hero-demo"
             src="https://files.kunavo.com/audio/2026-08/sF7SbcF5E8KuUu9hVwV7T/0m00jwd8s3cxrfme083i.mp3"
             title="Golden Hour With You"
-            subtitle="Anniversary · Acoustic · Created with Memories to Melody"
+            subtitle={copy.demoSubtitle}
             coverUrl="https://files.kunavo.com/image/2026-08/sF7SbcF5E8KuUu9hVwV7T/erfs8t1tagqc1fj5dlbw.jpg"
           />
         </motion.div>

@@ -4,14 +4,22 @@ import { useRef, useTransition } from "react";
 import { LANGUAGES } from "@/lib/constants";
 import { setLocaleAction } from "@/lib/actions/locale";
 
-export function LocaleSwitcher({ current }: { current: string }) {
+export function LocaleSwitcher({
+  current,
+  label,
+  names,
+}: {
+  current: string;
+  label: string;
+  names: Record<string, string>;
+}) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
 
   return (
     <form ref={formRef} action={setLocaleAction}>
       <label className="block text-xs text-cream/60" htmlFor="footer-lang">
-        Language
+        {label}
       </label>
       <select
         id="footer-lang"
@@ -23,7 +31,7 @@ export function LocaleSwitcher({ current }: { current: string }) {
       >
         {LANGUAGES.map((l) => (
           <option key={l.code} value={l.code} className="text-navy">
-            {l.name}
+            {names[l.code] ?? l.name}
           </option>
         ))}
       </select>

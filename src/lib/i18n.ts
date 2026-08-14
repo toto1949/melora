@@ -9,7 +9,7 @@ export const LOCALE_COOKIE = "melora_locale";
 export const SUPPORTED_LOCALES = LANGUAGES.map((l) => l.code);
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
-type Messages = typeof en;
+export type Messages = typeof en;
 
 const DICTIONARIES: Record<Locale, Messages> = { en, es, fr, ar };
 
@@ -26,6 +26,10 @@ export async function getLocale(): Promise<Locale> {
 export async function getMessages(locale?: Locale): Promise<Messages> {
   const resolved = locale ?? (await getLocale());
   return DICTIONARIES[resolved] ?? DICTIONARIES.en;
+}
+
+export function getMessagesForLocale(locale: Locale): Messages {
+  return DICTIONARIES[locale] ?? DICTIONARIES.en;
 }
 
 export function getTextDirection(locale: Locale): "ltr" | "rtl" {

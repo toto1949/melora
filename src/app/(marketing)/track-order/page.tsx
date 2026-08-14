@@ -1,4 +1,5 @@
 import { trackOrderAction } from "@/lib/actions/orders";
+import { getMessages } from "@/lib/i18n";
 
 export const metadata = {
   title: "Track Your Order",
@@ -6,18 +7,19 @@ export const metadata = {
   alternates: { canonical: "/track-order" },
 };
 
-export default function TrackOrderPage() {
+export default async function TrackOrderPage() {
+  const copy = (await getMessages()).trackOrder;
   return (
     <section className="section-pad">
       <div className="mx-auto max-w-lg">
-        <h1 className="font-display text-4xl text-navy">Track your order</h1>
+        <h1 className="font-display text-4xl text-navy">{copy.title}</h1>
         <p className="mt-3 prose-muted">
-          Enter the order number from your confirmation email and the email used at checkout.
+          {copy.body}
         </p>
         <form action={trackOrderAction} className="surface-card mt-8 space-y-4 p-6">
           <div>
             <label htmlFor="orderNumber" className="mb-1.5 block text-sm font-medium">
-              Order number
+              {copy.orderNumber}
             </label>
             <input
               id="orderNumber"
@@ -29,7 +31,7 @@ export default function TrackOrderPage() {
           </div>
           <div>
             <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-              Email
+              {copy.email}
             </label>
             <input
               id="email"
@@ -40,7 +42,7 @@ export default function TrackOrderPage() {
             />
           </div>
           <button type="submit" className="btn-primary w-full">
-            Track order
+            {copy.submit}
           </button>
         </form>
       </div>

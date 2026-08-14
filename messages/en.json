@@ -12,11 +12,224 @@
     "faq": "FAQ",
     "trackOrder": "Track Order",
     "signIn": "Sign In",
-    "create": "Create Your Song"
+    "create": "Create Your Song",
+    "dashboard": "Dashboard",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "cta": {
     "createSong": "Create Your Song",
     "listenExamples": "Listen to Examples",
     "createTheirSong": "Create Their Song"
+  },
+  "language": {
+    "label": "Language",
+    "names": {
+      "en": "English",
+      "fr": "French",
+      "es": "Spanish",
+      "ar": "Arabic"
+    }
+  },
+  "footer": {
+    "description": "Personalized songs crafted from the memories that matter most.",
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "examples": "Examples",
+    "pricing": "Pricing",
+    "create": "Create Your Song",
+    "occasions": "Occasions",
+    "howItWorks": "How It Works",
+    "help": "Help Center",
+    "contact": "Contact",
+    "reviews": "Reviews",
+    "privacy": "Privacy policy",
+    "terms": "Terms",
+    "refunds": "Refund policy",
+    "rights": "All rights reserved."
+  },
+  "cookie": {
+    "title": "Cookie preferences",
+    "aria": "Cookie preferences",
+    "body": "We use essential cookies for authentication and checkout. Analytics cookies are optional and privacy-conscious.",
+    "privacy": "Privacy policy",
+    "accept": "Accept all",
+    "essential": "Essential only"
+  },
+  "hero": {
+    "trustBadge": "Personalized music made from your memories",
+    "headline": "Turn your memories into a song they'll keep forever.",
+    "supporting": "Share your story, choose your sound, and let our creative technology transform your favorite moments into a deeply personal song.",
+    "create": "Create Your Song",
+    "listen": "Listen to Examples",
+    "assurance": "Typically ready within 48 hours · Satisfaction-minded revision support · Secure checkout",
+    "imageAlt": "A woman closing her eyes, moved while listening to her personalized song",
+    "imageTitle": "A song for someone you love",
+    "imageEyebrow": "Made from your memories",
+    "demoSubtitle": "Anniversary · Acoustic · Created with Memories to Melody"
+  },
+  "trust": {
+    "delivery": "Typical delivery",
+    "genres": "Music genres",
+    "languages": "Languages sung",
+    "private": "Private by default",
+    "songs": "Songs created"
+  },
+  "reactions": {
+    "eyebrow": "Reactions",
+    "title": "The moment they hear it",
+    "body": "A personalized song lands differently than any other gift — here are the moments people remember.",
+    "aria": "reaction to their song for"
+  },
+  "howItWorks": {
+    "eyebrow": "How it works",
+    "title": "Four gentle steps to a song they'll keep",
+    "start": "Start creating",
+    "steps": {
+      "one": {
+        "title": "Tell Us Your Story",
+        "body": "Share the recipient, occasion, and the memories that make them irreplaceable."
+      },
+      "two": {
+        "title": "Choose Your Sound",
+        "body": "Pick genre, mood, vocals, and lyric direction—or keep it simple with guided defaults."
+      },
+      "three": {
+        "title": "We Create Your Song",
+        "body": "Our creative pipeline writes lyrics, produces the song, and prepares your listening page."
+      },
+      "four": {
+        "title": "Listen, Share and Celebrate",
+        "body": "Reveal the gift, download the audio, and share a private link when the moment is right."
+      }
+    }
+  },
+  "examples": {
+    "eyebrow": "Examples",
+    "title": "Listen before you create",
+    "body": "Songs created with Memories to Melody — a taste of what your story could sound like.",
+    "allOccasions": "All occasions",
+    "allGenres": "All genres",
+    "allMoods": "All moods",
+    "allVocals": "All vocals",
+    "allLanguages": "All languages",
+    "filterOccasion": "Filter by occasion",
+    "filterGenre": "Filter by genre",
+    "filterMood": "Filter by mood",
+    "filterVocal": "Filter by vocal type",
+    "filterLanguage": "Filter by language",
+    "createSimilar": "Create Something Like This",
+    "noResults": "No examples match these filters yet."
+  },
+  "occasions": {
+    "eyebrow": "Occasions",
+    "title": "Made for the moments that matter",
+    "detailEyebrow": "Occasion",
+    "createPrefix": "Create a",
+    "createSuffix": "song",
+    "emptyPrefix": "Every",
+    "emptySuffix": "song is created fresh from your story — start yours above.",
+    "items": {
+      "birthday": { "name": "Birthday", "description": "A melody that makes their day unforgettable." },
+      "anniversary": { "name": "Anniversary", "description": "Celebrate the chapters you've written together." },
+      "wedding": { "name": "Wedding", "description": "A first dance, vow, or surprise from the heart." },
+      "mothers-day": { "name": "Mother's Day", "description": "Honor the person who held every season." },
+      "fathers-day": { "name": "Father's Day", "description": "Say what words alone never quite capture." },
+      "graduation": { "name": "Graduation", "description": "Mark the milestone with a song of pride." },
+      "memorial": { "name": "Memorial", "description": "A gentle tribute that keeps their light present." },
+      "apology": { "name": "Apology", "description": "Reach for repair with honesty and care." },
+      "thank-you": { "name": "Thank You", "description": "Gratitude, set to a voice they'll remember." },
+      "friendship": { "name": "Friendship", "description": "For the people who feel like home." },
+      "new-baby": { "name": "New Baby", "description": "Welcome a new life with a lullaby of love." },
+      "just-because": { "name": "Just Because", "description": "No occasion needed—only meaning." }
+    }
+  },
+  "product": {
+    "eyebrow": "What you receive",
+    "title": "A complete keepsake, not just a file",
+    "preview": "Listening page preview",
+    "forAvery": "For Avery",
+    "songFrom": "A song from Jordan · Anniversary",
+    "previewBody": "Synchronized lyrics, gift reveal mode, downloads, and share controls live here.",
+    "items": {
+      "song": { "title": "Personalized song", "body": "Studio-quality audio shaped around your story." },
+      "lyrics": { "title": "Custom lyrics", "body": "Names, memories, and messages woven into the song." },
+      "page": { "title": "Private listening page", "body": "A beautiful page made for the reveal." },
+      "download": { "title": "Audio download", "body": "Keep an MP3—or WAV on higher packages." },
+      "share": { "title": "Shareable link", "body": "Secure tokens with privacy controls." },
+      "cover": { "title": "Cover artwork", "body": "A keepsake visual for the song." },
+      "video": { "title": "Optional videos", "body": "Lyric videos and photo music videos." },
+      "videoLater": { "title": "Video next release", "body": "Video keepsakes are being prepared for a future release." },
+      "revisions": { "title": "Revision tools", "body": "Request guided changes with credits." }
+    }
+  },
+  "reviews": {
+    "eyebrow": "Reviews",
+    "emptyTitle": "Be the first to share your story",
+    "emptyBody": "Customer reviews appear here after each song is delivered. Create yours and tell us how the moment landed.",
+    "create": "Create Your Song",
+    "title": "Loved as a gift experience",
+    "verified": "Verified purchase",
+    "loadMore": "Load more",
+    "ratingSuffix": "out of 5 stars"
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "Choose the keepsake that fits",
+    "bodyVideo": "One-time payment, no subscription. Video packages are available at checkout.",
+    "bodyNoVideo": "One-time payment, no subscription. Video packages will return in the next release.",
+    "popular": "Most popular",
+    "choose": "Choose",
+    "packages": {
+      "essential-song": {
+        "name": "Essential Song",
+        "description": "A beautifully personalized song with private listening and download.",
+        "features": ["Personalized lyrics", "One generated song", "Private listening page", "MP3 download", "Standard delivery"]
+      },
+      "premium-story": {
+        "name": "Premium Story",
+        "description": "More variations, artwork, lyric video, and faster delivery.",
+        "features": ["Everything in Essential", "Multiple song variations", "High-quality WAV", "Custom cover artwork", "Lyric video", "Priority delivery", "Revision credits"]
+      },
+      "cinematic-memory": {
+        "name": "Cinematic Memory",
+        "description": "The full keepsake: song, lyric video, and photo music video.",
+        "features": ["Everything in Premium", "Photo-based music video", "Multiple visual styles", "Full HD download", "Extended song duration", "Priority processing"]
+      }
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Questions, answered calmly",
+    "viewAll": "See all questions",
+    "items": {
+      "faq-1": { "question": "How does Memories to Melody work?", "answer": "You tell us your story in a guided five-minute studio — who the song is for, the occasion, the memories that matter, and the sound you love. We turn that into custom lyrics and a fully produced song, then deliver it on a private listening page you can share whenever the moment is right." },
+      "faq-2": { "question": "How long until my song is ready?", "answer": "Most songs are ready within 48 hours, and many arrive the same day. Priority delivery on Premium and Cinematic packages moves you to the front of the queue. You can follow progress live from your dashboard, and we email you the moment your song is ready." },
+      "faq-3": { "question": "What do I need to prepare before I start?", "answer": "Just a few memories. The studio asks simple questions — how you met, an inside joke, a moment you will never forget. Two or three honest details are enough; you do not need to write anything polished. The more specific the memory, the more personal the song feels." },
+      "faq-4": { "question": "Can I choose the music style and voice?", "answer": "Yes. Pick from 16+ genres — pop, acoustic, R&B, country, gospel, Arabic, Latin and more — then set the mood and the vocal style: female, male, duet, or choir blend. Not sure? Our guided defaults produce a beautiful result every time." },
+      "faq-5": { "question": "Can the song be in another language?", "answer": "Yes — songs can be written and sung in English, French, Spanish, or Arabic. Listen to the multilingual songs on the examples page to hear how natural they sound." },
+      "faq-6": { "question": "What if I want changes to my song?", "answer": "Every package includes revision credits. From your dashboard you can request changes to lyrics, the pronunciation of names, tempo, mood, or vocals, and we will produce a new version of your song. Most revisions are delivered within 24 hours." },
+      "faq-7": { "question": "Who owns the song — can I share it online?", "answer": "You receive a lifetime personal-use license: listen, download, gift it, play the song at your event, and share it with friends and family, including on your personal social media. Commercial use such as ads or monetized content requires a separate license — just contact us." },
+      "faq-8": { "question": "How do I give the song as a gift?", "answer": "Every order includes a private listening page with cover artwork, synchronized lyrics, and an optional gift-reveal mode that builds anticipation before the song plays. Share the link by text or email — or play it in person and watch their reaction." },
+      "faq-9": { "question": "Is my story kept private?", "answer": "Completely. Your answers and uploaded files are used only to create your song and live in private storage. Listening pages are private by default, and you control how they are shared." },
+      "faq-10": { "question": "What is included in each package?", "answer": "Essential includes personalized lyrics, a fully produced song, a private listening page, and an MP3 download. Higher packages add more formats, artwork, and revisions. All are one-time payments — no subscription." },
+      "faq-11": { "question": "Can I download the song and keep it forever?", "answer": "Yes. Every package includes an MP3 download, and your listening page does not expire. Higher packages may add studio-quality WAV files. The song is yours to keep, replay, and pass on." },
+      "faq-12": { "question": "What if I am not happy with the result?", "answer": "We will make it right. Start with your included revision credits — most concerns are solved with a lyric or vocal change. If a verified quality issue cannot be resolved through revisions, our refund policy applies within 14 days of delivery." }
+    }
+  },
+  "finalCta": {
+    "title": "Ready to give them a song they'll keep forever?",
+    "body": "Most customers finish the studio in under five minutes. Secure checkout, private delivery, and revision support when you need it.",
+    "create": "Create Their Song",
+    "packages": "View packages",
+    "assurance": "Satisfaction-minded guarantee · Encrypted payments via Stripe"
+  },
+  "trackOrder": {
+    "title": "Track your order",
+    "body": "Enter the order number from your confirmation email and the email used at checkout.",
+    "orderNumber": "Order number",
+    "email": "Email",
+    "submit": "Track order"
   }
 }
