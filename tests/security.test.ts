@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { hashPassword, verifyPassword } from "@/lib/security/password";
 import { rateLimit } from "@/lib/security/rate-limit";
+import { interpretScannerResponse, isCloudmersiveScanner } from "@/lib/security/malware-scanner";
 
 describe("password hashing", () => {
   it("hashes and verifies a password", async () => {
@@ -48,5 +49,19 @@ describe("rate limiting (in-memory fallback)", () => {
     await rateLimit(`${base}-x`, 1, 60_000);
     const other = await rateLimit(`${base}-y`, 1, 60_000);
     expect(other.success).toBe(true);
+  });
+});
+
+describe("malware scanner adapters", () => {
+  it("recognizes Cloudmersive endpoints", () => {
+    expect(isCloudmersiveScanner("https://api.cloudmersive.com/virus/scan/file")).toBe(true);
+    expect(isCloudmersiveScanner("https://scanner.example.com/scan")).toBe(false);
+  });
+
+  it("interprets Cloudmersive and generic responses fail-closed", () => {
+    expect(interpretScannerResponse({ CleanResult: true })).toBe("clean");
+    expect(interpretScannerResponse({ CleanResult: false })).toBe("infected");
+    expect(interpretScannerResponse({ status: "clean" })).toBe("clean");
+    expect(interpretScannerResponse({})).toBe("failed");
   });
 });
