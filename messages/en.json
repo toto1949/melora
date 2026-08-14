@@ -168,9 +168,16 @@
   "product": {
     "eyebrow": "What you receive",
     "title": "A complete keepsake, not just a file",
+    "body": "A gift-ready experience built around the song—from the first play to the memories they keep.",
+    "cta": "Start your keepsake",
     "preview": "Listening page preview",
+    "privateBadge": "Private gift link",
+    "ready": "Gift ready",
+    "nowPlaying": "Now playing",
     "forAvery": "For Avery",
     "songFrom": "A song from Jordan · Anniversary",
+    "lyricsLabel": "A line made just for them",
+    "lyricLine": "Every tomorrow still sounds like you.",
     "previewBody": "Synchronized lyrics, gift reveal mode, downloads, and share controls live here.",
     "items": {
       "song": { "title": "Personalized song", "body": "Studio-quality audio shaped around your story." },

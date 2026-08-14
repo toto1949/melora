@@ -168,9 +168,16 @@
   "product": {
     "eyebrow": "Ce que vous recevez",
     "title": "Un souvenir complet, pas seulement un fichier",
+    "body": "Une expérience prête à offrir, pensée autour de la chanson — de la première écoute aux souvenirs qu’ils garderont.",
+    "cta": "Créer votre souvenir",
     "preview": "Aperçu de la page d'écoute",
+    "privateBadge": "Lien cadeau privé",
+    "ready": "Prêt à offrir",
+    "nowPlaying": "À l’écoute",
     "forAvery": "Pour Avery",
     "songFrom": "Une chanson de Jordan · Anniversaire",
+    "lyricsLabel": "Une phrase rien que pour eux",
+    "lyricLine": "Chaque lendemain résonne encore comme toi.",
     "previewBody": "Les paroles synchronisées, le mode révélation, les téléchargements et les options de partage se trouvent ici.",
     "items": {
       "song": { "title": "Chanson personnalisée", "body": "Un son de qualité studio façonné autour de votre histoire." },
