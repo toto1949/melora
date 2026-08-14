@@ -59,6 +59,17 @@ describe("production readiness", () => {
     expect(isReadyForProduction(productionEnv({ VIDEO_FEATURE_ENABLED: true }))).toBe(false);
   });
 
+  it("accepts built-in malware scanning for the audio-only launch", () => {
+    expect(
+      isReadyForProduction(
+        productionEnv({
+          MALWARE_SCANNER_URL: "builtin",
+          MALWARE_SCANNER_API_KEY: undefined,
+        }),
+      ),
+    ).toBe(true);
+  });
+
   it("fails readiness when production security services are missing", () => {
     expect(
       isReadyForProduction(
