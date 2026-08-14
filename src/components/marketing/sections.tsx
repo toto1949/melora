@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   ArrowRight,
+  Check,
   Download,
   ImageIcon,
   Link2,
+  LockKeyhole,
   Mic2,
   Music2,
   Play,
@@ -340,45 +342,125 @@ export function ProductShowcase({ videoEnabled }: { videoEnabled: boolean }) {
     { icon: Star, ...copy.items.revisions },
   ];
   return (
-    <section className="section-pad">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
-        <div>
+    <section className="section-pad relative overflow-hidden">
+      <div className="pointer-events-none absolute -start-24 top-20 h-72 w-72 rounded-full bg-rose-soft/25 blur-3xl" />
+      <div className="pointer-events-none absolute -end-24 bottom-16 h-80 w-80 rounded-full bg-gold-soft/25 blur-3xl" />
+      <div className="relative mx-auto grid max-w-6xl items-start gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(28rem,0.92fr)] lg:gap-16">
+        <div className="lg:py-8">
           <Reveal>
             <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">{copy.eyebrow}</p>
-            <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
+            <h2 className="mt-3 max-w-xl font-display text-4xl leading-[1.04] text-navy md:text-5xl">
               {copy.title}
             </h2>
+            <p className="mt-5 max-w-xl text-base prose-muted md:text-lg">
+              {copy.body}
+            </p>
           </Reveal>
-          <RevealGroup className="mt-8 grid gap-3 sm:grid-cols-2" stagger={0.06}>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {items.map((item) => (
-              <RevealItem key={item.title} className="h-full" y={16}>
-                <div className="group h-full rounded-2xl border border-border bg-surface p-4 transition-colors duration-300 hover:border-gold/60">
-                  <item.icon className="mb-2 h-5 w-5 text-gold transition-transform duration-300 group-hover:scale-110" />
-                  <p className="font-semibold text-navy">{item.title}</p>
-                  <p className="mt-1 text-sm text-muted">{item.body}</p>
+              <div
+                key={item.title}
+                className="group flex h-full gap-3 rounded-2xl border border-border/90 bg-surface/80 p-4 shadow-[0_10px_30px_rgba(11,20,38,0.04)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/60 hover:bg-surface hover:shadow-soft"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream-deep text-gold transition-colors duration-300 group-hover:bg-gold-soft/50 group-hover:text-navy">
+                  <item.icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="font-semibold leading-snug text-navy">{item.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted">{item.body}</p>
                 </div>
-              </RevealItem>
-            ))}
-          </RevealGroup>
-        </div>
-        <div className="surface-card overflow-hidden p-4 md:p-6">
-          <div className="rounded-[1.5rem] bg-navy p-5 text-cream shadow-inner">
-            <p className="text-xs uppercase tracking-[0.16em] text-gold-soft">{copy.preview}</p>
-            <p className="mt-3 font-display text-3xl">{copy.forAvery}</p>
-            <p className="mt-1 text-sm text-cream/70">{copy.songFrom}</p>
-            <div className="mt-6 rounded-2xl bg-white/5 p-4">
-              <div className="mb-4 aspect-square rounded-2xl bg-[url('/samples/covers/tomorrows.svg')] bg-cover" />
-              <div className="waveform" aria-hidden>
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <span key={i} />
-                ))}
               </div>
-              <p className="mt-4 text-sm text-cream/80">
-                {copy.previewBody}
-              </p>
+            ))}
+          </div>
+          <Reveal className="mt-7" delay={0.1}>
+            <Link href="/studio" className="btn-primary">
+              {copy.cta}
+              <ArrowRight className="directional-icon h-4 w-4" aria-hidden="true" />
+            </Link>
+          </Reveal>
+        </div>
+        <Reveal className="relative lg:sticky lg:top-28" y={18}>
+          <div className="pointer-events-none absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-rose-soft/35 via-transparent to-gold-soft/35 blur-2xl" />
+          <div className="surface-card relative overflow-hidden p-2.5 md:p-3">
+            <div className="flex items-center justify-between px-3 py-2.5 text-xs font-semibold text-muted">
+              <span className="flex gap-1.5" aria-hidden="true">
+                <span className="h-2.5 w-2.5 rounded-full bg-rose-fill/70" />
+                <span className="h-2.5 w-2.5 rounded-full bg-gold-fill/70" />
+                <span className="h-2.5 w-2.5 rounded-full bg-navy/20" />
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-cream-deep/80 px-2.5 py-1 text-navy">
+                <Check className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
+                {copy.ready}
+              </span>
+            </div>
+            <div className="overflow-hidden rounded-[1.75rem] bg-navy p-5 text-cream shadow-inner sm:p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold-soft">{copy.preview}</p>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[0.68rem] font-semibold text-cream/80">
+                  <LockKeyhole className="h-3 w-3 text-gold-soft" aria-hidden="true" />
+                  {copy.privateBadge}
+                </span>
+              </div>
+              <div className="mt-5 flex items-end justify-between gap-4">
+                <div>
+                  <p className="font-display text-3xl sm:text-4xl">{copy.forAvery}</p>
+                  <p className="mt-1 text-sm text-cream/65">{copy.songFrom}</p>
+                </div>
+                <span className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-rose-soft sm:block">
+                  {copy.nowPlaying}
+                </span>
+              </div>
+
+              <div className="relative mt-5 aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-[url('/samples/covers/tomorrows.svg')] bg-cover bg-center shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-transparent" />
+                <p className="absolute inset-x-5 bottom-4 font-display text-2xl text-white sm:text-3xl">Tomorrows</p>
+              </div>
+
+              <div className="mt-4 rounded-2xl border border-white/[0.07] bg-white/[0.055] p-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold-fill text-navy shadow-[0_8px_24px_rgba(201,169,110,0.25)]">
+                    <Play className="ms-0.5 h-4 w-4 fill-current" aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex h-7 items-end gap-1" aria-hidden="true">
+                      {[38, 65, 48, 82, 56, 92, 62, 77, 44, 68, 52, 34, 46, 30].map((height, i) => (
+                        <span
+                          key={i}
+                          className="w-1 rounded-full bg-gradient-to-t from-gold-fill to-rose-fill"
+                          style={{ height: `${height}%` }}
+                        />
+                      ))}
+                    </div>
+                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full w-[38%] rounded-full bg-gradient-to-r from-gold-fill to-rose-fill" />
+                    </div>
+                    <div className="mt-1.5 flex justify-between text-[0.65rem] tabular-nums text-cream/50">
+                      <span>1:14</span>
+                      <span>3:18</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-xl bg-navy/50 px-4 py-3">
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-gold-soft">{copy.lyricsLabel}</p>
+                  <p className="mt-1.5 font-display text-lg leading-snug text-cream">{copy.lyricLine}</p>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                  <p className="max-w-[17rem] text-xs leading-relaxed text-cream/60">{copy.previewBody}</p>
+                  <div className="flex gap-2" aria-hidden="true">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-cream/80">
+                      <Download className="h-4 w-4" />
+                    </span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-cream/80">
+                      <Share2 className="h-4 w-4" />
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

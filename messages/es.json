@@ -168,9 +168,16 @@
   "product": {
     "eyebrow": "Lo que recibes",
     "title": "Un recuerdo completo, no solo un archivo",
+    "body": "Una experiencia lista para regalar, creada alrededor de la canción: desde la primera escucha hasta los recuerdos que conservarán.",
+    "cta": "Crea tu recuerdo",
     "preview": "Vista previa de la página de escucha",
+    "privateBadge": "Enlace privado del regalo",
+    "ready": "Listo para regalar",
+    "nowPlaying": "Reproduciendo",
     "forAvery": "Para Avery",
     "songFrom": "Una canción de Jordan · Aniversario",
+    "lyricsLabel": "Una frase escrita solo para ellos",
+    "lyricLine": "Cada mañana sigue sonando como tú.",
     "previewBody": "Aquí encontrarás la letra sincronizada, el modo de revelación, las descargas y los controles para compartir.",
     "items": {
       "song": { "title": "Canción personalizada", "body": "Audio con calidad de estudio creado alrededor de tu historia." },
