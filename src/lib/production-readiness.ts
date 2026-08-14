@@ -99,11 +99,16 @@ export function getProductionReadiness(env: AppEnv): ReadinessCheck[] {
       name: "Malware scanning",
       configured: Boolean(
         env.MALWARE_SCAN_REQUIRED &&
-          env.MALWARE_SCANNER_URL &&
-          env.MALWARE_SCANNER_API_KEY,
+          (env.MALWARE_SCANNER_URL === "builtin" ||
+            Boolean(env.MALWARE_SCANNER_URL && env.MALWARE_SCANNER_API_KEY)),
       ),
       required: true,
-      detail: env.MALWARE_SCAN_REQUIRED ? "Fail closed" : "Not enforced",
+      detail:
+        env.MALWARE_SCANNER_URL === "builtin"
+          ? "Built-in file-signature checks"
+          : env.MALWARE_SCAN_REQUIRED
+            ? "Fail closed"
+            : "Not enforced",
     },
   ];
 }

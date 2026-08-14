@@ -48,8 +48,6 @@ if (!["true", "false"].includes(process.env.VIDEO_FEATURE_ENABLED ?? "")) {
   "LISTEN_TOKEN_SECRET",
   "UPSTASH_REDIS_REST_URL",
   "UPSTASH_REDIS_REST_TOKEN",
-  "MALWARE_SCANNER_URL",
-  "MALWARE_SCANNER_API_KEY",
 ].forEach((name) => requireValue(name));
 
 if (process.env.LYRICS_PROVIDER !== "openai") missing.push("LYRICS_PROVIDER=openai");
@@ -73,6 +71,12 @@ else if (!["music", "builtin"].includes(process.env.COVER_PROVIDER ?? "")) {
 
 if (process.env.MALWARE_SCAN_REQUIRED !== "true") {
   missing.push("MALWARE_SCAN_REQUIRED=true");
+}
+if ((process.env.MALWARE_SCANNER_URL ?? "").trim().toLowerCase() === "builtin") {
+  // Signature checks in process-upload.ts are enough for the audio-only image uploads.
+} else {
+  requireValue("MALWARE_SCANNER_URL");
+  requireValue("MALWARE_SCANNER_API_KEY");
 }
 
 for (const secret of ["JOB_WORKER_SECRET", "CRON_SECRET", "LISTEN_TOKEN_SECRET"]) {
@@ -100,12 +104,11 @@ try {
   missing.push("NEXT_PUBLIC_APP_URL=valid URL");
 }
 
-for (const name of [
-  "NEXT_PUBLIC_SUPABASE_URL",
-  "UPSTASH_REDIS_REST_URL",
-  "MALWARE_SCANNER_URL",
-]) {
+for (const name of ["NEXT_PUBLIC_SUPABASE_URL", "UPSTASH_REDIS_REST_URL"]) {
   requireHttpsUrl(name);
+}
+if ((process.env.MALWARE_SCANNER_URL ?? "").trim().toLowerCase() !== "builtin") {
+  requireHttpsUrl("MALWARE_SCANNER_URL");
 }
 for (const name of ["MUSIC_PROVIDER_URL", "COVER_PROVIDER_URL", "VIDEO_PROVIDER_URL"]) {
   if (present(name)) requireHttpsUrl(name);

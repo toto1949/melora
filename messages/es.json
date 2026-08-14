@@ -209,8 +209,8 @@
       },
       "premium-story": {
         "name": "Historia Premium",
-        "description": "Más versiones, portada, vídeo con letra y entrega más rápida.",
-        "features": ["Todo lo incluido en Esencial", "Varias versiones de la canción", "WAV de alta calidad", "Portada personalizada", "Vídeo con letra", "Entrega prioritaria", "Créditos de revisión"]
+        "description": "Más versiones, portada, WAV y entrega más rápida.",
+        "features": ["Todo lo incluido en Esencial", "Varias versiones de la canción", "WAV de alta calidad", "Portada personalizada", "Entrega prioritaria", "Créditos de revisión"]
       },
       "cinematic-memory": {
         "name": "Recuerdo Cinematográfico",
@@ -225,7 +225,7 @@
     "viewAll": "Ver todas las preguntas",
     "items": {
       "faq-1": { "question": "¿Cómo funciona Memories to Melody?", "answer": "Cuéntanos tu historia en un estudio guiado de cinco minutos: para quién es la canción, la ocasión, los recuerdos importantes y el sonido que te gusta. Lo convertimos en una letra personalizada y una canción totalmente producida, y la entregamos en una página de escucha privada para compartirla cuando llegue el momento." },
-      "faq-2": { "question": "¿Cuánto tardará mi canción?", "answer": "La mayoría de las canciones están listas en 48 horas y muchas llegan el mismo día. La entrega prioritaria de los paquetes Premium y Cinematográfico te coloca al principio de la cola. Puedes seguir el progreso desde tu panel y te avisaremos por correo cuando esté lista." },
+      "faq-2": { "question": "¿Cuánto tardará mi canción?", "answer": "La mayoría de las canciones están listas en 48 horas y muchas llegan el mismo día. La entrega prioritaria del paquete Premium te coloca al principio de la cola. Puedes seguir el progreso desde tu panel y te avisaremos por correo cuando esté lista." },
       "faq-3": { "question": "¿Qué debo preparar antes de empezar?", "answer": "Solo necesitas algunos recuerdos. El estudio hace preguntas sencillas: cómo se conocieron, una broma privada o un momento inolvidable. Dos o tres detalles sinceros son suficientes y no tienes que escribir nada perfecto. Cuanto más concreto sea el recuerdo, más personal se sentirá la canción." },
       "faq-4": { "question": "¿Puedo elegir el estilo musical y la voz?", "answer": "Sí. Elige entre más de 16 géneros — pop, acústico, R&B, country, góspel, árabe, latino y más — y después selecciona el ánimo y el tipo de voz. Si no sabes qué elegir, nuestras opciones guiadas ofrecen un resultado precioso." },
       "faq-5": { "question": "¿La canción puede estar en otro idioma?", "answer": "Sí, las canciones pueden escribirse y cantarse en inglés, francés, español o árabe. Escucha las canciones multilingües de la página de ejemplos para comprobar lo naturales que suenan." },

@@ -54,7 +54,7 @@ Set `USE_MOCK_PROVIDERS=false` and configure all required services:
 | `COVER_PROVIDER`, `COVER_PROVIDER_URL`, `COVER_PROVIDER_API_KEY` | Built-in/music or external cover service |
 | `JOB_WORKER_SECRET`, `CRON_SECRET`, `LISTEN_TOKEN_SECRET` | Job worker, fallback cron, and listening-link security |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Distributed API rate limiting |
-| `MALWARE_SCAN_REQUIRED`, `MALWARE_SCANNER_URL`, `MALWARE_SCANNER_API_KEY` | Fail-closed upload scanning |
+| `MALWARE_SCAN_REQUIRED`, `MALWARE_SCANNER_URL`, `MALWARE_SCANNER_API_KEY` | Fail-closed upload scanning (`builtin` is allowed for this audio-only release) |
 | `NEXT_PUBLIC_APP_URL` | Canonical app URL for emails and Stripe redirects |
 
 ### Supabase setup
@@ -64,6 +64,7 @@ Set `USE_MOCK_PROVIDERS=false` and configure all required services:
    - `supabase/migrations/001_initial_schema.sql`
    - `supabase/migrations/002_production_setup.sql`
    - `supabase/migrations/003_job_scheduler.sql`
+   - `supabase/migrations/004_audio_only_launch.sql`
 3. Seed reference data: `supabase/seed/seed.sql`
 4. Configure Auth redirect URL: `https://<domain>/auth/callback`
 5. Add Supabase Vault secrets `app_url` and `job_worker_secret` before enabling the scheduler migration
@@ -87,7 +88,7 @@ Production builds run `scripts/verify-production-env.mjs` and stop when a requir
 | Private listening page | `/listen/[token]` |
 | Admin dashboard | `/admin` |
 
-Architecture notes live in `docs/ARCHITECTURE.md`, route map in `docs/ROUTE_MAP.md`, and design system in `docs/DESIGN_SYSTEM.md`.
+Architecture notes live in `docs/ARCHITECTURE.md`, route map in `docs/ROUTE_MAP.md`, design system in `docs/DESIGN_SYSTEM.md`, and the audio-only launch checklist in `docs/PRODUCTION_LAUNCH.md`.
 Production rollout and provider contracts live in `docs/PRODUCTION_RUNBOOK.md`.
 
 ## Scripts
