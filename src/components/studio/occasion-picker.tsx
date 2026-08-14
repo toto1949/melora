@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/components/i18n/locale-provider";
 
 interface OccasionOption {
   slug: string;
@@ -22,6 +23,8 @@ export function OccasionPicker({
   defaultValue?: string | null;
   action: (formData: FormData) => void;
 }) {
+  const { messages } = useLocale();
+  const copy = messages.studio.occasion;
   const formRef = useRef<HTMLFormElement>(null);
   const [selected, setSelected] = useState<string | null>(defaultValue ?? null);
   const [submitting, setSubmitting] = useState(false);
@@ -50,6 +53,7 @@ export function OccasionPicker({
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => choose(occasion.slug)}
+              disabled={submitting}
               aria-pressed={isSelected}
               className={cn(
                 "surface-card relative p-5 text-left transition-shadow",
@@ -63,7 +67,7 @@ export function OccasionPicker({
                 initial={false}
                 animate={isSelected ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
                 transition={{ type: "spring", stiffness: 500, damping: 28 }}
-                className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-gold text-navy"
+                className="absolute end-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-gold-fill text-navy"
               >
                 <Check className="h-4 w-4" strokeWidth={3} />
               </motion.span>
@@ -77,14 +81,14 @@ export function OccasionPicker({
       </div>
       <div className="mt-6 flex min-h-11 items-center justify-between gap-4">
         <p className="text-sm text-muted" aria-live="polite">
-          {submitting ? "Saving your choice…" : selected ? "Great choice — continuing automatically." : "Pick the occasion to continue."}
+          {submitting ? copy.saving : selected ? copy.selected : copy.prompt}
         </p>
         <button
           type="submit"
           disabled={!selected || submitting}
           className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {submitting ? "Continuing…" : "Continue"}
+          {submitting ? messages.common.saving : messages.common.continue}
         </button>
       </div>
     </form>

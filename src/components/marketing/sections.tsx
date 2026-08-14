@@ -9,6 +9,7 @@ import {
   Link2,
   Mic2,
   Music2,
+  Play,
   Share2,
   Sparkles,
   Star,
@@ -19,6 +20,7 @@ import { CountUp, Reveal, RevealGroup, RevealItem } from "@/components/motion/re
 import { OCCASIONS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { Modal } from "@/components/ui/modal";
 import type { FaqItem, Package, ReactionVideo, Review, SampleSong, SiteSettings } from "@/types";
 
 export function TrustBar({ settings }: { settings: SiteSettings }) {
@@ -34,13 +36,6 @@ export function TrustBar({ settings }: { settings: SiteSettings }) {
     { label: copy.languages, value: 4, format: (n: number) => `${Math.round(n)}` },
     { label: copy.private, value: 100, format: (n: number) => `${Math.round(n)}%` },
   ];
-  if (settings.songsCreated >= 100) {
-    stats[0] = {
-      label: copy.songs,
-      value: settings.songsCreated,
-      format: (n: number) => Math.round(n).toLocaleString(),
-    };
-  }
   return (
     <section className="border-y border-border bg-surface">
       <RevealGroup className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-6" stagger={0.1}>
@@ -60,9 +55,12 @@ export function TrustBar({ settings }: { settings: SiteSettings }) {
 export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
   const { messages } = useLocale();
   const copy = messages.reactions;
+  const [selected, setSelected] = useState<ReactionVideo | null>(null);
+  if (!reactions.length) return null;
   return (
-    <section id="reactions" className="section-pad">
-      <div className="mx-auto max-w-6xl">
+    <>
+      <section id="reactions" className="section-pad">
+        <div className="mx-auto max-w-6xl">
         <Reveal className="mb-8 max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">{copy.eyebrow}</p>
           <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
@@ -73,15 +71,25 @@ export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
           </p>
         </Reveal>
         <RevealGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.09}>
-          {reactions.map((rx) => (
+          {reactions.map((rx) => {
+            const occasion = messages.occasions.items[rx.occasion as keyof typeof messages.occasions.items]?.name ?? rx.occasion;
+            return (
             <RevealItem key={rx.id}>
-              <article className="surface-card card-hover group relative overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setSelected(rx)}
+                className="surface-card card-hover group relative block w-full overflow-hidden text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
+                aria-label={`${copy.play}: ${rx.customerFirstName}`}
+              >
                 <div
                   className="aspect-[4/5] bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                   style={{ backgroundImage: `url(${rx.thumbnailUrl})` }}
                   role="img"
-                  aria-label={`${rx.customerFirstName} ${copy.aria} ${rx.occasion}`}
+                  aria-label={`${rx.customerFirstName} ${copy.aria} ${occasion}`}
                 />
+                <span className="absolute start-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-surface/95 text-navy shadow-lg transition-transform group-hover:scale-110" aria-hidden="true">
+                  <Play className="h-5 w-5 fill-current" />
+                </span>
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy/85 via-navy/40 to-transparent px-4 pb-4 pt-14">
                   {rx.quote ? (
                     <p className="font-display text-base italic leading-snug text-cream">
@@ -89,15 +97,29 @@ export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
                     </p>
                   ) : null}
                   <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-gold-soft">
-                    {rx.customerFirstName} · {rx.occasion}
+                    {rx.customerFirstName} · {occasion}
                   </p>
                 </div>
-              </article>
+              </button>
             </RevealItem>
-          ))}
+            );
+          })}
         </RevealGroup>
-      </div>
-    </section>
+        </div>
+      </section>
+      <Modal
+        open={Boolean(selected)}
+        onClose={() => setSelected(null)}
+        title={selected ? `${selected.customerFirstName} · ${messages.occasions.items[selected.occasion as keyof typeof messages.occasions.items]?.name ?? selected.occasion}` : copy.title}
+        closeLabel={copy.close}
+      >
+        {selected ? (
+          <video key={selected.id} controls autoPlay playsInline className="max-h-[70vh] w-full rounded-2xl bg-navy" src={selected.videoUrl}>
+            {copy.play}
+          </video>
+        ) : null}
+      </Modal>
+    </>
   );
 }
 
@@ -290,7 +312,7 @@ export function OccasionsSection() {
               >
                 <h3 className="flex items-center justify-between font-display text-2xl text-navy transition-colors group-hover:text-rose">
                   {copy.items[occasion.slug].name}
-                  <ArrowRight className="h-5 w-5 -translate-x-1 text-gold opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+                  <ArrowRight className="directional-icon h-5 w-5 -translate-x-1 text-gold opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
                 </h3>
                 <p className="mt-2 text-sm prose-muted">{copy.items[occasion.slug].description}</p>
               </Link>
@@ -452,7 +474,7 @@ export function PricingSection({ packages, videoEnabled }: { packages: Package[]
                 }`}
               >
                 {index === 1 ? (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-navy shadow-md">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold-fill px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-navy shadow-md">
                     {copy.popular}
                   </span>
                 ) : null}
@@ -506,7 +528,7 @@ export function FaqSection({ faqs, viewAllHref }: { faqs: FaqItem[]; viewAllHref
           <Reveal delay={0.15} className="mt-8 text-center">
             <Link href={viewAllHref} className="btn-secondary">
               {copy.viewAll}
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="directional-icon h-4 w-4" />
             </Link>
           </Reveal>
         ) : null}
@@ -531,7 +553,7 @@ export function FinalCta() {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/studio" className="btn-primary group">
               {copy.create}
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              <ArrowRight className="directional-icon h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <Link href="/pricing" className="btn-secondary">
               {copy.packages}

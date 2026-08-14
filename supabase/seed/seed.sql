@@ -2,7 +2,7 @@
 -- Safe for local/staging. Reviews are marked is_demo = true.
 
 insert into public.site_settings (key, value) values
-  ('stats', '{"songsCreated":12840,"averageRating":4.9,"genresSupported":16,"countriesServed":42}'::jsonb),
+  ('stats', '{"songsCreated":0,"averageRating":4.9,"genresSupported":16,"countriesServed":42}'::jsonb),
   ('hero', '{"headline":"Turn your memories into a song they''ll keep forever.","supporting":"Share your story, choose your sound, and let our creative technology transform your favorite moments into a deeply personal song.","trustBadge":"Personalized music made from your memories"}'::jsonb)
 on conflict (key) do update set value = excluded.value;
 

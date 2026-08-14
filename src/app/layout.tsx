@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { Fraunces, Manrope, Noto_Sans_Arabic } from "next/font/google";
+import { cookies } from "next/headers";
 import { Analytics } from "@vercel/analytics/next";
 import { BRAND } from "@/lib/constants";
-import { getLocale, getTextDirection } from "@/lib/i18n";
+import { getLocale, getMessages, getTextDirection } from "@/lib/i18n";
+import { LocaleProvider } from "@/components/i18n/locale-provider";
+import { CookieConsent } from "@/components/shared/cookie-consent";
+import { COOKIE_CONSENT } from "@/lib/cookie-consent";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -14,6 +18,12 @@ const fraunces = Fraunces({
 const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-manrope",
+  display: "swap",
+});
+
+const notoSansArabic = Noto_Sans_Arabic({
+  subsets: ["arabic"],
+  variable: "--font-arabic",
   display: "swap",
 });
 
@@ -55,11 +65,21 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale();
+  const [messages, cookieJar] = await Promise.all([getMessages(locale), cookies()]);
+  const consent = cookieJar.get(COOKIE_CONSENT)?.value;
   return (
     <html lang={locale} dir={getTextDirection(locale)}>
-      <body className={`${fraunces.variable} ${manrope.variable} antialiased`}>
-        {children}
-        <Analytics />
+      <body className={`${fraunces.variable} ${manrope.variable} ${notoSansArabic.variable} antialiased`}>
+        <LocaleProvider locale={locale} messages={messages}>
+          <a href="#main-content" className="skip-link">
+            {messages.common.skipToContent}
+          </a>
+          <div id="main-content" tabIndex={-1}>
+            {children}
+          </div>
+          <CookieConsent initialConsent={consent === "all" || consent === "essential" ? consent : null} />
+        </LocaleProvider>
+        {consent === "all" ? <Analytics /> : null}
       </body>
     </html>
   );

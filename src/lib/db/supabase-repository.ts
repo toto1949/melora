@@ -214,7 +214,7 @@ export async function listSamples() {
 
 export async function listReactions() {
   const sb = getSupabaseAdmin();
-  const { data } = await sb.from("reaction_videos").select("*").eq("is_published", true).order("sort_order");
+  const { data } = await sb.from("reaction_videos").select("*").eq("is_published", true).eq("is_demo", false).is("deleted_at", null).order("sort_order");
   return (data ?? []).map(mapReaction);
 }
 
@@ -224,6 +224,7 @@ export async function listReviews(limit = 10, offset = 0) {
     .from("reviews")
     .select("*", { count: "exact" })
     .eq("is_published", true)
+    .eq("is_demo", false)
     .is("deleted_at", null)
     .order("reviewed_at", { ascending: false })
     .range(offset, offset + limit - 1);
@@ -670,21 +671,20 @@ export async function createOrder(input: {
   let couponId: string | null = null;
   if (input.couponCode) {
     const coupon = await findCoupon(input.couponCode);
-    if (coupon) {
-      couponId = coupon.id;
-      if (coupon.percentOff) discount = Math.round((subtotal * coupon.percentOff) / 100);
-      if (coupon.amountOffCents) discount = Math.min(subtotal, coupon.amountOffCents);
-      await sb
-        .from("coupons")
-        .update({ redemption_count: coupon.redemptionCount + 1 })
-        .eq("id", coupon.id);
-    }
+    if (!coupon) throw new Error("Coupon is invalid or expired");
+    couponId = coupon.id;
+    if (coupon.percentOff) discount = Math.round((subtotal * coupon.percentOff) / 100);
+    if (coupon.amountOffCents) discount = Math.min(subtotal, coupon.amountOffCents);
+    await sb
+      .from("coupons")
+      .update({ redemption_count: coupon.redemptionCount + 1 })
+      .eq("id", coupon.id);
   }
 
   const tax = Math.round((subtotal - discount) * 0.08);
   const total = subtotal - discount + tax;
-  const deliveryHours =
-    input.deliverySpeed === "rush" ? Math.max(6, Math.floor(pkg.deliveryHours / 2)) : pkg.deliveryHours;
+  const isRush = selected.some((addOn) => addOn.slug === "rush-delivery");
+  const deliveryHours = isRush ? Math.max(6, Math.floor(pkg.deliveryHours / 2)) : pkg.deliveryHours;
 
   const { data, error } = await sb
     .from("orders")
@@ -700,7 +700,7 @@ export async function createOrder(input: {
       tax_cents: tax,
       total_cents: total,
       currency: pkg.currency,
-      delivery_speed: input.deliverySpeed ?? "standard",
+      delivery_speed: isRush ? "rush" : "standard",
       estimated_delivery_at: new Date(Date.now() + deliveryHours * 3600 * 1000).toISOString(),
       email: input.email,
       phone: input.phone,
@@ -711,6 +711,31 @@ export async function createOrder(input: {
     .select()
     .single();
   if (error || !data) throw new Error(error?.message ?? "Failed to create order");
+
+  const orderItems = [
+    {
+      order_id: data.id,
+      item_type: "package",
+      reference_id: pkg.id,
+      name: pkg.name,
+      quantity: 1,
+      unit_price_cents: pkg.priceCents,
+      total_cents: pkg.priceCents,
+      metadata: { slug: pkg.slug },
+    },
+    ...selected.map((addOn) => ({
+      order_id: data.id,
+      item_type: "add_on",
+      reference_id: addOn.id,
+      name: addOn.name,
+      quantity: 1,
+      unit_price_cents: addOn.priceCents,
+      total_cents: addOn.priceCents,
+      metadata: { slug: addOn.slug },
+    })),
+  ];
+  const { error: itemError } = await sb.from("order_items").insert(orderItems);
+  if (itemError) throw new Error(`Failed to save order items: ${itemError.message}`);
 
   await sb
     .from("projects")

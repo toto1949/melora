@@ -1,27 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { COOKIE_CONSENT, type CookieConsentValue } from "@/lib/cookie-consent";
 
-const KEY = "melora_cookie_prefs";
-
-export function CookieConsent() {
-  const [visible, setVisible] = useState(false);
+export function CookieConsent({ initialConsent }: { initialConsent: CookieConsentValue | null }) {
+  const [visible, setVisible] = useState(initialConsent === null);
   const { messages } = useLocale();
+  const router = useRouter();
   const copy = messages.cookie;
-
-  useEffect(() => {
-    if (!localStorage.getItem(KEY)) setVisible(true);
-  }, []);
 
   if (!visible) return null;
 
+  const choose = (value: "all" | "essential") => {
+    document.cookie = `${COOKIE_CONSENT}=${value}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+    setVisible(false);
+    router.refresh();
+  };
+
   return (
     <div
-      role="dialog"
+      role="region"
       aria-label={copy.aria}
-      className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-xl rounded-3xl border border-border bg-surface p-5 shadow-[var(--shadow-lift)]"
+      aria-live="polite"
+      className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-xl rounded-3xl border border-border bg-surface p-5 shadow-[var(--shadow-lift)]"
     >
       <p className="font-display text-xl text-navy">{copy.title}</p>
       <p className="mt-2 text-sm prose-muted">
@@ -34,20 +38,14 @@ export function CookieConsent() {
         <button
           type="button"
           className="btn-primary !py-2"
-          onClick={() => {
-            localStorage.setItem(KEY, JSON.stringify({ essential: true, analytics: true }));
-            setVisible(false);
-          }}
+          onClick={() => choose("all")}
         >
           {copy.accept}
         </button>
         <button
           type="button"
           className="btn-secondary !py-2"
-          onClick={() => {
-            localStorage.setItem(KEY, JSON.stringify({ essential: true, analytics: false }));
-            setVisible(false);
-          }}
+          onClick={() => choose("essential")}
         >
           {copy.essential}
         </button>

@@ -52,7 +52,6 @@ export async function createCheckoutSession(order: Order, successUrl: string, ca
         },
       },
     ],
-    allow_promotion_codes: true,
   });
 
   return { id: session.id, url: session.url!, mocked: false as const };

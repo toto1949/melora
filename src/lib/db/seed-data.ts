@@ -10,7 +10,7 @@ import type {
 } from "@/types";
 
 export const defaultSettings: SiteSettings = {
-  songsCreated: 12840,
+  songsCreated: 0,
   averageRating: 4.9,
   genresSupported: 16,
   countriesServed: 42,

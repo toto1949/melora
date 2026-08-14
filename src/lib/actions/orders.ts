@@ -10,10 +10,12 @@ import { sendEmail } from "@/lib/email/send";
 import { getEnv } from "@/lib/env";
 
 export async function trackOrderAction(formData: FormData) {
-  const parsed = trackOrderSchema.parse({
+  const result = trackOrderSchema.safeParse({
     orderNumber: formData.get("orderNumber"),
     email: formData.get("email"),
   });
+  if (!result.success) redirect("/track-order?error=invalid");
+  const parsed = result.data;
   const order = await getOrderByNumber(parsed.orderNumber, parsed.email);
   if (!order) {
     redirect("/track-order?error=not_found");

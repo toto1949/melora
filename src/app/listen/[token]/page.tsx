@@ -7,6 +7,7 @@ import { isListenUnlocked } from "@/lib/actions/listen";
 import { getOrderByShareToken } from "@/lib/db/repository";
 import { BRAND } from "@/lib/constants";
 import { getEnv } from "@/lib/env";
+import { getMessages } from "@/lib/i18n";
 
 export async function generateMetadata({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -26,8 +27,9 @@ export default async function ListenPage({
 }) {
   const { token } = await params;
   const query = await searchParams;
-  const order = await getOrderByShareToken(token);
+  const [order, messages] = await Promise.all([getOrderByShareToken(token), getMessages()]);
   if (!order) notFound();
+  const copy = messages.listen;
 
   if (order.privacyMode === "private") {
     const user = await getCurrentUser();
@@ -35,10 +37,10 @@ export default async function ListenPage({
       return (
         <div className="flex min-h-screen items-center justify-center px-4">
           <div className="surface-card max-w-md p-8 text-center">
-            <h1 className="font-display text-3xl">This song is private</h1>
-            <p className="mt-3 text-muted">Sign in as the owner to listen.</p>
+            <h1 className="font-display text-3xl">{copy.privateTitle}</h1>
+            <p className="mt-3 text-muted">{copy.privateBody}</p>
             <Link href="/auth/sign-in" className="btn-primary mt-6 inline-flex">
-              Sign in
+              {copy.signIn}
             </Link>
           </div>
         </div>
@@ -52,7 +54,13 @@ export default async function ListenPage({
       return (
         <ListenPasswordGate
           shareToken={token}
-          error={query.error === "invalid_password" ? "Incorrect password. Try again." : null}
+          error={query.error === "invalid_password" ? copy.invalidPassword : null}
+          labels={{
+            title: copy.passwordTitle,
+            body: copy.passwordBody,
+            placeholder: copy.passwordPlaceholder,
+            unlock: copy.unlock,
+          }}
         />
       );
     }
@@ -69,7 +77,7 @@ export default async function ListenPage({
             {BRAND.name}
           </Link>
           <Link href="/studio" className="btn-secondary !py-2 text-sm">
-            Create a song
+            {copy.headerCreate}
           </Link>
         </div>
       </header>

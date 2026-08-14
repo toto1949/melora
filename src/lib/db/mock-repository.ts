@@ -95,12 +95,12 @@ export async function listSamples() {
 
 export async function listReactions() {
   const store = await getStore();
-  return store.reactions.filter((r) => r.isDemo || true);
+  return store.reactions.filter((r) => !r.isDemo);
 }
 
 export async function listReviews(limit = 10, offset = 0) {
   const store = await getStore();
-  const published = store.reviews.filter((r) => r.isPublished);
+  const published = store.reviews.filter((r) => r.isPublished && !r.isDemo);
   return {
     items: published.slice(offset, offset + limit),
     total: published.length,
@@ -451,18 +451,19 @@ export async function createOrder(input: {
       const coupon = store.coupons.find(
         (c) => c.code.toLowerCase() === input.couponCode!.toLowerCase() && c.isActive,
       );
-      if (coupon) {
-        couponId = coupon.id;
-        if (coupon.percentOff) discount = Math.round((subtotal * coupon.percentOff) / 100);
-        if (coupon.amountOffCents) discount = Math.min(subtotal, coupon.amountOffCents);
-        coupon.redemptionCount += 1;
+      if (!coupon || (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) || (coupon.maxRedemptions != null && coupon.redemptionCount >= coupon.maxRedemptions)) {
+        throw new Error("Coupon is invalid or expired");
       }
+      couponId = coupon.id;
+      if (coupon.percentOff) discount = Math.round((subtotal * coupon.percentOff) / 100);
+      if (coupon.amountOffCents) discount = Math.min(subtotal, coupon.amountOffCents);
+      coupon.redemptionCount += 1;
     }
 
     const tax = Math.round((subtotal - discount) * 0.08);
     const total = subtotal - discount + tax;
-    const deliveryHours =
-      input.deliverySpeed === "rush" ? Math.max(6, Math.floor(pkg.deliveryHours / 2)) : pkg.deliveryHours;
+    const isRush = addOns.some((addOn) => addOn.slug === "rush-delivery");
+    const deliveryHours = isRush ? Math.max(6, Math.floor(pkg.deliveryHours / 2)) : pkg.deliveryHours;
 
     const order: Order = {
       id: id(),
@@ -477,7 +478,7 @@ export async function createOrder(input: {
       taxCents: tax,
       totalCents: total,
       currency: pkg.currency,
-      deliverySpeed: input.deliverySpeed ?? "standard",
+      deliverySpeed: isRush ? "rush" : "standard",
       estimatedDeliveryAt: new Date(Date.now() + deliveryHours * 3600 * 1000).toISOString(),
       email: input.email,
       phone: input.phone ?? null,

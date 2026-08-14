@@ -5,9 +5,11 @@
   --navy-soft: #1a2740;
   --cream: #f7f0e6;
   --cream-deep: #ede3d4;
-  --rose: #c4848a;
+  --rose: #96525b;
+  --rose-fill: #c4848a;
   --rose-soft: #e8c4c7;
-  --gold: #c9a96e;
+  --gold: #89672b;
+  --gold-fill: #c9a96e;
   --gold-soft: #e8d5a8;
   --surface: #fffcfa;
   --muted: #6b645a;
@@ -19,6 +21,10 @@
   --shadow-lift: 0 24px 60px rgba(11, 20, 38, 0.12);
 }
 
+[dir="rtl"] .directional-icon {
+  transform: scaleX(-1);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -27,8 +33,10 @@
   --color-cream: var(--cream);
   --color-cream-deep: var(--cream-deep);
   --color-rose: var(--rose);
+  --color-rose-fill: var(--rose-fill);
   --color-rose-soft: var(--rose-soft);
   --color-gold: var(--gold);
+  --color-gold-fill: var(--gold-fill);
   --color-gold-soft: var(--gold-soft);
   --color-surface: var(--surface);
   --color-muted: var(--muted);
@@ -53,12 +61,41 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+[dir="rtl"] body {
+  font-family: var(--font-arabic), var(--font-manrope), "Segoe UI", sans-serif;
+}
+
 h1,
 h2,
 h3,
 .font-display {
   font-family: var(--font-fraunces), Georgia, serif;
   letter-spacing: -0.02em;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] .font-display {
+  font-family: var(--font-arabic), var(--font-fraunces), serif;
+  letter-spacing: 0;
+}
+
+.skip-link {
+  position: fixed;
+  inset-inline-start: 1rem;
+  top: 1rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  border-radius: 999px;
+  background: var(--navy);
+  color: var(--cream);
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 ::selection {

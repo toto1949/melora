@@ -8,7 +8,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-gradient-to-br from-gold to-[#b8924f] text-navy shadow-[0_10px_30px_rgba(201,169,110,0.28)] hover:-translate-y-0.5",
+          "bg-gradient-to-br from-gold-fill to-[#b8924f] text-navy shadow-[0_10px_30px_rgba(201,169,110,0.28)] hover:-translate-y-0.5",
         secondary:
           "border border-border bg-surface/80 text-navy backdrop-blur hover:bg-surface",
         ghost: "text-navy hover:bg-cream-deep/60",

@@ -3,6 +3,8 @@ import { FormError } from "@/components/studio/form-error";
 import { saveRecipientAction } from "@/lib/actions/studio";
 import { loadStudioProject } from "@/lib/studio/load-project";
 import Link from "next/link";
+import { getMessages } from "@/lib/i18n";
+import { SubmitButton } from "@/components/studio/submit-button";
 
 export default async function RecipientStep({
   params,
@@ -13,42 +15,43 @@ export default async function RecipientStep({
 }) {
   const { projectId } = await params;
   const { error } = await searchParams;
-  const project = await loadStudioProject(projectId);
+  const [project, messages] = await Promise.all([loadStudioProject(projectId), getMessages()]);
+  const copy = messages.studio.recipient;
   const r = project.recipient;
   const field = "w-full rounded-2xl border border-border bg-surface px-4 py-3";
   return (
     <StudioShell projectId={projectId} currentStep={2}>
-      <h1 className="font-display text-4xl text-navy">Who is this song for?</h1>
-      <p className="mt-3 prose-muted">We&apos;ll use these details for pronunciation, dedication, and lyrics.</p>
+      <h1 className="font-display text-4xl text-navy">{copy.title}</h1>
+      <p className="mt-3 prose-muted">{copy.body}</p>
       <FormError message={error} />
       <form action={saveRecipientAction.bind(null, projectId)} className="mt-8 grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-sm font-medium" htmlFor="name">Recipient name</label>
+          <label className="mb-1.5 block text-sm font-medium" htmlFor="name">{copy.name}</label>
           <input id="name" name="name" required defaultValue={r?.name || ""} className={field} />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium" htmlFor="pronunciation">Pronunciation guide</label>
-          <input id="pronunciation" name="pronunciation" defaultValue={r?.pronunciation || ""} className={field} placeholder="uh-VAY-ree" />
+          <label className="mb-1.5 block text-sm font-medium" htmlFor="pronunciation">{copy.pronunciation}</label>
+          <input id="pronunciation" name="pronunciation" defaultValue={r?.pronunciation || ""} className={field} placeholder={copy.pronunciationHint} />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium" htmlFor="relationship">Relationship</label>
-          <input id="relationship" name="relationship" defaultValue={r?.relationship || ""} className={field} placeholder="Partner, parent, friend..." />
+          <label className="mb-1.5 block text-sm font-medium" htmlFor="relationship">{copy.relationship}</label>
+          <input id="relationship" name="relationship" defaultValue={r?.relationship || ""} className={field} placeholder={copy.relationshipHint} />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium" htmlFor="pronouns">Preferred pronouns</label>
+          <label className="mb-1.5 block text-sm font-medium" htmlFor="pronouns">{copy.pronouns}</label>
           <input id="pronouns" name="pronouns" defaultValue={r?.pronouns || ""} className={field} />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium" htmlFor="nickname">Nickname (optional)</label>
+          <label className="mb-1.5 block text-sm font-medium" htmlFor="nickname">{copy.nickname}</label>
           <input id="nickname" name="nickname" defaultValue={r?.nickname || ""} className={field} />
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-sm font-medium" htmlFor="fromName">Who is the song from?</label>
+          <label className="mb-1.5 block text-sm font-medium" htmlFor="fromName">{copy.fromName}</label>
           <input id="fromName" name="fromName" defaultValue={r?.fromName || ""} className={field} />
         </div>
         <div className="sm:col-span-2 flex flex-wrap gap-3">
-          <Link href={`/studio/${projectId}/occasion`} className="btn-secondary">Back</Link>
-          <button type="submit" className="btn-primary">Continue</button>
+          <Link href={`/studio/${projectId}/occasion`} className="btn-secondary">{messages.common.back}</Link>
+          <SubmitButton label={messages.common.continue} pendingLabel={messages.common.saving} />
         </div>
       </form>
     </StudioShell>

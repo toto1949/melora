@@ -55,7 +55,7 @@ export function Hero({ settings }: { settings: SiteSettings }) {
           <motion.div {...rise(0.24)} className="mt-8 flex flex-wrap gap-3">
             <Link href="/studio" className="btn-primary group">
               {copy.create}
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              <ArrowRight className="directional-icon h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <Link href="/examples" className="btn-secondary">
               {copy.listen}

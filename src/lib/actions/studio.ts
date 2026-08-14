@@ -327,11 +327,21 @@ export async function checkoutAction(
       idempotencyKey: formData.get("idempotencyKey"),
     });
 
-    const { getPackage } = await import("@/lib/db/repository");
-    const selectedPackage = await getPackage(parsed.packageId);
+    const { getPackage, listAddOns } = await import("@/lib/db/repository");
+    const [selectedPackage, availableAddOns] = await Promise.all([getPackage(parsed.packageId), listAddOns()]);
     if (!selectedPackage || !packageAvailableForRelease(selectedPackage, getEnv().VIDEO_FEATURE_ENABLED)) {
       return { error: "That package is not available in this release. Please choose an available song package." };
     }
+
+    if (parsed.couponCode && !(await findCoupon(parsed.couponCode))) {
+      return { error: "That coupon is invalid or expired. Remove it or apply a valid coupon before continuing." };
+    }
+    if (parsed.addOnIds.some((id) => !availableAddOns.some((addOn) => addOn.id === id))) {
+      return { error: "One of the selected add-ons is no longer available. Refresh the page and try again." };
+    }
+    const deliverySpeed = availableAddOns.some(
+      (addOn) => parsed.addOnIds.includes(addOn.id) && addOn.slug === "rush-delivery",
+    ) ? "rush" : "standard";
 
     let userId = user?.id ?? null;
     if (!userId && parsed.createAccount) {
@@ -361,7 +371,7 @@ export async function checkoutAction(
       userId,
       couponCode: parsed.couponCode,
       addOnIds: parsed.addOnIds,
-      deliverySpeed: parsed.deliverySpeed,
+      deliverySpeed,
       idempotencyKey: parsed.idempotencyKey,
     });
 

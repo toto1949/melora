@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { GENRES } from "@/lib/constants";
 import { listSamples } from "@/lib/db/repository";
 import { AudioPlayer } from "@/components/player/audio-player";
+import { getMessages } from "@/lib/i18n";
 
 export function generateStaticParams() {
   return GENRES.filter((g) => g.slug !== "custom").map((g) => ({ slug: g.slug }));
@@ -23,17 +24,20 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
   const { slug } = await params;
   const genre = GENRES.find((g) => g.slug === slug);
   if (!genre) notFound();
-  const samples = (await listSamples()).filter((s) => s.genre === slug);
+  const [allSamples, messages] = await Promise.all([listSamples(), getMessages()]);
+  const samples = allSamples.filter((s) => s.genre === slug);
+  const genreName = messages.catalog.genres[genre.slug];
+  const copy = messages.genrePage;
 
   return (
     <section className="section-pad">
       <div className="mx-auto max-w-6xl">
-        <h1 className="font-display text-4xl text-navy md:text-6xl">{genre.name} songs</h1>
+        <h1 className="font-display text-4xl text-navy md:text-6xl">{copy.title.replace("{genre}", genreName)}</h1>
         <p className="mt-4 max-w-2xl prose-muted">
-          Shape a personalized {genre.name.toLowerCase()} song around names, memories, and the feeling you want to leave behind.
+          {copy.body.replace("{genre}", genreName)}
         </p>
         <Link href={`/studio?genre=${genre.slug}`} className="btn-primary mt-8 inline-flex">
-          Create in {genre.name}
+          {copy.create.replace("{genre}", genreName)}
         </Link>
         <div className="mt-12 grid gap-5 lg:grid-cols-2">
           {samples.map((sample) => (
@@ -47,6 +51,7 @@ export default async function GenrePage({ params }: { params: Promise<{ slug: st
             />
           ))}
         </div>
+        {samples.length === 0 ? <p className="mt-8 text-muted">{copy.empty.replace("{genre}", genreName)}</p> : null}
       </div>
     </section>
   );

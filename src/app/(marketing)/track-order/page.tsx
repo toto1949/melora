@@ -1,5 +1,6 @@
 import { trackOrderAction } from "@/lib/actions/orders";
 import { getMessages } from "@/lib/i18n";
+import { SubmitButton } from "@/components/studio/submit-button";
 
 export const metadata = {
   title: "Track Your Order",
@@ -7,7 +8,8 @@ export const metadata = {
   alternates: { canonical: "/track-order" },
 };
 
-export default async function TrackOrderPage() {
+export default async function TrackOrderPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const { error } = await searchParams;
   const copy = (await getMessages()).trackOrder;
   return (
     <section className="section-pad">
@@ -16,6 +18,11 @@ export default async function TrackOrderPage() {
         <p className="mt-3 prose-muted">
           {copy.body}
         </p>
+        {error ? (
+          <p role="alert" className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error === "not_found" ? copy.notFound : copy.invalid}
+          </p>
+        ) : null}
         <form action={trackOrderAction} className="surface-card mt-8 space-y-4 p-6">
           <div>
             <label htmlFor="orderNumber" className="mb-1.5 block text-sm font-medium">
@@ -41,9 +48,7 @@ export default async function TrackOrderPage() {
               className="w-full rounded-2xl border border-border bg-surface px-4 py-3"
             />
           </div>
-          <button type="submit" className="btn-primary w-full">
-            {copy.submit}
-          </button>
+          <SubmitButton label={copy.submit} pendingLabel={copy.submitting} className="btn-primary w-full" />
         </form>
       </div>
     </section>

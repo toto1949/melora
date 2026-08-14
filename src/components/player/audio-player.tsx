@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { cn, formatDuration } from "@/lib/utils";
+import { useLocale } from "@/components/i18n/locale-provider";
 
 let activePlayerId: string | null = null;
 const listeners = new Set<() => void>();
@@ -34,6 +35,9 @@ export function AudioPlayer({
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0.85);
+  const [loadError, setLoadError] = useState(false);
+  const { messages } = useLocale();
+  const copy = messages.common.audio;
 
   useEffect(() => {
     const sync = () => {
@@ -87,6 +91,11 @@ export function AudioPlayer({
         onTimeUpdate={() => setProgress(audioRef.current?.currentTime || 0)}
         onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
         onEnded={() => setPlaying(false)}
+        onCanPlay={() => setLoadError(false)}
+        onError={() => {
+          setPlaying(false);
+          setLoadError(true);
+        }}
       />
 
       <div className={cn("flex items-center gap-4", !compact && "w-full")}>
@@ -106,9 +115,10 @@ export function AudioPlayer({
               type="button"
               onClick={toggle}
               className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-navy text-cream"
-              aria-label={playing ? "Pause" : "Play"}
+              aria-label={playing ? copy.pause : copy.play}
+              disabled={loadError}
             >
-              {playing ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
+              {playing ? <Pause className="h-5 w-5" /> : <Play className="ms-0.5 h-5 w-5" />}
             </button>
             <div className="waveform aria-hidden" aria-hidden="true">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -121,7 +131,7 @@ export function AudioPlayer({
 
       <div className="space-y-2">
         <label className="sr-only" htmlFor={`${id}-seek`}>
-          Seek
+          {copy.seek}
         </label>
         <input
           id={`${id}-seek`}
@@ -142,7 +152,7 @@ export function AudioPlayer({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              aria-label={muted ? "Unmute" : "Mute"}
+              aria-label={muted ? copy.unmute : copy.mute}
               onClick={() => {
                 const next = !muted;
                 setMuted(next);
@@ -157,7 +167,7 @@ export function AudioPlayer({
               max={1}
               step={0.01}
               value={muted ? 0 : volume}
-              aria-label="Volume"
+              aria-label={copy.volume}
               onChange={(e) => {
                 const value = Number(e.target.value);
                 setVolume(value);
@@ -173,6 +183,12 @@ export function AudioPlayer({
           </div>
         </div>
       </div>
+      {loadError ? (
+        <p role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <span>{copy.unavailable}</span>
+          <button type="button" className="font-semibold underline" onClick={() => { setLoadError(false); audioRef.current?.load(); }}>{copy.retry}</button>
+        </p>
+      ) : null}
     </div>
   );
 }

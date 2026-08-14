@@ -22,6 +22,24 @@
     "listenExamples": "Écouter des exemples",
     "createTheirSong": "Créer leur chanson"
   },
+  "common": {
+    "skipToContent": "Aller au contenu principal",
+    "back": "Retour",
+    "continue": "Continuer",
+    "saving": "Enregistrement…",
+    "loading": "Chargement…",
+    "edit": "Modifier",
+    "optional": "Facultatif",
+    "notProvided": "Non renseigné",
+    "formError": "Vérifiez les informations indiquées puis réessayez.",
+    "errorTitle": "Un problème est survenu",
+    "errorBody": "Impossible de charger cette page. Votre travail enregistré est en sécurité.",
+    "retry": "Réessayer",
+    "home": "Retour à l'accueil",
+    "notFoundTitle": "Page introuvable",
+    "notFoundBody": "La page a peut-être été déplacée ou le lien n'est plus disponible.",
+    "audio": { "play": "Lire", "pause": "Pause", "seek": "Parcourir l'audio", "mute": "Couper le son", "unmute": "Rétablir le son", "volume": "Volume", "unavailable": "Impossible de charger cet audio.", "retry": "Réessayer l'audio" }
+  },
   "language": {
     "label": "Langue",
     "names": {
@@ -80,7 +98,9 @@
     "eyebrow": "Réactions",
     "title": "Le moment où ils l'entendent",
     "body": "Une chanson personnalisée touche autrement que n'importe quel autre cadeau — voici les moments dont les gens se souviennent.",
-    "aria": "réagit à sa chanson pour"
+    "aria": "réagit à sa chanson pour",
+    "play": "Lire la vidéo de réaction",
+    "close": "Fermer la vidéo de réaction"
   },
   "howItWorks": {
     "eyebrow": "Comment ça marche",
@@ -230,6 +250,179 @@
     "body": "Saisissez le numéro indiqué dans votre e-mail de confirmation et l'adresse e-mail utilisée lors du paiement.",
     "orderNumber": "Numéro de commande",
     "email": "E-mail",
-    "submit": "Suivre la commande"
-  }
+    "submit": "Suivre la commande", "submitting": "Vérification…", "notFound": "Aucune commande ne correspond à ce numéro et cet e-mail.", "invalid": "Saisissez un numéro de commande et un e-mail valides."
+  },
+  "catalog": {
+    "genres": { "pop": "Pop", "rnb": "R&B", "country": "Country", "acoustic": "Acoustique", "rock": "Rock", "hip-hop": "Hip-hop", "soul": "Soul", "jazz": "Jazz", "classical": "Classique", "gospel": "Gospel", "electronic": "Électronique", "indie": "Indie", "latin": "Latin", "afrobeats": "Afrobeats", "arabic": "Arabe", "custom": "Style personnalisé" },
+    "moods": { "Romantic": "Romantique", "Emotional": "Émouvant", "Uplifting": "Entraînant", "Nostalgic": "Nostalgique", "Playful": "Enjoué", "Spiritual": "Spirituel", "Tender": "Tendre", "Celebratory": "Festif" },
+    "vocals": { "Female": "Femme", "Male": "Homme", "Soft female": "Voix féminine douce", "Warm male": "Voix masculine chaleureuse", "Duet": "Duo", "Choir blend": "Chœur" },
+    "tones": { "Romantic": "Romantique", "Emotional": "Émouvant", "Funny": "Drôle", "Inspirational": "Inspirant", "Celebratory": "Festif", "Spiritual": "Spirituel", "Nostalgic": "Nostalgique", "Conversational": "Conversationnel", "Poetic": "Poétique" },
+    "videoStyles": { "Cinematic": "Cinématographique", "Romantic": "Romantique", "Documentary": "Documentaire", "Vintage": "Vintage", "Dreamy": "Onirique", "Celebration": "Célébration", "Minimal lyric video": "Vidéo de paroles minimaliste" }
+  },
+  "studio": {
+    "shell": {
+      "title": "Studio Memories to Melody",
+      "minutesLeft": "Environ {minutes} min restantes",
+      "autosaves": "Enregistrement automatique",
+      "progress": "Progression du studio",
+      "steps": {
+        "occasion": "Occasion", "recipient": "Destinataire", "story": "Histoire", "style": "Style musical",
+        "lyrics": "Paroles", "media": "Photos", "review": "Vérification", "checkout": "Paiement"
+      }
+    },
+    "entry": {
+      "title": "Studio Memories to Melody",
+      "body": "Créez une chanson personnalisée en cinq minutes environ. Aucun compte n'est nécessaire pour commencer : votre progression est enregistrée.",
+      "occasionBody": "Créons une chanson de {occasion} qu'ils n'oublieront jamais. Nous vous guidons pas à pas.",
+      "begin": "Commencer votre chanson",
+      "beginOccasion": "Commencer leur chanson de {occasion}"
+    },
+    "occasion": {
+      "title": "Que célébrons-nous ?", "body": "Choisissez l'occasion qui correspond le mieux à ce cadeau.",
+      "saving": "Enregistrement de votre choix…", "selected": "Excellent choix — passage automatique à la suite.", "prompt": "Choisissez une occasion pour continuer."
+    },
+    "recipient": {
+      "title": "À qui s'adresse cette chanson ?", "body": "Ces informations nous aideront pour la prononciation, la dédicace et les paroles.",
+      "name": "Nom du destinataire", "pronunciation": "Guide de prononciation", "pronunciationHint": "a-vé-ri",
+      "relationship": "Relation", "relationshipHint": "Partenaire, parent, ami…", "pronouns": "Pronoms préférés",
+      "nickname": "Surnom (facultatif)", "fromName": "De la part de qui ?"
+    },
+    "story": {
+      "title": "Racontez-nous son histoire", "body": "Nos questions vous aident à créer des paroles personnelles. Quelques détails précis suffisent.",
+      "minimum": "au moins 10 caractères", "voiceHint": "Astuce : sur mobile, utilisez le microphone du clavier pour dicter vos réponses.",
+      "fields": {
+        "howTheyMet": { "label": "Votre rencontre", "hint": "Facultatif" },
+        "favoriteMemory": { "label": "Souvenir préféré", "hint": "Exemple : les marchés du dimanche et vos playlists" },
+        "importantDates": { "label": "Dates importantes", "hint": "Facultatif" },
+        "meaningfulPlaces": { "label": "Lieux importants", "hint": "Facultatif" },
+        "insideJokes": { "label": "Blagues entre vous", "hint": "Facultatif" },
+        "challengesOvercome": { "label": "Épreuves surmontées", "hint": "Facultatif" },
+        "whatMakesSpecial": { "label": "Ce qui rend cette personne unique", "hint": "Les qualités que vous seul remarquez" },
+        "personalMessage": { "label": "Message à transmettre", "hint": "Facultatif" }
+      }
+    },
+    "style": {
+      "title": "Choisissez votre son", "body": "Choisissez un genre et un type de voix. Écoutez un aperçu de l'ambiance avant de continuer.",
+      "genre": "Genre", "mood": "Ambiance", "vocal": "Type de voix", "energy": "Énergie", "tempo": "Tempo",
+      "language": "Langue de la chanson", "duet": "Préférence de duo", "instruments": "Instruments préférés",
+      "instrumentsHint": "piano, guitare, cordes", "custom": "Notes de style personnalisées",
+      "explicit": "Autoriser le contenu explicite s'il convient à l'histoire", "audioFallback": "Votre navigateur ne prend pas en charge l'audio.",
+      "options": { "soft": "Douce", "medium": "Moyenne", "high": "Forte", "slow": "Lent", "moderate": "Modéré", "upbeat": "Enjoué", "solo": "Solo", "duet": "Duo", "none": "Sans préférence" }
+    },
+    "lyrics": {
+      "title": "Direction des paroles", "body": "Précisez le ton émotionnel et les mots à inclure ou à éviter.", "tone": "Ton des paroles",
+      "include": "Mots à inclure", "includeHint": "noms, lieux, expressions", "exclude": "Mots à ne pas inclure",
+      "chorus": "Message souhaité pour le refrain", "length": "Durée souhaitée", "short": "Courte (~2 min)", "standard": "Standard (~3 min)", "extended": "Longue (~4 min)"
+    },
+    "media": {
+      "title": "Photos", "titleVideo": "Photos et vidéo",
+      "body": "Facultatif. Ajoutez des portraits, des photos de couple ou de famille. La vidéo arrivera dans notre prochaine version.",
+      "bodyVideo": "Facultatif. Ajoutez des portraits, des photos de famille ou de courtes vidéos pour la pochette et le clip.",
+      "privacy": "Les fichiers restent privés et ne servent jamais à l'entraînement sans accord explicite.",
+      "browse": "Glissez-déposez ou choisissez des fichiers", "imageTypes": "JPG, PNG, WEBP · 10 Mo au total", "videoTypes": "JPG, PNG, WEBP, MP4, MOV · 10 Mo au total",
+      "videoStyle": "Style vidéo", "consent": "Je confirme avoir le droit d'utiliser ces contenus et autorise Memories to Melody à les traiter uniquement pour ma commande. Ils ne servent pas à entraîner des modèles sauf accord ultérieur."
+    },
+    "review": {
+      "title": "Vérifiez votre histoire", "body": "Tout est correct ? Vous pouvez modifier chaque partie avant le paiement.",
+      "occasion": "Occasion", "recipient": "Destinataire", "story": "Souvenir principal", "genreMood": "Genre / ambiance", "tone": "Ton des paroles",
+      "uploads": "Fichiers ajoutés", "files": "fichier(s)", "package": "Formule", "delivery": "Livraison estimée",
+      "accuracy": "Je confirme que ces informations sont exactes.", "rights": "Je dispose des droits sur les histoires et fichiers ajoutés.", "checkout": "Continuer vers le paiement"
+    },
+    "checkout": {
+      "title": "Paiement", "body": "Paiement Stripe sécurisé · Politiques de remboursement et de révision claires · Doublons évités",
+      "package": "Formule", "addOns": "Options", "coupon": "Code promo", "couponHint": "Saisissez un code promo", "apply": "Appliquer", "applying": "Application…",
+      "couponApplied": "Code {code} appliqué.", "couponInvalid": "Code introuvable ou expiré.", "email": "E-mail", "phone": "Téléphone (facultatif)",
+      "createAccount": "Créer un compte pour gérer les chansons et révisions", "password": "Mot de passe du compte", "passwordHint": "Au moins 8 caractères",
+      "termsPrefix": "J'accepte les", "terms": "Conditions", "and": "et la", "refunds": "Politique de remboursement", "termsSuffix": "Les crédits de révision dépendent de la formule choisie.",
+      "summary": "Récapitulatif", "subtotal": "Sous-total", "discount": "Remise", "estimatedTax": "Taxes estimées", "total": "Total dû sur Stripe",
+      "delivery": "Livraison", "standardDelivery": "Livraison standard", "rushDelivery": "Livraison express", "revisions": "crédit(s) de révision",
+      "pay": "Continuer vers le paiement sécurisé", "redirecting": "Redirection vers Stripe…", "genericError": "Impossible de lancer le paiement. Vérifiez vos choix puis réessayez.",
+      "addOnItems": { "rush-delivery": { "name": "Livraison urgente", "description": "Passez en tête de la file de création." }, "extra-revision": { "name": "Crédit de révision supplémentaire", "description": "Une passe de révision guidée en plus." }, "printed-lyrics-card": { "name": "Carte de paroles imprimable", "description": "Un PDF élégamment mis en page avec les paroles finales." } }
+    },
+    "success": {
+      "title": "Merci", "confirmed": "La commande {order} est confirmée. Nous créons votre chanson.", "payment": "Votre paiement est confirmé. Nous créons votre chanson.",
+      "listen": "Ouvrir la page d'écoute", "dashboard": "Aller au tableau de bord", "project": "Retour au projet"
+    }
+  },
+  "listen": {
+    "headerCreate": "Créer une chanson",
+    "privateGift": "Un cadeau privé",
+    "defaultReveal": "Quelqu'un a créé quelque chose de spécial pour vous.",
+    "reveal": "Découvrir la chanson",
+    "coverAlt": "Pochette de la chanson",
+    "download": "Télécharger",
+    "copied": "Copié",
+    "copyLink": "Copier le lien",
+    "copyFailed": "Échec de la copie",
+    "linkCopied": "Lien copié",
+    "share": "Partager",
+    "exitFullscreen": "Quitter le plein écran",
+    "fullscreen": "Plein écran",
+    "personalizedSong": "Chanson personnalisée",
+    "yourSong": "Votre chanson personnalisée",
+    "for": "Pour",
+    "from": "De la part de",
+    "dedication": "Une chanson personnalisée par Memories to Melody",
+    "processingTitle": "Votre chanson est en cours de création",
+    "processingBody": "Cette page se met à jour automatiquement. Vous pouvez la quitter et revenir avec le même lien privé.",
+    "progress": "Progression de la création",
+    "estimated": "Livraison estimée",
+    "refreshing": "Recherche d'une mise à jour…",
+    "failedTitle": "Un problème de production est survenu",
+    "failedOwner": "Votre progression est en sécurité. Ouvrez la commande ou contactez le support pour relancer la création.",
+    "failedRecipient": "L'expéditeur peut contacter le support pour relancer la création depuis la progression enregistrée.",
+    "openDashboard": "Ouvrir la commande",
+    "contactSupport": "Contacter le support",
+    "lyrics": "Paroles",
+    "timedLyrics": "Transcription / paroles minutées",
+    "sharing": "Partage",
+    "privacy": "Confidentialité",
+    "manage": "Gérez la confidentialité et les révisions depuis la page de votre commande.",
+    "privateTitle": "Cette chanson est privée",
+    "privateBody": "Connectez-vous en tant que propriétaire pour l'écouter.",
+    "signIn": "Se connecter",
+    "passwordTitle": "Saisissez le mot de passe de partage",
+    "passwordBody": "Cette chanson est protégée par un mot de passe.",
+    "passwordPlaceholder": "Mot de passe de partage",
+    "unlock": "Ouvrir la page d'écoute",
+    "invalidPassword": "Mot de passe incorrect. Réessayez.",
+    "statuses": {
+      "draft": "Préparation de la commande",
+      "awaiting_payment": "En attente du paiement",
+      "payment_confirmed": "Paiement confirmé",
+      "writing_lyrics": "Écriture des paroles",
+      "creating_music": "Création de la musique",
+      "creating_video": "Création de la vidéo",
+      "quality_review": "Contrôle qualité",
+      "ready": "Prête",
+      "revision_requested": "Révision demandée",
+      "revising": "Révision de la chanson",
+      "completed": "Terminée",
+      "failed": "Intervention nécessaire",
+      "refunded": "Remboursée"
+    }
+  },
+  "auth": {
+    "email": "E-mail", "password": "Mot de passe", "name": "Nom", "passwordHint": "8 caractères minimum",
+    "signInTitle": "Bon retour", "signInBody": "Connectez-vous pour gérer vos chansons, révisions et partages.", "signIn": "Se connecter", "signingIn": "Connexion…", "newUser": "Nouveau sur Memories to Melody ?", "createAccount": "Créer un compte", "forgot": "Mot de passe oublié",
+    "signUpTitle": "Créez votre compte Memories to Melody", "signUpBody": "Gardez toutes vos chansons, demandez des révisions et contrôlez leur accès.", "creating": "Création du compte…", "already": "Vous avez déjà un compte ?",
+    "resetTitle": "Réinitialiser le mot de passe", "resetSent": "Si cet e-mail existe, un lien a été envoyé. Vérifiez votre boîte de réception et vos indésirables.", "sendReset": "Envoyer le lien", "sendingReset": "Envoi du lien…",
+    "verifyTitle": "Consultez votre e-mail", "verifyBody": "Utilisez le lien de vérification envoyé pour activer votre compte. Vous pouvez fermer cette page.", "backHome": "Retour à l'accueil", "genericError": "Impossible de terminer cette demande. Vérifiez vos informations et réessayez."
+  },
+  "dashboard": {
+    "menu": "Menu", "closeMenu": "Fermer le menu", "aria": "Tableau de bord du compte", "signOut": "Se déconnecter", "jobStatuses": { "queued": "En attente", "running": "En cours", "succeeded": "Terminée", "failed": "Échec", "dead_letter": "Intervention nécessaire", "cancelled": "Annulée" }, "jobTypes": { "creative_brief": "Brief créatif", "lyrics": "Paroles", "music": "Musique", "cover_art": "Pochette", "lyric_video": "Vidéo des paroles", "photo_video": "Vidéo photo", "quality_check": "Contrôle qualité", "notify": "Notification de livraison" }, "revisionStatuses": { "requested": "Demandée", "in_progress": "En cours", "completed": "Terminée", "rejected": "Refusée", "cancelled": "Annulée" },
+    "nav": { "overview": "Vue d'ensemble", "songs": "Mes chansons", "orders": "Commandes actives", "drafts": "Brouillons", "favorites": "Favoris", "billing": "Facturation", "profile": "Profil", "notifications": "Notifications", "support": "Assistance" },
+    "home": { "welcome": "Bon retour{name}", "body": "Vos chansons, brouillons et livraisons au même endroit.", "songsOrders": "Chansons / commandes", "drafts": "Brouillons", "notifications": "Notifications", "recent": "Commandes récentes", "create": "Créer votre chanson", "empty": "Aucune commande. Lancez un projet pour créer votre première chanson.", "recipient": "Destinataire", "open": "Ouvrir" },
+    "orders": { "title": "Commandes actives", "estimated": "Livraison estimée", "listen": "Écouter", "manage": "Gérer", "empty": "Aucune commande active." },
+    "songs": { "title": "Mes chansons", "empty": "Aucune chanson pour le moment.", "untitled": "Chanson sans titre", "play": "Lire", "details": "Détails" },
+    "drafts": { "title": "Brouillons", "untitled": "Brouillon sans titre", "step": "Étape", "noOccasion": "Aucune occasion", "resume": "Reprendre", "empty": "Aucun brouillon. Les brouillons invités apparaissent après leur association au paiement." },
+    "favorites": { "title": "Favoris", "empty": "Les chansons ajoutées aux favoris depuis leur page d'écoute apparaîtront ici." },
+    "notifications": { "title": "Notifications", "empty": "Vous êtes à jour." },
+    "billing": { "title": "Facturation", "body": "Vos paiements uniques apparaissent ici.", "empty": "Aucun paiement." },
+    "profile": { "title": "Profil", "email": "E-mail", "name": "Nom", "locale": "Langue", "currency": "Devise", "training": "Autorisation d'entraînement", "yes": "Oui", "noDefault": "Non (par défaut)", "privacyTitle": "Données et confidentialité", "privacyBody": "Exportez vos données ou supprimez définitivement votre profil. Les commandes peuvent être conservées pour les obligations comptables.", "export": "Exporter mes données (JSON)", "confirmDelete": "Saisissez DELETE pour confirmer la suppression.", "delete": "Supprimer le compte" },
+    "support": { "title": "Assistance", "subject": "Objet", "body": "Comment pouvons-nous vous aider ?", "send": "Envoyer le message", "sending": "Envoi…", "sent": "Votre message a été envoyé. Nous répondrons par e-mail." },
+    "order": { "revisionsLeft": "Révisions restantes", "listen": "Ouvrir la page d'écoute", "revision": "Demander une révision", "privacyTitle": "Confidentialité et révélation", "private": "Privé", "password": "Protégé par mot de passe", "unlisted": "Non répertorié", "public": "Public", "gift": "Activer le mode révélation", "sharePassword": "Mot de passe de partage (requis pour les liens protégés)", "passwordHint": "Définir ou modifier le mot de passe", "save": "Enregistrer la confidentialité", "saving": "Enregistrement…", "jobs": "Tâches de génération", "reviewTitle": "Votre avis", "reviewThanks": "Merci ! Votre avis est maintenant publié.", "sharedAs": "Partagé sous le nom", "reviewPrompt": "Comment s'est passée votre expérience ? Votre avis aide d'autres personnes.", "reviewWait": "Vous pourrez laisser un avis quand votre chanson sera prête.", "versions": "Versions", "current": "actuelle", "rating": "Note", "reviewName": "Nom affiché publiquement", "reviewBody": "Votre avis", "publish": "Publier l'avis", "publishing": "Publication…" },
+    "revision": { "title": "Demande de révision", "credits": "Crédits restants : {count}. Les versions précédentes sont conservées.", "what": "Que devons-nous modifier ?", "timestamps": "Repères temporels (facultatif)", "notes": "Notes détaillées", "submit": "Envoyer la demande", "submitting": "Envoi…", "history": "Historique des révisions", "empty": "Aucune révision.", "categories": { "Lyrics": "Paroles", "Pronunciation": "Prononciation", "Genre": "Genre", "Vocal": "Voix", "Tempo": "Tempo", "Mood": "Ambiance", "Instrumentation": "Instrumentation", "Video": "Vidéo", "Other": "Autre" } }
+  },
+  "genrePage": { "title": "Chansons {genre}", "body": "Créez une chanson {genre} personnalisée autour des prénoms, des souvenirs et de l'émotion que vous souhaitez transmettre.", "create": "Créer en {genre}", "empty": "Aucun exemple {genre} n'est encore disponible." }
 }

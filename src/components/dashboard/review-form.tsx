@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { Star } from "lucide-react";
 import { useFormStatus } from "react-dom";
+import { useLocale } from "@/components/i18n/locale-provider";
 
-const LABELS = ["", "Poor", "Fair", "Good", "Great", "Loved it"];
-
-function SubmitButton({ ready }: { ready: boolean }) {
+function SubmitButton({ ready, label, pendingLabel }: { ready: boolean; label: string; pendingLabel: string }) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -14,7 +13,7 @@ function SubmitButton({ ready }: { ready: boolean }) {
       className="btn-primary disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending || !ready}
     >
-      {pending ? "Submitting…" : ready ? "Submit review" : "Choose a rating first"}
+      {pending ? pendingLabel : label}
     </button>
   );
 }
@@ -29,20 +28,22 @@ export function ReviewForm({
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const active = hovered || rating;
+  const { messages } = useLocale();
+  const copy = messages.dashboard.order;
 
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="rating" value={rating} />
       <div>
-        <p className="mb-1.5 text-sm font-medium">Your rating</p>
-        <div className="flex items-center gap-1" role="radiogroup" aria-label="Star rating">
+        <p className="mb-1.5 text-sm font-medium">{copy.rating}</p>
+        <div className="flex items-center gap-1" role="radiogroup" aria-label={copy.rating}>
           {[1, 2, 3, 4, 5].map((n) => (
             <button
               key={n}
               type="button"
               role="radio"
               aria-checked={rating === n}
-              aria-label={`${n} star${n > 1 ? "s" : ""}`}
+              aria-label={`${copy.rating}: ${n}/5`}
               onClick={() => setRating(n)}
               onMouseEnter={() => setHovered(n)}
               onMouseLeave={() => setHovered(0)}
@@ -55,25 +56,25 @@ export function ReviewForm({
               />
             </button>
           ))}
-          <span className="ml-2 text-sm text-muted">{LABELS[active] || "Tap to rate"}</span>
+          <span className="ms-2 text-sm text-muted">{active ? `${active}/5` : copy.rating}</span>
         </div>
       </div>
       <div>
         <label htmlFor="review-name" className="mb-1.5 block text-sm font-medium">
-          Display name
+          {copy.reviewName}
         </label>
         <input
           id="review-name"
           name="customerName"
           defaultValue={defaultName}
           maxLength={80}
-          placeholder="How your name appears with the review"
+          placeholder={copy.reviewName}
           className="w-full rounded-2xl border border-border px-4 py-3"
         />
       </div>
       <div>
         <label htmlFor="review-body" className="mb-1.5 block text-sm font-medium">
-          Your experience
+          {copy.reviewBody}
         </label>
         <textarea
           id="review-body"
@@ -82,11 +83,11 @@ export function ReviewForm({
           minLength={10}
           maxLength={1200}
           rows={4}
-          placeholder="How did the song land? What was the reaction?"
+          placeholder={copy.reviewPrompt}
           className="w-full rounded-2xl border border-border px-4 py-3"
         />
       </div>
-      <SubmitButton ready={rating > 0} />
+      <SubmitButton ready={rating > 0} label={copy.publish} pendingLabel={copy.publishing} />
     </form>
   );
 }
