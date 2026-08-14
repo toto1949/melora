@@ -216,8 +216,8 @@
       },
       "premium-story": {
         "name": "Histoire Premium",
-        "description": "Plus de versions, une pochette, une vidéo avec paroles et une livraison plus rapide.",
-        "features": ["Tout le contenu Essentiel", "Plusieurs versions de la chanson", "WAV haute qualité", "Pochette personnalisée", "Vidéo avec paroles", "Livraison prioritaire", "Crédits de révision"]
+        "description": "Plus de versions, une pochette, un fichier WAV et une livraison plus rapide.",
+        "features": ["Tout le contenu Essentiel", "Plusieurs versions de la chanson", "WAV haute qualité", "Pochette personnalisée", "Livraison prioritaire", "Crédits de révision"]
       },
       "cinematic-memory": {
         "name": "Souvenir Cinématographique",
@@ -232,7 +232,7 @@
     "viewAll": "Voir toutes les questions",
     "items": {
       "faq-1": { "question": "Comment fonctionne Memories to Melody ?", "answer": "Racontez-nous votre histoire dans un studio guidé de cinq minutes : à qui s'adresse la chanson, l'occasion, les souvenirs importants et le son que vous aimez. Nous en faisons des paroles sur mesure et une chanson entièrement produite, puis nous la livrons sur une page d'écoute privée à partager au bon moment." },
-      "faq-2": { "question": "Quand ma chanson sera-t-elle prête ?", "answer": "La plupart des chansons sont prêtes sous 48 heures, et beaucoup arrivent le jour même. La livraison prioritaire des formules Premium et Cinématographique vous place en tête de file. Suivez l'avancement depuis votre tableau de bord et recevez un e-mail dès que votre chanson est prête." },
+      "faq-2": { "question": "Quand ma chanson sera-t-elle prête ?", "answer": "La plupart des chansons sont prêtes sous 48 heures, et beaucoup arrivent le jour même. La livraison prioritaire de la formule Premium vous place en tête de file. Suivez l'avancement depuis votre tableau de bord et recevez un e-mail dès que votre chanson est prête." },
       "faq-3": { "question": "Que dois-je préparer avant de commencer ?", "answer": "Quelques souvenirs suffisent. Le studio pose des questions simples : votre rencontre, une plaisanterie entre vous, un moment inoubliable. Deux ou trois détails sincères suffisent et vous n'avez rien à rédiger parfaitement. Plus le souvenir est précis, plus la chanson sera personnelle." },
       "faq-4": { "question": "Puis-je choisir le style musical et la voix ?", "answer": "Oui. Choisissez parmi plus de 16 genres — pop, acoustique, R&B, country, gospel, arabe, latin et bien d'autres — puis réglez l'ambiance et le type de voix. Nos choix guidés donnent aussi un très beau résultat." },
       "faq-5": { "question": "La chanson peut-elle être dans une autre langue ?", "answer": "Oui, les chansons peuvent être écrites et chantées en anglais, français, espagnol ou arabe. Écoutez les chansons multilingues de la page d'exemples pour découvrir leur rendu naturel." },

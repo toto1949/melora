@@ -216,8 +216,8 @@
       },
       "premium-story": {
         "name": "Premium Story",
-        "description": "More variations, artwork, lyric video, and faster delivery.",
-        "features": ["Everything in Essential", "Multiple song variations", "High-quality WAV", "Custom cover artwork", "Lyric video", "Priority delivery", "Revision credits"]
+        "description": "More variations, artwork, WAV, and faster delivery.",
+        "features": ["Everything in Essential", "Multiple song variations", "High-quality WAV", "Custom cover artwork", "Priority delivery", "Revision credits"]
       },
       "cinematic-memory": {
         "name": "Cinematic Memory",
@@ -232,7 +232,7 @@
     "viewAll": "See all questions",
     "items": {
       "faq-1": { "question": "How does Memories to Melody work?", "answer": "You tell us your story in a guided five-minute studio — who the song is for, the occasion, the memories that matter, and the sound you love. We turn that into custom lyrics and a fully produced song, then deliver it on a private listening page you can share whenever the moment is right." },
-      "faq-2": { "question": "How long until my song is ready?", "answer": "Most songs are ready within 48 hours, and many arrive the same day. Priority delivery on Premium and Cinematic packages moves you to the front of the queue. You can follow progress live from your dashboard, and we email you the moment your song is ready." },
+      "faq-2": { "question": "How long until my song is ready?", "answer": "Most songs are ready within 48 hours, and many arrive the same day. Priority delivery on Premium packages moves you to the front of the queue. You can follow progress live from your dashboard, and we email you the moment your song is ready." },
       "faq-3": { "question": "What do I need to prepare before I start?", "answer": "Just a few memories. The studio asks simple questions — how you met, an inside joke, a moment you will never forget. Two or three honest details are enough; you do not need to write anything polished. The more specific the memory, the more personal the song feels." },
       "faq-4": { "question": "Can I choose the music style and voice?", "answer": "Yes. Pick from 16+ genres — pop, acoustic, R&B, country, gospel, Arabic, Latin and more — then set the mood and the vocal style: female, male, duet, or choir blend. Not sure? Our guided defaults produce a beautiful result every time." },
       "faq-5": { "question": "Can the song be in another language?", "answer": "Yes — songs can be written and sung in English, French, Spanish, or Arabic. Listen to the multilingual songs on the examples page to hear how natural they sound." },

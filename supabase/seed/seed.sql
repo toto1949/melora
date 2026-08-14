@@ -9,9 +9,21 @@ on conflict (key) do update set value = excluded.value;
 insert into public.packages (id, slug, name, description, price_cents, features, revision_credits, includes_video, includes_wav, includes_lyric_video, song_variations, delivery_hours, sort_order)
 values
   ('11111111-1111-1111-1111-111111111111', 'essential-song', 'Essential Song', 'Personalized lyrics, song, listening page, MP3.', 3900, '["Personalized lyrics","One generated song","Private listening page","MP3 download","Standard delivery"]', 1, false, false, false, 1, 48, 1),
-  ('22222222-2222-2222-2222-222222222222', 'premium-story', 'Premium Story', 'Variations, WAV, artwork, lyric video, priority.', 7900, '["Everything in Essential","Multiple song variations","High-quality WAV","Custom cover artwork","Lyric video","Priority delivery","Revision credits"]', 3, false, true, true, 3, 24, 2),
+  ('22222222-2222-2222-2222-222222222222', 'premium-story', 'Premium Story', 'Variations, WAV, artwork, priority.', 7900, '["Everything in Essential","Multiple song variations","High-quality WAV","Custom cover artwork","Priority delivery","Revision credits"]', 3, false, true, false, 3, 24, 2),
   ('33333333-3333-3333-3333-333333333333', 'cinematic-memory', 'Cinematic Memory', 'Full keepsake with photo music video.', 14900, '["Everything in Premium","Photo-based music video","Multiple visual styles","Full HD download","Extended song duration","Priority processing"]', 5, true, true, true, 3, 18, 3)
 on conflict (slug) do nothing;
+
+update public.packages
+set
+  description = 'Variations, WAV, artwork, priority.',
+  features = '["Everything in Essential","Multiple song variations","High-quality WAV","Custom cover artwork","Priority delivery","Revision credits"]'::jsonb,
+  includes_lyric_video = false,
+  is_active = true
+where slug = 'premium-story';
+
+update public.packages
+set is_active = false
+where slug = 'cinematic-memory';
 
 insert into public.coupons (code, description, percent_off, is_active)
 values ('WELCOME10', '10% off your first Memories to Melody song', 10, true)

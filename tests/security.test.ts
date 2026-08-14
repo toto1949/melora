@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { hashPassword, verifyPassword } from "@/lib/security/password";
 import { rateLimit } from "@/lib/security/rate-limit";
-import { interpretScannerResponse, isCloudmersiveScanner } from "@/lib/security/malware-scanner";
+import {
+  interpretScannerResponse,
+  isCloudmersiveScanner,
+  usesBuiltinScanner,
+} from "@/lib/security/malware-scanner";
 
 describe("password hashing", () => {
   it("hashes and verifies a password", async () => {
@@ -53,6 +57,12 @@ describe("rate limiting (in-memory fallback)", () => {
 });
 
 describe("malware scanner adapters", () => {
+  it("recognizes the built-in launch scanner mode", () => {
+    expect(usesBuiltinScanner("builtin")).toBe(true);
+    expect(usesBuiltinScanner(" BUILTIN ")).toBe(true);
+    expect(usesBuiltinScanner("https://scanner.example.com/scan")).toBe(false);
+  });
+
   it("recognizes Cloudmersive endpoints", () => {
     expect(isCloudmersiveScanner("https://api.cloudmersive.com/virus/scan/file")).toBe(true);
     expect(isCloudmersiveScanner("https://scanner.example.com/scan")).toBe(false);

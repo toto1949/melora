@@ -3,11 +3,11 @@
 ## Safe rollout order
 
 1. Keep `VIDEO_FEATURE_ENABLED=false`.
-2. Configure every variable in `.env.example` for the Vercel Production environment. Production builds fail closed when a required value is missing.
+2. Follow `docs/PRODUCTION_LAUNCH.md` and configure every Production variable listed there. Production builds fail closed when a required value is missing.
 3. In Supabase Vault, create:
    - `app_url`: `https://memoriestomelody.com`
    - `job_worker_secret`: the exact Vercel `JOB_WORKER_SECRET`
-4. Apply `supabase/migrations/003_job_scheduler.sql`.
+4. Apply `supabase/migrations/003_job_scheduler.sql` and `supabase/migrations/004_audio_only_launch.sql`.
 5. Deploy the application and confirm `GET /api/health` returns HTTP 200.
 6. Use **Admin → Generation jobs → Process queue** once to reclaim existing stale jobs. Supabase Cron continues every minute after that.
 
@@ -25,7 +25,7 @@ Use `COVER_PROVIDER=music` to keep artwork returned by the music provider and fa
 
 ### Malware scanner
 
-The scanner receives a multipart `file` field with `Authorization: Bearer <MALWARE_SCANNER_API_KEY>`. It must respond within 60 seconds with either `{ "clean": true }` or `{ "status": "clean" }`. In production, scanner errors, unknown responses, and detected malware reject the upload before storage.
+For the audio-only launch, set `MALWARE_SCANNER_URL=builtin`. Uploads are limited to JPEG/PNG/WebP, type-checked from magic bytes, and rejected over 10 MB. An HTTP scanner can replace this later: it must receive a multipart `file` field with `Authorization: Bearer <MALWARE_SCANNER_API_KEY>` and respond within 60 seconds with either `{ "clean": true }` or `{ "status": "clean" }`. Remote scanner errors, unknown responses, and detected malware reject the upload before storage.
 
 ### Video (next release)
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { filterFaqsForRelease, filterPackagesForRelease, packageAvailableForRelease } from "@/lib/features";
+import { seedPackages } from "@/lib/db/seed-data";
 import type { Package } from "@/types";
 
 function pkg(overrides: Partial<Package>): Package {
@@ -31,6 +32,18 @@ describe("video release gating", () => {
     expect(packageAvailableForRelease(pkg({}), false)).toBe(true);
   });
 
+  it("sells Essential and audio Premium while video remains gated", () => {
+    const packages = [
+      pkg({ id: "essential", slug: "essential-song" }),
+      pkg({ id: "premium", slug: "premium-story", includesWav: true }),
+      pkg({ id: "cinematic", slug: "cinematic-memory", includesVideo: true, includesLyricVideo: true }),
+    ];
+    expect(filterPackagesForRelease(packages, false).map((item) => item.id)).toEqual([
+      "essential",
+      "premium",
+    ]);
+  });
+
   it("restores all packages when the video release is enabled", () => {
     const packages = [pkg({ id: "audio" }), pkg({ id: "video", includesVideo: true })];
     expect(filterPackagesForRelease(packages, true)).toHaveLength(2);
@@ -44,5 +57,14 @@ describe("video release gating", () => {
     ];
     expect(filterFaqsForRelease(faqs, false).map((faq) => faq.id)).toEqual(["song"]);
     expect(filterFaqsForRelease(faqs, true)).toHaveLength(2);
+  });
+
+  it("exposes only audio packages from the current seed catalog", () => {
+    expect(filterPackagesForRelease(seedPackages, false).map((item) => item.slug)).toEqual([
+      "essential-song",
+      "premium-story",
+    ]);
+    expect(seedPackages.find((item) => item.slug === "premium-story")?.includesLyricVideo).toBe(false);
+    expect(seedPackages.find((item) => item.slug === "cinematic-memory")?.isActive).toBe(false);
   });
 });
