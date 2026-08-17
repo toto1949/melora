@@ -7,11 +7,53 @@
 3. In Supabase Vault, create:
    - `app_url`: `https://memoriestomelody.com`
    - `job_worker_secret`: the exact Vercel `JOB_WORKER_SECRET`
-4. Apply `supabase/migrations/003_job_scheduler.sql` and `supabase/migrations/004_audio_only_launch.sql`.
+4. Apply `supabase/migrations/003_job_scheduler.sql`, `supabase/migrations/004_audio_only_launch.sql`, and `supabase/migrations/005_job_scheduler_repair.sql` in order. Existing production databases only need the new `005` migration.
 5. Deploy the application and confirm `GET /api/health` returns HTTP 200.
 6. Use **Admin → Generation jobs → Process queue** once to reclaim existing stale jobs. Supabase Cron continues every minute after that.
 
 The Vercel cron remains a daily fallback. Atomic database claiming makes overlapping Vercel and Supabase worker invocations safe.
+
+## Scheduler repair and verification
+
+Migration `005_job_scheduler_repair.sql` repairs the incomplete `pg_net` helper seen in affected Supabase projects and reschedules the one-minute worker through `public.dispatch_generation_worker()`. Run the whole migration in the Supabase SQL Editor, then run these checks without exposing either Vault secret:
+
+```sql
+select
+  to_regprocedure('net._encode_url_with_params_array(text,text[])') is not null
+    as pg_net_helper_ready,
+  to_regprocedure('public.claim_generation_job(uuid,timestamptz)') is not null
+    as job_claim_ready,
+  to_regprocedure('public.dispatch_generation_worker()') is not null
+    as dispatcher_ready,
+  exists (
+    select 1 from vault.decrypted_secrets
+    where name = 'app_url' and nullif(btrim(decrypted_secret), '') is not null
+  ) as app_url_ready,
+  exists (
+    select 1 from vault.decrypted_secrets
+    where name = 'job_worker_secret' and nullif(btrim(decrypted_secret), '') is not null
+  ) as worker_secret_ready;
+
+select jobid, jobname, schedule, active, command
+from cron.job
+where jobname = 'melora-process-generation-jobs';
+```
+
+All five readiness values must be `true`, and the cron row must be active. Trigger one request immediately with:
+
+```sql
+select public.dispatch_generation_worker() as request_id;
+```
+
+After a few seconds, use the returned ID to verify the HTTP result:
+
+```sql
+select id, status_code, timed_out, error_msg, content
+from net._http_response
+where id = <request_id>;
+```
+
+The expected status is `202`. A `401` means the Supabase Vault `job_worker_secret` does not exactly match Vercel Production `JOB_WORKER_SECRET`; rotate both to the same new random value and redeploy. Do not copy the masked value produced by `vercel env pull` into Vault.
 
 ## Provider contracts
 
