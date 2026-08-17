@@ -941,8 +941,9 @@ export async function saveSongVersion(version: Omit<SongVersion, "id" | "created
 
   const versionId = data.id;
   const persistAsset = async (kind: string, url: string | null | undefined, mimeType: string) => {
-    // Skip local mock/sample paths; store both external provider URLs and storage paths.
-    if (!url || url.startsWith("/")) return;
+    // Keep dynamic built-in covers so they survive later order reads. Static
+    // sample paths remain development-only and are intentionally not persisted.
+    if (!url || (url.startsWith("/") && !url.startsWith("/api/covers/generated"))) return;
     const { data: existingAsset } = await sb
       .from("generated_assets")
       .select("id")
@@ -972,7 +973,11 @@ export async function saveSongVersion(version: Omit<SongVersion, "id" | "created
     }
   };
   await persistAsset("audio", version.audioUrl, "audio/mpeg");
-  await persistAsset("cover", version.coverUrl, "image/jpeg");
+  await persistAsset(
+    "cover",
+    version.coverUrl,
+    version.coverUrl?.startsWith("/api/covers/generated") ? "image/svg+xml" : "image/jpeg",
+  );
   await persistAsset("music_video", version.videoUrl, "video/mp4");
 
   return mapSongVersion(data, {

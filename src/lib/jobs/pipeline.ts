@@ -328,6 +328,7 @@ export async function processJob(jobId: string) {
         const result = await provider.generateCover({
           title: current?.title || "Your Personalized Song",
           occasion: brief.occasion,
+          genre: brief.genre,
           mood: brief.mood,
         });
         await saveSongVersion({

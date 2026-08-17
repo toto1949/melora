@@ -1,4 +1,5 @@
 import type { CoverArtProvider, CoverArtResult } from "../types";
+import { createGeneratedCoverUrl } from "@/lib/cover-art";
 
 export class BuiltInCoverArtProvider implements CoverArtProvider {
   name = "builtin-cover";
@@ -6,13 +7,11 @@ export class BuiltInCoverArtProvider implements CoverArtProvider {
   async generateCover(input: {
     title: string;
     occasion: string;
+    genre: string;
     mood: string;
   }): Promise<CoverArtResult> {
-    void input.occasion;
-    void input.mood;
-    const label = encodeURIComponent(input.title.slice(0, 28));
     return {
-      imageUrl: `/samples/covers/generated.svg?title=${label}`,
+      imageUrl: createGeneratedCoverUrl(input),
       provider: this.name,
     };
   }

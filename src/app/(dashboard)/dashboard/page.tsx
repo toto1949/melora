@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/session";
 import { listUserOrders, listUserProjects, listNotifications } from "@/lib/db/repository";
 import { getMessages } from "@/lib/i18n";
+import { createGeneratedCoverUrl } from "@/lib/cover-art";
 
 export default async function DashboardHome() {
   const user = await getCurrentUser();
@@ -34,7 +35,17 @@ export default async function DashboardHome() {
         ) : (
           orders.slice(0, 5).map((order) => (
             <article key={order.id} className="surface-card flex flex-wrap items-center gap-4 p-4">
-              <div className="h-16 w-16 rounded-2xl bg-cover" style={{ backgroundImage: `url(${order.currentVersion?.coverUrl || "/samples/covers/generated.svg"})` }} />
+              <div
+                className="h-16 w-16 rounded-2xl bg-cover"
+                style={{
+                  backgroundImage: `url(${order.currentVersion?.coverUrl || createGeneratedCoverUrl({
+                    title: order.currentVersion?.title || order.orderNumber,
+                    genre: order.currentVersion?.genre || order.project?.preferences?.genre,
+                    mood: order.currentVersion?.mood || order.project?.preferences?.mood,
+                    occasion: order.project?.occasion,
+                  })})`,
+                }}
+              />
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-navy">{order.currentVersion?.title || order.orderNumber}</p>
                 <p className="text-sm text-muted">{order.project?.recipient?.name || copy.recipient} · {messages.listen.statuses[order.status]}</p>

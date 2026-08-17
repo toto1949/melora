@@ -79,6 +79,7 @@ export interface CoverArtProvider {
   generateCover(input: {
     title: string;
     occasion: string;
+    genre: string;
     mood: string;
   }): Promise<CoverArtResult>;
 }

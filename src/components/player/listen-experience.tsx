@@ -2,15 +2,25 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Copy, Download, Maximize2, QrCode, Share2 } from "lucide-react";
 import { AudioPlayer } from "@/components/player/audio-player";
 import { VideoPlayer } from "@/components/player/video-player";
 import type { Order, SongVersion } from "@/types";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { createGeneratedCoverUrl } from "@/lib/cover-art";
+import { splitLyricsSections } from "@/lib/lyrics";
 
-const REFRESH_INTERVAL_MS = 5_000;
+const ACTIVE_REFRESH_INTERVAL_MS = 4_000;
+const BACKGROUND_REFRESH_INTERVAL_MS = 15_000;
+
+interface ListenStatusResponse {
+  status: Order["status"];
+  progress: number;
+  estimatedDeliveryAt: string | null;
+  updatedAt: string;
+  version: SongVersion | null;
+}
 
 export function ListenExperience({
   order,
@@ -25,23 +35,109 @@ export function ListenExperience({
 }) {
   const { locale, messages } = useLocale();
   const copy = messages.listen;
-  const router = useRouter();
   const rootRef = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(!order.giftRevealEnabled);
   const [fullscreen, setFullscreen] = useState(false);
   const [copyState, setCopyState] = useState<"copied" | "failed" | null>(null);
   const [shared, setShared] = useState(false);
-  const processing = !version?.audioUrl && !["failed", "refunded"].includes(order.status);
+  const [snapshot, setSnapshot] = useState<ListenStatusResponse>({
+    status: order.status,
+    progress: order.progress ?? 0,
+    estimatedDeliveryAt: order.estimatedDeliveryAt,
+    updatedAt: order.updatedAt,
+    version,
+  });
+  const currentVersion = snapshot.version;
+  const progress = Math.min(100, Math.max(0, snapshot.progress));
+  const shouldPoll = !["ready", "completed", "failed", "refunded"].includes(
+    snapshot.status,
+  );
   const shareUrl = useMemo(() => {
     if (typeof window === "undefined") return "";
     return window.location.href;
   }, []);
+  const fallbackCoverUrl = useMemo(
+    () =>
+      createGeneratedCoverUrl({
+        title: currentVersion?.title || copy.yourSong,
+        genre: currentVersion?.genre || order.project?.preferences?.genre,
+        mood: currentVersion?.mood || order.project?.preferences?.mood,
+        occasion: order.project?.occasion,
+      }),
+    [
+      copy.yourSong,
+      currentVersion?.genre,
+      currentVersion?.mood,
+      currentVersion?.title,
+      order.project?.occasion,
+      order.project?.preferences?.genre,
+      order.project?.preferences?.mood,
+    ],
+  );
+  const coverUrl = currentVersion?.coverUrl || fallbackCoverUrl;
+  const lyricSections = useMemo(
+    () => splitLyricsSections(currentVersion?.lyrics),
+    [currentVersion?.lyrics],
+  );
+  const lyricDirection = currentVersion?.language === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
-    if (!processing) return;
-    const timer = window.setInterval(() => router.refresh(), REFRESH_INTERVAL_MS);
-    return () => window.clearInterval(timer);
-  }, [processing, router]);
+    setSnapshot({
+      status: order.status,
+      progress: order.progress ?? 0,
+      estimatedDeliveryAt: order.estimatedDeliveryAt,
+      updatedAt: order.updatedAt,
+      version,
+    });
+  }, [order.estimatedDeliveryAt, order.progress, order.status, order.updatedAt, version]);
+
+  useEffect(() => {
+    if (!shouldPoll) return;
+
+    let cancelled = false;
+    let timer: number | undefined;
+    let controller: AbortController | undefined;
+
+    const poll = async () => {
+      controller = new AbortController();
+      try {
+        const response = await fetch(
+          `/api/listen/${encodeURIComponent(order.shareToken)}/status`,
+          {
+            cache: "no-store",
+            headers: { Accept: "application/json" },
+            signal: controller.signal,
+          },
+        );
+        if ([401, 403, 404].includes(response.status)) {
+          cancelled = true;
+          return;
+        }
+        if (response.ok) {
+          const next = (await response.json()) as ListenStatusResponse;
+          if (!cancelled) setSnapshot(next);
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+
+      if (!cancelled) {
+        timer = window.setTimeout(
+          poll,
+          document.visibilityState === "visible"
+            ? ACTIVE_REFRESH_INTERVAL_MS
+            : BACKGROUND_REFRESH_INTERVAL_MS,
+        );
+      }
+    };
+
+    void poll();
+    return () => {
+      cancelled = true;
+      controller?.abort();
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [order.shareToken, shouldPoll]);
 
   useEffect(() => {
     const onFullscreenChange = () => setFullscreen(document.fullscreenElement === rootRef.current);
@@ -76,9 +172,9 @@ export function ListenExperience({
       }`
     : copy.dedication;
 
-  const statusLabel = copy.statuses[order.status as keyof typeof copy.statuses] ?? order.status.replaceAll("_", " ");
-  const estimatedDelivery = order.estimatedDeliveryAt
-    ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(order.estimatedDeliveryAt))
+  const statusLabel = copy.statuses[snapshot.status as keyof typeof copy.statuses] ?? snapshot.status.replaceAll("_", " ");
+  const estimatedDelivery = snapshot.estimatedDeliveryAt
+    ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(snapshot.estimatedDeliveryAt))
     : null;
 
   return (
@@ -120,14 +216,14 @@ export function ListenExperience({
                 <div
                   className="aspect-square overflow-hidden rounded-[2rem] bg-cover bg-center shadow-[var(--shadow-lift)]"
                   style={{
-                    backgroundImage: `url(${version?.coverUrl || "/samples/covers/generated.svg"})`,
+                    backgroundImage: `url(${coverUrl})`,
                   }}
                   role="img"
                   aria-label={copy.coverAlt}
                 />
                 <div className="flex flex-wrap gap-2">
-                  {version?.audioUrl ? (
-                    <a className="btn-secondary !py-2" href={version.audioUrl} download>
+                  {currentVersion?.audioUrl ? (
+                    <a className="btn-secondary !py-2" href={currentVersion.audioUrl} download>
                       <Download className="h-4 w-4" /> {copy.download}
                     </a>
                   ) : null}
@@ -153,7 +249,7 @@ export function ListenExperience({
                       try {
                         if (navigator.share) {
                           await navigator.share({
-                            title: version?.title || "Memories to Melody song",
+                            title: currentVersion?.title || "Memories to Melody song",
                             url: window.location.href,
                           });
                         } else {
@@ -184,33 +280,54 @@ export function ListenExperience({
                   {order.project?.occasion || copy.personalizedSong}
                 </p>
                 <h1 className={`mt-2 font-display text-4xl md:text-5xl ${fullscreen ? "text-cream" : "text-navy"}`}>
-                  {version?.title || copy.yourSong}
+                  {currentVersion?.title || copy.yourSong}
                 </h1>
                 <p className={`mt-2 ${fullscreen ? "text-cream/70" : "text-muted"}`}>{dedication}</p>
 
-                {videoEnabled && version?.videoUrl ? (
+                {videoEnabled && currentVersion?.videoUrl ? (
                   <div className="mt-6">
                     <VideoPlayer
-                      src={version.videoUrl}
-                      poster={version.coverUrl || undefined}
-                      title={version.title}
+                      src={currentVersion.videoUrl}
+                      poster={coverUrl}
+                      title={currentVersion.title}
                     />
                   </div>
                 ) : null}
 
-                {version?.audioUrl ? (
+                {currentVersion?.audioUrl ? (
                   <div className="mt-6">
                     <AudioPlayer
                       id={`listen-${order.id}`}
-                      src={version.audioUrl}
-                      title={version.title}
-                      subtitle={`${version.genre || ""} · ${version.mood || ""}`}
-                      coverUrl={version.coverUrl || undefined}
+                      src={currentVersion.audioUrl}
+                      title={currentVersion.title}
+                      subtitle={`${currentVersion.genre || ""} · ${currentVersion.mood || ""}`}
+                      coverUrl={coverUrl}
                     />
+                    {shouldPoll ? (
+                      <div className="mt-3 rounded-2xl border border-border bg-surface/80 px-4 py-3 text-sm" aria-live="polite" role="status">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="font-semibold text-navy">{copy.processingTitle}</p>
+                          <p className="text-muted">{statusLabel} · {progress}%</p>
+                        </div>
+                        <div
+                          className="mt-2 h-1.5 overflow-hidden rounded-full bg-cream-deep"
+                          role="progressbar"
+                          aria-label={copy.progress}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={progress}
+                        >
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-rose-fill to-gold-fill transition-[width] duration-700 ease-out"
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                 ) : (
                   <div className="surface-card mt-6 p-6 text-sm text-muted" aria-live="polite" role="status">
-                    {order.status === "failed" ? (
+                    {snapshot.status === "failed" ? (
                       <div>
                         <p className="font-semibold text-navy">{copy.failedTitle}</p>
                         <p className="mt-2">{canManage ? copy.failedOwner : copy.failedRecipient}</p>
@@ -223,7 +340,7 @@ export function ListenExperience({
                       <div>
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
                           <p className="font-semibold text-navy">{copy.processingTitle}</p>
-                          <p className="font-medium text-navy">{statusLabel} · {order.progress ?? 0}%</p>
+                          <p className="font-medium text-navy">{statusLabel} · {progress}%</p>
                         </div>
                         <div
                           className="mt-4 h-2 overflow-hidden rounded-full bg-cream-deep"
@@ -231,9 +348,12 @@ export function ListenExperience({
                           aria-label={copy.progress}
                           aria-valuemin={0}
                           aria-valuemax={100}
-                          aria-valuenow={order.progress ?? 0}
+                          aria-valuenow={progress}
                         >
-                          <div className="h-full rounded-full bg-gradient-to-r from-rose-fill to-gold-fill transition-[width]" style={{ width: `${order.progress ?? 0}%` }} />
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-rose-fill to-gold-fill transition-[width] duration-700 ease-out"
+                            style={{ width: `${progress}%` }}
+                          />
                         </div>
                         <p className="mt-3">{copy.processingBody}</p>
                         {estimatedDelivery ? <p className="mt-2 text-xs">{copy.estimated}: {estimatedDelivery}</p> : null}
@@ -243,17 +363,33 @@ export function ListenExperience({
                   </div>
                 )}
 
-                {version?.lyrics ? (
+                {lyricSections.length ? (
                   <div className="mt-8">
                     <h2 className={`font-display text-2xl ${fullscreen ? "text-cream" : "text-navy"}`}>{copy.lyrics}</h2>
-                    <pre className={`mt-3 whitespace-pre-wrap font-sans text-sm leading-7 ${fullscreen ? "text-cream/80" : "text-navy/80"}`}>
-                      {version.lyrics}
-                    </pre>
-                    {version.timedLyrics?.length ? (
+                    <div
+                      className={`mt-5 space-y-6 text-sm leading-7 ${fullscreen ? "text-cream/80" : "text-navy/80"}`}
+                      dir={lyricDirection}
+                    >
+                      {lyricSections.map((section, sectionIndex) => (
+                        <section key={`${section.title || "lyrics"}-${sectionIndex}`}>
+                          {section.title ? (
+                            <h3 className={`mb-2 font-semibold uppercase tracking-[0.12em] ${fullscreen ? "text-gold-soft" : "text-rose"}`}>
+                              {section.title}
+                            </h3>
+                          ) : null}
+                          <div className="space-y-1">
+                            {section.lines.map((line, lineIndex) => (
+                              <p key={`${sectionIndex}-${lineIndex}`}>{line}</p>
+                            ))}
+                          </div>
+                        </section>
+                      ))}
+                    </div>
+                    {currentVersion?.timedLyrics?.length ? (
                       <details className="mt-4 text-sm">
                         <summary className="cursor-pointer font-semibold">{copy.timedLyrics}</summary>
                         <ul className="mt-2 space-y-1 text-muted">
-                          {version.timedLyrics.map((line, i) => (
+                          {currentVersion.timedLyrics.map((line, i) => (
                             <li key={i}>
                               [{line.start.toFixed(1)}s] {line.text}
                             </li>
