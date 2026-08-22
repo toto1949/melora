@@ -127,6 +127,8 @@ export interface Recipient {
   id: string;
   projectId: string;
   name: string;
+  email: string | null;
+  sendGiftEmail: boolean;
   pronunciation: string | null;
   relationship: string | null;
   pronouns: string | null;

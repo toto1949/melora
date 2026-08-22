@@ -160,8 +160,28 @@ export async function processQueuedJobs(orderId?: string) {
     byOrder.set(job.orderId, group);
   }
 
+  const prioritizedGroups = await Promise.all(
+    [...byOrder.entries()].map(async ([groupOrderId, group]) => ({
+      group,
+      order: await getOrder(groupOrderId),
+    })),
+  );
+  prioritizedGroups.sort((left, right) => {
+    const rushDifference =
+      Number(left.order?.deliverySpeed !== "rush") -
+      Number(right.order?.deliverySpeed !== "rush");
+    if (rushDifference !== 0) return rushDifference;
+    const leftDeadline = left.order?.estimatedDeliveryAt
+      ? new Date(left.order.estimatedDeliveryAt).getTime()
+      : Number.MAX_SAFE_INTEGER;
+    const rightDeadline = right.order?.estimatedDeliveryAt
+      ? new Date(right.order.estimatedDeliveryAt).getTime()
+      : Number.MAX_SAFE_INTEGER;
+    return leftDeadline - rightDeadline;
+  });
+
   const results = [];
-  orderGroups: for (const [, group] of byOrder) {
+  orderGroups: for (const { group } of prioritizedGroups) {
     group.sort((a, b) => PIPELINE.indexOf(a.jobType) - PIPELINE.indexOf(b.jobType));
     for (const job of group) {
       if (processed >= MAX_JOBS_PER_RUN || Date.now() - startedAt >= WORKER_BUDGET_MS) {
@@ -289,6 +309,9 @@ export async function processJob(jobId: string) {
           idempotencyKey: job.idempotencyKey,
           onProviderJobId: async (providerJobId) => {
             await updateJob(job.id, { providerJobId });
+          },
+          onProgress: async (progress) => {
+            await updateJob(job.id, { progress });
           },
         });
         if (!isExternalAssetUrl(result.audioUrl)) {
@@ -455,12 +478,32 @@ export async function processJob(jobId: string) {
         await sendEmail({
           to: order.email,
           template: "song-ready",
+          idempotencyKey: `song-ready-owner-${order.id}`,
           data: {
             orderNumber: order.orderNumber,
             title: fresh?.currentVersion?.title || "Your personalized song",
             listenUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/listen/${order.shareToken}`,
           },
         });
+        const recipient = fresh?.project?.recipient;
+        if (
+          recipient?.sendGiftEmail &&
+          recipient.email &&
+          recipient.email.toLowerCase() !== order.email.toLowerCase()
+        ) {
+          await sendEmail({
+            to: recipient.email,
+            template: "recipient-gift-ready",
+            idempotencyKey: `song-ready-recipient-${order.id}`,
+            data: {
+              recipientName: recipient.name,
+              fromName: recipient.fromName || "Someone special",
+              title: fresh?.currentVersion?.title || "A song made for you",
+              personalMessage: fresh?.project?.story?.personalMessage,
+              listenUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/listen/${order.shareToken}`,
+            },
+          });
+        }
         if (order.userId) {
           await createNotification({
             userId: order.userId,

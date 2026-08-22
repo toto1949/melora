@@ -11,7 +11,7 @@ import { useLocale } from "@/components/i18n/locale-provider";
 import { createGeneratedCoverUrl } from "@/lib/cover-art";
 import { splitLyricsSections } from "@/lib/lyrics";
 
-const ACTIVE_REFRESH_INTERVAL_MS = 4_000;
+const ACTIVE_REFRESH_INTERVAL_MS = 2_000;
 const BACKGROUND_REFRESH_INTERVAL_MS = 15_000;
 
 interface ListenStatusResponse {
@@ -19,6 +19,8 @@ interface ListenStatusResponse {
   progress: number;
   estimatedDeliveryAt: string | null;
   updatedAt: string;
+  stage: import("@/types").JobType | null;
+  stageProgress: number | null;
   version: SongVersion | null;
 }
 
@@ -45,6 +47,8 @@ export function ListenExperience({
     progress: order.progress ?? 0,
     estimatedDeliveryAt: order.estimatedDeliveryAt,
     updatedAt: order.updatedAt,
+    stage: null,
+    stageProgress: null,
     version,
   });
   const currentVersion = snapshot.version;
@@ -87,6 +91,8 @@ export function ListenExperience({
       progress: order.progress ?? 0,
       estimatedDeliveryAt: order.estimatedDeliveryAt,
       updatedAt: order.updatedAt,
+      stage: null,
+      stageProgress: null,
       version,
     });
   }, [order.estimatedDeliveryAt, order.progress, order.status, order.updatedAt, version]);
@@ -173,6 +179,9 @@ export function ListenExperience({
     : copy.dedication;
 
   const statusLabel = copy.statuses[snapshot.status as keyof typeof copy.statuses] ?? snapshot.status.replaceAll("_", " ");
+  const stageLabel = snapshot.stage
+    ? messages.dashboard.jobTypes[snapshot.stage]
+    : statusLabel;
   const estimatedDelivery = snapshot.estimatedDeliveryAt
     ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(snapshot.estimatedDeliveryAt))
     : null;
@@ -307,7 +316,7 @@ export function ListenExperience({
                       <div className="mt-3 rounded-2xl border border-border bg-surface/80 px-4 py-3 text-sm" aria-live="polite" role="status">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <p className="font-semibold text-navy">{copy.processingTitle}</p>
-                          <p className="text-muted">{statusLabel} · {progress}%</p>
+                          <p className="text-muted">{stageLabel} · {progress}%</p>
                         </div>
                         <div
                           className="mt-2 h-1.5 overflow-hidden rounded-full bg-cream-deep"
@@ -340,7 +349,7 @@ export function ListenExperience({
                       <div>
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
                           <p className="font-semibold text-navy">{copy.processingTitle}</p>
-                          <p className="font-medium text-navy">{statusLabel} · {progress}%</p>
+                          <p className="font-medium text-navy">{stageLabel} · {progress}%</p>
                         </div>
                         <div
                           className="mt-4 h-2 overflow-hidden rounded-full bg-cream-deep"

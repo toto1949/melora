@@ -80,6 +80,8 @@ export function mapRecipient(row: Record<string, unknown>): Recipient {
     id: row.id as string,
     projectId: row.project_id as string,
     name: row.name as string,
+    email: (row.email as string) ?? null,
+    sendGiftEmail: Boolean(row.send_gift_email),
     pronunciation: (row.pronunciation as string) ?? null,
     relationship: (row.relationship as string) ?? null,
     pronouns: (row.pronouns as string) ?? null,

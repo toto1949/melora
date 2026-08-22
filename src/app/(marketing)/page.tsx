@@ -38,10 +38,25 @@ export default async function HomePage() {
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    name: settings.brandName,
-    description: settings.heroSupporting,
-    url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/#organization`,
+        name: settings.brandName,
+        description: settings.heroSupporting,
+        url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        email: "hello@memoriestomelody.com",
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/#website`,
+        name: settings.brandName,
+        url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        publisher: {
+          "@id": `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/#organization`,
+        },
+      },
+    ],
   };
 
   const faqLd = {

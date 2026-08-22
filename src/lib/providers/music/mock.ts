@@ -9,11 +9,13 @@ export class MockMusicProvider implements MusicProvider {
     title: string;
     idempotencyKey?: string;
     onProviderJobId?: (providerJobId: string) => void | Promise<void>;
+    onProgress?: (progress: number) => void | Promise<void>;
   }): Promise<MusicResult> {
     // Local demo audio asset — replace with real provider output in production.
     void input;
     const providerJobId = `mock-music-${Date.now()}`;
     await input.onProviderJobId?.(providerJobId);
+    await input.onProgress?.(70);
     return {
       audioUrl: "/samples/audio/placeholder-tone.wav",
       durationSeconds: 180,

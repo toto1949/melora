@@ -65,6 +65,8 @@ Set `USE_MOCK_PROVIDERS=false` and configure all required services:
    - `supabase/migrations/002_production_setup.sql`
    - `supabase/migrations/003_job_scheduler.sql`
    - `supabase/migrations/004_audio_only_launch.sql`
+   - `supabase/migrations/005_job_scheduler_repair.sql`
+   - `supabase/migrations/006_release_gift_delivery.sql`
 3. Seed reference data: `supabase/seed/seed.sql`
 4. Configure Auth redirect URL: `https://<domain>/auth/callback`
 5. Add Supabase Vault secrets `app_url` and `job_worker_secret` before enabling the scheduler migration

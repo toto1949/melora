@@ -19,6 +19,7 @@ import type {
   UserRole,
 } from "@/types";
 import { orderNumber } from "@/lib/utils";
+import { calculateOrderProgress } from "@/lib/generation-progress";
 import { getStore, id, mutateStore, nowIso, saveStore } from "./store";
 
 function attachProject(store: Awaited<ReturnType<typeof getStore>>, project: Project): Project {
@@ -35,12 +36,7 @@ function attachProject(store: Awaited<ReturnType<typeof getStore>>, project: Pro
 function attachOrder(store: Awaited<ReturnType<typeof getStore>>, order: Order): Order {
   const project = store.projects.find((p) => p.id === order.projectId);
   const jobs = store.jobs.filter((j) => j.orderId === order.id);
-  const progress =
-    jobs.length === 0
-      ? order.status === "ready" || order.status === "completed"
-        ? 100
-        : 0
-      : Math.round(jobs.reduce((sum, j) => sum + j.progress, 0) / jobs.length);
+  const progress = calculateOrderProgress(jobs, order.status);
 
   return {
     ...order,
@@ -635,8 +631,8 @@ export async function listRunnableJobs(limit = 500) {
     .filter((job) =>
       ["queued", "failed", "running", "dead_letter", "cancelled"].includes(job.status),
     )
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .slice(0, limit);
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .slice(0, Math.min(limit, 80));
 }
 
 export async function listOrderJobs(orderId: string) {

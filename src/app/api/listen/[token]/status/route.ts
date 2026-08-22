@@ -1,7 +1,8 @@
 import { getCurrentUser } from "@/lib/auth/session";
 import { isListenUnlocked } from "@/lib/actions/listen";
-import { getOrderByShareToken } from "@/lib/db/repository";
+import { getOrderByShareToken, listOrderJobs } from "@/lib/db/repository";
 import { normalizeLyrics } from "@/lib/lyrics";
+import { getActiveGenerationJob } from "@/lib/generation-progress";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export async function GET(
         lyrics: normalizeLyrics(order.currentVersion.lyrics),
       }
     : null;
+  const activeJob = getActiveGenerationJob(await listOrderJobs(order.id));
 
   return Response.json(
     {
@@ -37,6 +39,8 @@ export async function GET(
       progress: Math.min(100, Math.max(0, order.progress ?? 0)),
       estimatedDeliveryAt: order.estimatedDeliveryAt,
       updatedAt: order.updatedAt,
+      stage: activeJob?.jobType ?? null,
+      stageProgress: activeJob?.progress ?? null,
       version,
     },
     {
