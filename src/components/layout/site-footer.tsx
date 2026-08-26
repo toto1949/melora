@@ -31,6 +31,7 @@ export function SiteFooter({ locale, messages }: { locale: Locale; messages: Mes
             <li><Link href="/how-it-works">{footer.howItWorks}</Link></li>
             <li><Link href="/faq">{footer.help}</Link></li>
             <li><a href={`mailto:${BRAND.supportEmail}`}>{footer.contact}</a></li>
+            <li><Link href="/feedback">{footer.feedback}</Link></li>
             <li><Link href="/reviews">{footer.reviews}</Link></li>
           </ul>
         </div>

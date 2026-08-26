@@ -62,6 +62,56 @@ export interface MeloraStore {
 
 const STORE_PATH = path.join(process.cwd(), ".data", "melora-store.json");
 
+function migrateStore(store: MeloraStore) {
+  let changed = false;
+
+  const premium = store.packages.find((item) => item.slug === "premium-story");
+  const premiumSeed = seedPackages.find((item) => item.slug === "premium-story");
+
+  if (premium && premiumSeed) {
+    const releaseFields = {
+      description: premiumSeed.description,
+      features: structuredClone(premiumSeed.features),
+      includesVideo: premiumSeed.includesVideo,
+      includesWav: premiumSeed.includesWav,
+      includesLyricVideo: premiumSeed.includesLyricVideo,
+      songVariations: premiumSeed.songVariations,
+    };
+
+    if (
+      premium.description !== releaseFields.description ||
+      JSON.stringify(premium.features) !== JSON.stringify(releaseFields.features) ||
+      premium.includesVideo !== releaseFields.includesVideo ||
+      premium.includesWav !== releaseFields.includesWav ||
+      premium.includesLyricVideo !== releaseFields.includesLyricVideo ||
+      premium.songVariations !== releaseFields.songVariations
+    ) {
+      Object.assign(premium, releaseFields);
+      changed = true;
+    }
+  }
+
+  const cinematic = store.packages.find((item) => item.slug === "cinematic-memory");
+  if (cinematic?.isActive) {
+    cinematic.isActive = false;
+    changed = true;
+  }
+
+  for (const recipient of store.recipients) {
+    const legacyRecipient = recipient as Partial<Recipient>;
+    if (legacyRecipient.email === undefined) {
+      recipient.email = null;
+      changed = true;
+    }
+    if (legacyRecipient.sendGiftEmail === undefined) {
+      recipient.sendGiftEmail = false;
+      changed = true;
+    }
+  }
+
+  return changed;
+}
+
 function emptyStore(): MeloraStore {
   return {
     profiles: [],
@@ -122,8 +172,9 @@ export async function getStore(): Promise<MeloraStore> {
     global.__meloraStoreReady = (async () => {
       const disk = await readFromDisk();
       const store = disk ?? emptyStore();
+      const migrated = migrateStore(store);
       global.__meloraStore = store;
-      if (!disk) await writeToDisk(store);
+      if (!disk || migrated) await writeToDisk(store);
       return store;
     })();
   }

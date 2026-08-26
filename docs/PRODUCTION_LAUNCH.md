@@ -7,7 +7,7 @@ Keep these values in Vercel Production:
 - `VIDEO_FEATURE_ENABLED=false`
 - `USE_MOCK_PROVIDERS=false`
 
-Customers can buy **Essential Song** and **Premium Story** (WAV, artwork, extra revisions). **Cinematic Memory** and lyric/photo video stay hidden.
+Customers can buy **Essential Song** and **Premium Story**. Premium adds artwork, faster delivery, extra revisions, and recipient gift-email delivery. **Cinematic Memory**, WAV, alternate song variations, and lyric/photo video stay unavailable until their production pipelines are approved.
 
 ## 1. Domain and GitHub
 
@@ -60,6 +60,8 @@ Do not set video provider URL/key yet. Production builds fail closed if a requir
    - `supabase/migrations/002_production_setup.sql`
    - `supabase/migrations/003_job_scheduler.sql`
    - `supabase/migrations/004_audio_only_launch.sql`
+   - `supabase/migrations/005_job_scheduler_repair.sql`
+   - `supabase/migrations/006_release_gift_delivery.sql`
 2. Seed reference data: `supabase/seed/seed.sql`
 3. Auth URL configuration:
    - Site URL: `https://memoriestomelody.com`
@@ -82,7 +84,8 @@ Checkout creates Stripe prices at session time, so catalog Price IDs are not req
 
 1. Verify the sending domain in Resend.
 2. Confirm `EMAIL_FROM` uses that domain.
-3. Send one test after deploy (order confirmation / song-ready).
+3. Send one Essential test after deploy and confirm the buyer receives the order-confirmation and song-ready emails.
+4. Send one Premium test to a second inbox with recipient delivery enabled. Confirm the recipient gets the private gift link once, while the buyer still receives their separate song-ready email.
 
 ## 6. Deploy and verify
 
@@ -92,10 +95,11 @@ Checkout creates Stripe prices at session time, so catalog Price IDs are not req
 4. Open **Admin → Generation jobs → Process queue** once.
 5. Place one live test order for Essential and one for Premium:
    - checkout succeeds
-   - generation reaches 100%
-   - song-ready email arrives
+   - generation progress advances without a page refresh and reaches 100%
+   - buyer and opted-in recipient emails arrive once
    - listening page plays audio
-6. Confirm `/pricing` shows only Essential and Premium.
+6. Confirm `/pricing` shows only Essential and Premium, with no WAV, video, or multiple-variation promises.
+7. Open `/feedback`, submit one test response, and confirm it appears in **Admin → Support** before inviting community testers.
 
 ## 7. Not this release
 
@@ -104,6 +108,6 @@ Leave these until the video release:
 - `VIDEO_FEATURE_ENABLED=true`
 - `VIDEO_PROVIDER=http` plus URL and API key
 - re-activating the `cinematic-memory` package
-- restoring lyric video on Premium
+- restoring video, WAV, or multiple-variation package promises before their pipelines pass Preview testing
 
 See `docs/PRODUCTION_RUNBOOK.md` for provider contracts and job operations.

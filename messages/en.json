@@ -61,11 +61,31 @@
     "howItWorks": "How It Works",
     "help": "Help Center",
     "contact": "Contact",
+    "feedback": "Beta feedback",
     "reviews": "Reviews",
     "privacy": "Privacy policy",
     "terms": "Terms",
     "refunds": "Refund policy",
     "rights": "All rights reserved."
+  },
+  "feedback": {
+    "eyebrow": "Community beta",
+    "title": "Help us make the gift experience better",
+    "body": "Try the creation and listening experience, then tell us exactly where you felt delighted, confused, or unsure. Every submission goes directly to the product team.",
+    "prompts": ["Test on the device you normally use", "Mention the exact page or step", "Do not include passwords, payment details, or private story content"],
+    "name": "Your name",
+    "email": "Your email",
+    "rating": "Overall experience",
+    "chooseRating": "Choose a rating",
+    "topic": "Area tested",
+    "chooseTopic": "Choose an area",
+    "topics": { "creation": "Song creation", "checkout": "Pricing and checkout", "progress": "Generation progress", "listening": "Listening and gifting", "accessibility": "Language or accessibility", "other": "Other" },
+    "message": "What happened?",
+    "messageHint": "Tell us what you expected, what happened, and what would make it clearer.",
+    "send": "Send feedback",
+    "sending": "Sending…",
+    "sent": "Thank you — your feedback reached the team.",
+    "privacy": "Used only to improve the beta and reply if clarification is needed."
   },
   "cookie": {
     "title": "Cookie preferences",
@@ -216,8 +236,8 @@
       },
       "premium-story": {
         "name": "Premium Story",
-        "description": "More variations, artwork, WAV, and faster delivery.",
-        "features": ["Everything in Essential", "Multiple song variations", "High-quality WAV", "Custom cover artwork", "Priority delivery", "Revision credits"]
+        "description": "Custom artwork, priority delivery, and extra revision support.",
+        "features": ["Everything in Essential", "Custom cover artwork", "Priority 24-hour delivery", "Three guided revision credits", "Recipient gift email delivery"]
       },
       "cinematic-memory": {
         "name": "Cinematic Memory",
@@ -301,6 +321,11 @@
       "title": "Who is this song for?",
       "body": "We'll use these details for pronunciation, dedication, and lyrics.",
       "name": "Recipient name",
+      "email": "Recipient email (optional)",
+      "emailHint": "recipient@example.com",
+      "emailHelp": "Used only for this gift. We never add recipients to marketing lists.",
+      "sendGiftEmail": "Email the finished gift directly to the recipient",
+      "sendGiftEmailHelp": "We will wait until the song is complete, then send the private reveal link. Leave this off if you want to reveal it yourself.",
       "pronunciation": "Pronunciation guide",
       "pronunciationHint": "uh-VAY-ree",
       "relationship": "Relationship",

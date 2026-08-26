@@ -36,6 +36,7 @@ export class KunavoMusicProvider implements MusicProvider {
     title: string;
     idempotencyKey?: string;
     onProviderJobId?: (providerJobId: string) => void | Promise<void>;
+    onProgress?: (progress: number) => void | Promise<void>;
   }): Promise<MusicResult> {
     const env = getEnv();
     const apiKey = env.MUSIC_PROVIDER_API_KEY;
@@ -77,6 +78,8 @@ export class KunavoMusicProvider implements MusicProvider {
     let job = (await submitRes.json()) as KunavoJob;
     if (!job.id) throw new Error("Kunavo returned no job id");
     await input.onProviderJobId?.(job.id);
+    await input.onProgress?.(30);
+    const pollingStartedAt = Date.now();
     const deadline = Date.now() + POLL_DEADLINE_MS;
     while (job.status !== "completed" && job.status !== "failed") {
       if (Date.now() > deadline) {
@@ -89,6 +92,11 @@ export class KunavoMusicProvider implements MusicProvider {
       });
       if (!pollRes.ok) continue;
       job = (await pollRes.json()) as KunavoJob;
+      const elapsedRatio = Math.min(1, (Date.now() - pollingStartedAt) / POLL_DEADLINE_MS);
+      const providerFloor = job.status === "in_progress" ? 45 : 34;
+      await input.onProgress?.(
+        Math.min(72, Math.max(providerFloor, Math.round(30 + elapsedRatio * 42))),
+      );
     }
 
     if (job.status === "failed") {
@@ -101,6 +109,7 @@ export class KunavoMusicProvider implements MusicProvider {
     if (!audioUrl) {
       throw new Error("Kunavo returned no audio track");
     }
+    await input.onProgress?.(74);
 
     return {
       audioUrl,

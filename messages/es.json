@@ -61,11 +61,24 @@
     "howItWorks": "Cómo funciona",
     "help": "Centro de ayuda",
     "contact": "Contacto",
+    "feedback": "Opiniones de la beta",
     "reviews": "Reseñas",
     "privacy": "Política de privacidad",
     "terms": "Términos",
     "refunds": "Política de reembolso",
     "rights": "Todos los derechos reservados."
+  },
+  "feedback": {
+    "eyebrow": "Beta comunitaria",
+    "title": "Ayúdanos a mejorar la experiencia del regalo",
+    "body": "Prueba la creación y la escucha, y cuéntanos exactamente dónde te encantó, te confundiste o dudaste. Cada mensaje llega directamente al equipo de producto.",
+    "prompts": ["Prueba en el dispositivo que usas normalmente", "Indica la página o el paso exacto", "No incluyas contraseñas, datos de pago ni historias privadas"],
+    "name": "Tu nombre", "email": "Tu correo", "rating": "Experiencia general", "chooseRating": "Elige una puntuación",
+    "topic": "Área probada", "chooseTopic": "Elige un área",
+    "topics": { "creation": "Creación de la canción", "checkout": "Precios y pago", "progress": "Progreso de generación", "listening": "Escucha y regalo", "accessibility": "Idioma o accesibilidad", "other": "Otro" },
+    "message": "¿Qué ocurrió?", "messageHint": "Cuéntanos qué esperabas, qué ocurrió y qué lo haría más claro.",
+    "send": "Enviar opinión", "sending": "Enviando…", "sent": "Gracias: tu opinión llegó al equipo.",
+    "privacy": "Se usa solo para mejorar la beta y responderte si necesitamos aclaraciones."
   },
   "cookie": {
     "title": "Preferencias de cookies",
@@ -216,8 +229,8 @@
       },
       "premium-story": {
         "name": "Historia Premium",
-        "description": "Más versiones, portada, WAV y entrega más rápida.",
-        "features": ["Todo lo incluido en Esencial", "Varias versiones de la canción", "WAV de alta calidad", "Portada personalizada", "Entrega prioritaria", "Créditos de revisión"]
+        "description": "Portada personalizada, entrega prioritaria y revisiones adicionales.",
+        "features": ["Todo lo incluido en Esencial", "Portada personalizada", "Entrega prioritaria en 24 horas", "Tres revisiones guiadas", "Envío del regalo por correo al destinatario"]
       },
       "cinematic-memory": {
         "name": "Recuerdo Cinematográfico",
@@ -278,6 +291,10 @@
     "occasion": { "title": "¿Qué celebramos?", "body": "Elige la ocasión que mejor encaje con este regalo.", "saving": "Guardando tu elección…", "selected": "Buena elección — continuamos automáticamente.", "prompt": "Elige una ocasión para continuar." },
     "recipient": {
       "title": "¿Para quién es esta canción?", "body": "Usaremos estos datos para la pronunciación, la dedicatoria y la letra.", "name": "Nombre del destinatario",
+      "email": "Correo del destinatario (opcional)", "emailHint": "destinatario@ejemplo.com",
+      "emailHelp": "Se usa solo para este regalo. Nunca añadimos destinatarios a listas de marketing.",
+      "sendGiftEmail": "Enviar el regalo terminado directamente al destinatario",
+      "sendGiftEmailHelp": "Esperaremos a que la canción esté lista y enviaremos el enlace privado. Déjalo desactivado si prefieres hacer la sorpresa personalmente.",
       "pronunciation": "Guía de pronunciación", "pronunciationHint": "a-VÉ-ri", "relationship": "Relación", "relationshipHint": "Pareja, familiar, amistad…",
       "pronouns": "Pronombres preferidos", "nickname": "Apodo (opcional)", "fromName": "¿De parte de quién es la canción?"
     },

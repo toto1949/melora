@@ -10,12 +10,14 @@ export class HttpMusicProvider implements MusicProvider {
     title: string;
     idempotencyKey?: string;
     onProviderJobId?: (providerJobId: string) => void | Promise<void>;
+    onProgress?: (progress: number) => void | Promise<void>;
   }): Promise<MusicResult> {
     const env = getEnv();
     if (!env.MUSIC_PROVIDER_URL) {
       throw new Error("MUSIC_PROVIDER_URL is not configured");
     }
 
+    await input.onProgress?.(30);
     const res = await fetch(env.MUSIC_PROVIDER_URL, {
       method: "POST",
       headers: {
@@ -44,6 +46,7 @@ export class HttpMusicProvider implements MusicProvider {
     const data = (await res.json()) as Record<string, unknown>;
     const providerJobId = String(data.jobId ?? data.job_id ?? "");
     if (providerJobId) await input.onProviderJobId?.(providerJobId);
+    await input.onProgress?.(70);
     const audioUrl = String(data.audioUrl ?? data.audio_url ?? "");
     if (!audioUrl) throw new Error("Music provider returned no audio URL");
     return {

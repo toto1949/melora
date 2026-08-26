@@ -4,14 +4,26 @@ export const occasionSchema = z.object({
   occasion: z.string().min(2, "Please choose an occasion"),
 });
 
-export const recipientSchema = z.object({
-  name: z.string().min(1, "Recipient name is required").max(80),
-  pronunciation: z.string().max(120).optional().nullable(),
-  relationship: z.string().max(80).optional().nullable(),
-  pronouns: z.string().max(40).optional().nullable(),
-  nickname: z.string().max(80).optional().nullable(),
-  fromName: z.string().max(80).optional().nullable(),
-});
+export const recipientSchema = z
+  .object({
+    name: z.string().min(1, "Recipient name is required").max(80),
+    email: z.string().email("Enter a valid recipient email").max(254).optional().nullable(),
+    sendGiftEmail: z.boolean().default(false),
+    pronunciation: z.string().max(120).optional().nullable(),
+    relationship: z.string().max(80).optional().nullable(),
+    pronouns: z.string().max(40).optional().nullable(),
+    nickname: z.string().max(80).optional().nullable(),
+    fromName: z.string().max(80).optional().nullable(),
+  })
+  .superRefine((value, context) => {
+    if (value.sendGiftEmail && !value.email) {
+      context.addIssue({
+        code: "custom",
+        path: ["email"],
+        message: "Add the recipient email or turn off direct gift delivery",
+      });
+    }
+  });
 
 export const storySchema = z.object({
   howTheyMet: z.string().max(2000).optional().nullable(),

@@ -107,6 +107,8 @@ export async function saveRecipientAction(projectId: string, formData: FormData)
   await assertProjectAccess(projectId);
   const parsed = parseStepInput(recipientSchema, {
     name: formData.get("name"),
+    email: formData.get("recipientEmail") || null,
+    sendGiftEmail: formData.get("sendGiftEmail") === "on",
     pronunciation: formData.get("pronunciation") || null,
     relationship: formData.get("relationship") || null,
     pronouns: formData.get("pronouns") || null,
@@ -115,6 +117,8 @@ export async function saveRecipientAction(projectId: string, formData: FormData)
   }, `/studio/${projectId}/recipient`);
   await upsertRecipient(projectId, {
     name: parsed.name,
+    email: parsed.email ?? null,
+    sendGiftEmail: parsed.sendGiftEmail,
     pronunciation: parsed.pronunciation ?? null,
     relationship: parsed.relationship ?? null,
     pronouns: parsed.pronouns ?? null,

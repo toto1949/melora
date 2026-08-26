@@ -19,6 +19,15 @@ const COLORS = {
 const FONT_BODY = "'Helvetica Neue',Helvetica,Arial,sans-serif";
 const FONT_DISPLAY = "Georgia,'Times New Roman',serif";
 
+function escapeHtml(value: unknown) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function paragraph(html: string) {
   return `<p style="margin:0 0 16px;font-family:${FONT_BODY};font-size:15px;line-height:1.7;color:${COLORS.ink};">${html}</p>`;
 }
@@ -269,13 +278,13 @@ export const emailTemplates = {
   }),
 
   "song-ready": (d: TemplateData) => ({
-    subject: `🎁 It's here — "${d.title}" is ready`,
+    subject: `🎁 It's here — "${String(d.title ?? "Your personalized song").replace(/[\r\n]+/g, " ")}" is ready`,
     html: shell({
       title: `Your song is ready`,
-      preheader: `"${d.title}" is waiting on your private listening page.`,
+      preheader: `"${escapeHtml(d.title)}" is waiting on your private listening page.`,
       body:
         paragraph(
-          `The moment you've been waiting for: <em>“${d.title}”</em> is finished and waiting for you on your private listening page.`,
+          `The moment you've been waiting for: <em>“${escapeHtml(d.title)}”</em> is finished and waiting for you on your private listening page.`,
         ) +
         button("Listen to my song", String(d.listenUrl ?? `${APP_URL}/dashboard/orders`)) +
         paragraph(
@@ -286,6 +295,34 @@ export const emailTemplates = {
         ),
     }),
   }),
+
+  "recipient-gift-ready": (d: TemplateData) => {
+    const recipientName = escapeHtml(d.recipientName || "there");
+    const fromName = escapeHtml(d.fromName || "Someone special");
+    const title = escapeHtml(d.title || "A song made for you");
+    const personalMessage = d.personalMessage
+      ? paragraph(`<em>“${escapeHtml(d.personalMessage)}”</em>`)
+      : "";
+    return {
+      subject: `${String(d.fromName || "Someone special").replace(/[\r\n]+/g, " ")} made you a song 🎁`,
+      html: shell({
+        title: `${recipientName}, a private gift is waiting for you`,
+        preheader: `${fromName} turned your memories into a song called “${title}”.`,
+        body:
+          paragraph(
+            `<strong>${fromName}</strong> created something deeply personal for you: an original song called <em>“${title}”</em>.`,
+          ) +
+          personalMessage +
+          paragraph(
+            `Open the private gift page when you're ready. The reveal, song, cover artwork, and lyrics are all waiting there.`,
+          ) +
+          button("Open my gift", String(d.listenUrl ?? APP_URL)) +
+          paragraph(
+            `This link was shared only for this gift. You can keep it and return to the song anytime.`,
+          ),
+      }),
+    };
+  },
 
   "video-ready": (d: TemplateData) => ({
     subject: `Your music video is ready 🎬`,

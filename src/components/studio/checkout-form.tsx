@@ -212,6 +212,12 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
         <p className="rounded-2xl bg-cream px-3 py-2 text-xs text-muted">
           {copy.delivery}: {isRush ? copy.rushDelivery : copy.standardDelivery} · {isRush ? Math.max(6, Math.floor((selectedPackage?.deliveryHours ?? 0) / 2)) : selectedPackage?.deliveryHours}h
         </p>
+        <ul className="space-y-2 rounded-2xl border border-border bg-surface px-4 py-3 text-xs text-muted">
+          <li>✓ One-time payment — no subscription</li>
+          <li>✓ {selectedPackage?.revisionCredits ?? 0} guided revision credit(s)</li>
+          <li>✓ Private listening page and MP3 download</li>
+          <li>✓ Secure checkout powered by Stripe</li>
+        </ul>
         <div className="flex flex-col gap-3">
           <button type="submit" disabled={pending || !selectedPackage} className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60">
             {pending ? copy.redirecting : copy.pay}

@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
                 await sendEmail({
                   to: order.email,
                   template: "order-confirmation",
+                  idempotencyKey: `order-confirmation-${order.id}`,
                   data: {
                     orderNumber: order.orderNumber,
                     estimatedDelivery: order.estimatedDeliveryAt || "soon",

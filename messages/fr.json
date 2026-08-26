@@ -61,11 +61,24 @@
     "howItWorks": "Comment ça marche",
     "help": "Centre d'aide",
     "contact": "Contact",
+    "feedback": "Avis sur la bêta",
     "reviews": "Avis",
     "privacy": "Politique de confidentialité",
     "terms": "Conditions",
     "refunds": "Politique de remboursement",
     "rights": "Tous droits réservés."
+  },
+  "feedback": {
+    "eyebrow": "Bêta communautaire",
+    "title": "Aidez-nous à améliorer l'expérience cadeau",
+    "body": "Testez la création et l'écoute, puis dites-nous précisément ce qui vous a plu, dérouté ou fait hésiter. Chaque message arrive directement à l'équipe produit.",
+    "prompts": ["Testez sur votre appareil habituel", "Indiquez la page ou l'étape exacte", "N'incluez aucun mot de passe, donnée de paiement ou récit privé"],
+    "name": "Votre nom", "email": "Votre e-mail", "rating": "Expérience globale", "chooseRating": "Choisissez une note",
+    "topic": "Zone testée", "chooseTopic": "Choisissez une zone",
+    "topics": { "creation": "Création de chanson", "checkout": "Tarifs et paiement", "progress": "Progression de la génération", "listening": "Écoute et cadeau", "accessibility": "Langue ou accessibilité", "other": "Autre" },
+    "message": "Que s'est-il passé ?", "messageHint": "Dites-nous ce que vous attendiez, ce qui s'est passé et ce qui serait plus clair.",
+    "send": "Envoyer l'avis", "sending": "Envoi…", "sent": "Merci — votre avis est bien arrivé à l'équipe.",
+    "privacy": "Utilisé uniquement pour améliorer la bêta et vous répondre si une précision est nécessaire."
   },
   "cookie": {
     "title": "Préférences de cookies",
@@ -216,8 +229,8 @@
       },
       "premium-story": {
         "name": "Histoire Premium",
-        "description": "Plus de versions, une pochette, un fichier WAV et une livraison plus rapide.",
-        "features": ["Tout le contenu Essentiel", "Plusieurs versions de la chanson", "WAV haute qualité", "Pochette personnalisée", "Livraison prioritaire", "Crédits de révision"]
+        "description": "Pochette personnalisée, livraison prioritaire et révisions supplémentaires.",
+        "features": ["Tout le contenu Essentiel", "Pochette personnalisée", "Livraison prioritaire en 24 h", "Trois révisions guidées", "Envoi du cadeau par e-mail au destinataire"]
       },
       "cinematic-memory": {
         "name": "Souvenir Cinématographique",
@@ -290,7 +303,11 @@
     },
     "recipient": {
       "title": "À qui s'adresse cette chanson ?", "body": "Ces informations nous aideront pour la prononciation, la dédicace et les paroles.",
-      "name": "Nom du destinataire", "pronunciation": "Guide de prononciation", "pronunciationHint": "a-vé-ri",
+      "name": "Nom du destinataire", "email": "E-mail du destinataire (facultatif)", "emailHint": "destinataire@exemple.com",
+      "emailHelp": "Utilisé uniquement pour ce cadeau. Le destinataire ne sera jamais ajouté à une liste marketing.",
+      "sendGiftEmail": "Envoyer le cadeau terminé directement au destinataire par e-mail",
+      "sendGiftEmailHelp": "Nous attendrons que la chanson soit terminée avant d'envoyer le lien privé. Laissez cette option désactivée si vous préférez faire la surprise vous-même.",
+      "pronunciation": "Guide de prononciation", "pronunciationHint": "a-vé-ri",
       "relationship": "Relation", "relationshipHint": "Partenaire, parent, ami…", "pronouns": "Pronoms préférés",
       "nickname": "Surnom (facultatif)", "fromName": "De la part de qui ?"
     },

@@ -1,11 +1,14 @@
 -- Audio-only production launch: sell Essential + Premium, hide video packages.
--- Re-enable cinematic-memory and restore Premium lyric video when VIDEO_FEATURE_ENABLED=true.
+-- Re-enable video/WAV/variation promises only after their production pipelines are approved.
 
 update public.packages
 set
-  description = 'More variations, artwork, WAV, and faster delivery.',
-  features = '["Everything in Essential","Multiple song variations","High-quality WAV","Custom cover artwork","Priority delivery","Revision credits"]'::jsonb,
+  description = 'Custom artwork, priority delivery, and extra revision support.',
+  features = '["Everything in Essential","Custom cover artwork","Priority 24-hour delivery","Three guided revision credits","Recipient gift email delivery"]'::jsonb,
+  includes_video = false,
+  includes_wav = false,
   includes_lyric_video = false,
+  song_variations = 1,
   is_active = true,
   updated_at = now()
 where slug = 'premium-story';

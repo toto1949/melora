@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { signInWithPassword, signOut, signUpWithPassword } from "@/lib/auth/session";
 import { sendEmail } from "@/lib/email/send";
-import { getEnv } from "@/lib/env";
+import { getEnv, hasSupabase } from "@/lib/env";
+import { getSupabaseServer } from "@/lib/db/client";
 import { z, ZodError } from "zod";
 
 const authSchema = z.object({
@@ -55,17 +56,13 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
       name: formData.get("name") || undefined,
     });
     const profile = await signUpWithPassword(parsed.email, parsed.password, parsed.name);
-    const env = getEnv();
     await sendEmail({
       to: profile.email,
       template: "welcome",
       data: { name: profile.fullName },
     });
-    await sendEmail({
-      to: profile.email,
-      template: "email-verification",
-      data: { verifyUrl: `${env.NEXT_PUBLIC_APP_URL}/auth/verify` },
-    });
+    // Supabase sends its own signed confirmation link in production. Sending a
+    // second, unsigned "verification" link would strand the user on a dead end.
   } catch (error) {
     if (error instanceof ZodError) {
       return { error: error.issues[0]?.message ?? "Please review the form." };
@@ -81,14 +78,32 @@ export async function signOutAction() {
 }
 
 export async function requestPasswordResetAction(formData: FormData) {
-  const email = String(formData.get("email") || "");
+  const email = String(formData.get("email") || "").trim();
   const env = getEnv();
-  if (email) {
+  if (email && hasSupabase()) {
+    const supabase = await getSupabaseServer();
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/auth/update-password`,
+    });
+  } else if (email) {
     await sendEmail({
       to: email,
       template: "password-reset",
-      data: { resetUrl: `${env.NEXT_PUBLIC_APP_URL}/auth/reset-password` },
+      data: { resetUrl: `${env.NEXT_PUBLIC_APP_URL}/auth/update-password?mock=1` },
     });
   }
   redirect("/auth/reset-password?sent=1");
+}
+
+export async function updatePasswordAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const password = String(formData.get("password") || "");
+  const confirmation = String(formData.get("confirmation") || "");
+  if (password.length < 8) return { error: "Password must be at least 8 characters." };
+  if (password !== confirmation) return { error: "Passwords do not match." };
+  if (!hasSupabase()) return { error: "Password recovery is only available with production authentication configured." };
+
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: friendlyAuthError(error) };
+  redirect("/dashboard?passwordUpdated=1");
 }

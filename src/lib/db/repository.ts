@@ -39,6 +39,7 @@ export const claimProject = db.claimProject;
 export const createOrGetProfile = db.createOrGetProfile;
 export const getProfile = db.getProfile;
 export const getProfileByEmail = db.getProfileByEmail;
+export const updateProfile = db.updateProfile;
 export const createSession = db.createSession;
 export const getSessionUser = db.getSessionUser;
 export const destroySession = db.destroySession;

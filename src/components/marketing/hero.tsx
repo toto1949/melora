@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Heart, Music2, Music4 } from "lucide-react";
 import { AudioPlayer } from "@/components/player/audio-player";
 import { useLocale } from "@/components/i18n/locale-provider";
-import type { SiteSettings } from "@/types";
+import type { SampleSong, SiteSettings } from "@/types";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -17,7 +17,7 @@ function rise(delay: number) {
   };
 }
 
-export function Hero({ settings }: { settings: SiteSettings }) {
+export function Hero({ settings, sample }: { settings: SiteSettings; sample?: SampleSong }) {
   const reduced = useReducedMotion();
   const { locale, messages } = useLocale();
   const copy = messages.hero;
@@ -92,10 +92,10 @@ export function Hero({ settings }: { settings: SiteSettings }) {
           </div>
           <AudioPlayer
             id="hero-demo"
-            src="https://files.kunavo.com/audio/2026-08/sF7SbcF5E8KuUu9hVwV7T/0m00jwd8s3cxrfme083i.mp3"
-            title="Golden Hour With You"
+            src={sample?.audioUrl || "/samples/audio/placeholder-tone.wav"}
+            title={sample?.title || "Golden Hour With You"}
             subtitle={copy.demoSubtitle}
-            coverUrl="https://files.kunavo.com/image/2026-08/sF7SbcF5E8KuUu9hVwV7T/erfs8t1tagqc1fj5dlbw.jpg"
+            coverUrl={sample?.coverUrl || "/samples/covers/golden-hour.svg"}
           />
         </motion.div>
       </div>

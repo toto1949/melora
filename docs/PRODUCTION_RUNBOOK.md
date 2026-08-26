@@ -7,7 +7,7 @@
 3. In Supabase Vault, create:
    - `app_url`: `https://memoriestomelody.com`
    - `job_worker_secret`: the exact Vercel `JOB_WORKER_SECRET`
-4. Apply `supabase/migrations/003_job_scheduler.sql`, `supabase/migrations/004_audio_only_launch.sql`, and `supabase/migrations/005_job_scheduler_repair.sql` in order. Existing production databases only need the new `005` migration.
+4. Apply `supabase/migrations/003_job_scheduler.sql`, `supabase/migrations/004_audio_only_launch.sql`, `supabase/migrations/005_job_scheduler_repair.sql`, and `supabase/migrations/006_release_gift_delivery.sql` in order. A database that already has migrations `001`–`005` only needs the new `006` migration.
 5. Deploy the application and confirm `GET /api/health` returns HTTP 200.
 6. Use **Admin → Generation jobs → Process queue** once to reclaim existing stale jobs. Supabase Cron continues every minute after that.
 

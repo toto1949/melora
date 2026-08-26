@@ -29,6 +29,32 @@ export default async function RecipientStep({
           <label className="mb-1.5 block text-sm font-medium" htmlFor="name">{copy.name}</label>
           <input id="name" name="name" required defaultValue={r?.name || ""} className={field} />
         </div>
+        <div className="sm:col-span-2">
+          <label className="mb-1.5 block text-sm font-medium" htmlFor="recipientEmail">{copy.email}</label>
+          <input
+            id="recipientEmail"
+            name="recipientEmail"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            defaultValue={r?.email || ""}
+            className={field}
+            placeholder={copy.emailHint}
+          />
+          <p className="mt-2 text-xs text-muted">{copy.emailHelp}</p>
+        </div>
+        <label className="sm:col-span-2 flex items-start gap-3 rounded-2xl border border-border bg-cream/60 p-4 text-sm">
+          <input
+            type="checkbox"
+            name="sendGiftEmail"
+            defaultChecked={r?.sendGiftEmail ?? false}
+            className="mt-1"
+          />
+          <span>
+            <span className="block font-semibold text-navy">{copy.sendGiftEmail}</span>
+            <span className="mt-1 block text-muted">{copy.sendGiftEmailHelp}</span>
+          </span>
+        </label>
         <div>
           <label className="mb-1.5 block text-sm font-medium" htmlFor="pronunciation">{copy.pronunciation}</label>
           <input id="pronunciation" name="pronunciation" defaultValue={r?.pronunciation || ""} className={field} placeholder={copy.pronunciationHint} />

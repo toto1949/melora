@@ -36,6 +36,7 @@ import {
   mapTicket,
 } from "./mappers";
 import { getSignedAssetUrl } from "@/lib/storage/assets";
+import { calculateOrderProgress } from "@/lib/generation-progress";
 
 async function attachProject(project: Project): Promise<Project> {
   const sb = getSupabaseAdmin();
@@ -86,12 +87,7 @@ async function attachOrder(order: Order): Promise<Order> {
   ]);
 
   const jobs = (jobsRes.data ?? []).map(mapJob);
-  const progress =
-    jobs.length === 0
-      ? order.status === "ready" || order.status === "completed"
-        ? 100
-        : 0
-      : Math.round(jobs.reduce((sum, j) => sum + j.progress, 0) / jobs.length);
+  const progress = calculateOrderProgress(jobs, order.status);
 
   let currentVersion: SongVersion | null = null;
   if (versionRes.data) {
@@ -293,8 +289,8 @@ export async function listRecentEvents(limit = 50) {
   const { data } = await sb
     .from("analytics_events")
     .select("*")
-    .order("created_at", { ascending: false })
-    .limit(limit);
+    .order("created_at", { ascending: true })
+    .limit(Math.min(limit, 80));
   return (data ?? []).map((e) => ({
     id: e.id as string,
     eventName: e.event_name as string,
@@ -453,6 +449,8 @@ export async function upsertRecipient(
       {
         project_id: projectId,
         name: data.name,
+        email: data.email,
+        send_gift_email: data.sendGiftEmail,
         pronunciation: data.pronunciation,
         relationship: data.relationship,
         pronouns: data.pronouns,
@@ -624,6 +622,19 @@ export async function getProfileByEmail(email: string) {
   const sb = getSupabaseAdmin();
   const { data } = await sb.from("profiles").select("*").ilike("email", email).maybeSingle();
   return data ? mapProfile(data) : null;
+}
+
+export async function updateProfile(userId: string, patch: { fullName: string | null; phone: string | null; marketingOptIn: boolean; trainingOptIn: boolean }) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb.from("profiles").update({
+    full_name: patch.fullName,
+    phone: patch.phone,
+    marketing_opt_in: patch.marketingOptIn,
+    training_opt_in: patch.trainingOptIn,
+    updated_at: new Date().toISOString(),
+  }).eq("id", userId).select().single();
+  if (error || !data) return null;
+  return mapProfile(data);
 }
 
 // Session auth handled by Supabase Auth — stubs for interface compatibility

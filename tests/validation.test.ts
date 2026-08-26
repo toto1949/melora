@@ -7,6 +7,22 @@ describe("studio validation", () => {
     expect(result.success).toBe(false);
   });
 
+  it("requires an address when direct recipient delivery is enabled", () => {
+    const missingEmail = recipientSchema.safeParse({
+      name: "Avery",
+      email: null,
+      sendGiftEmail: true,
+    });
+    const validDelivery = recipientSchema.safeParse({
+      name: "Avery",
+      email: "avery@example.com",
+      sendGiftEmail: true,
+    });
+
+    expect(missingEmail.success).toBe(false);
+    expect(validDelivery.success).toBe(true);
+  });
+
   it("accepts a valid story", () => {
     const result = storySchema.safeParse({
       favoriteMemory: "We danced in the kitchen every Sunday.",
