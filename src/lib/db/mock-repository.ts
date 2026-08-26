@@ -398,6 +398,15 @@ export async function getProfileByEmail(email: string) {
   return store.profiles.find((p) => p.email.toLowerCase() === email.toLowerCase()) ?? null;
 }
 
+export async function updateProfile(userId: string, patch: Pick<Profile, "fullName" | "phone" | "marketingOptIn" | "trainingOptIn">) {
+  return mutateStore((store) => {
+    const profile = store.profiles.find((item) => item.id === userId);
+    if (!profile) return null;
+    Object.assign(profile, patch, { updatedAt: nowIso() });
+    return profile;
+  });
+}
+
 export async function createSession(userId: string) {
   return mutateStore((store) => {
     const token = nanoid(48);

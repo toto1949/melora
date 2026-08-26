@@ -27,7 +27,8 @@ export function StudioShell({
           <Link href="/" className="font-display text-xl text-navy">
             {copy.title}
           </Link>
-          <p className="text-sm text-muted">{copy.minutesLeft.replace("{minutes}", String(minutesLeft))} · {copy.autosaves}</p>
+          <p className="hidden text-sm text-muted sm:block">{copy.minutesLeft.replace("{minutes}", String(minutesLeft))} · {copy.autosaves}</p>
+          <p className="text-sm font-semibold text-muted sm:hidden">{copy.progress}: {currentStep}/{STUDIO_STEPS.length}</p>
         </div>
         <div className="mx-auto max-w-4xl px-4 pb-4">
           <div
@@ -45,7 +46,8 @@ export function StudioShell({
               transition={{ type: "spring", stiffness: 120, damping: 22 }}
             />
           </div>
-          <ol className="mt-3 flex gap-2 overflow-x-auto pb-1 text-xs">
+          <p className="mt-3 text-sm font-semibold text-navy sm:hidden">{copy.steps[STUDIO_STEPS[currentStep - 1]?.key]}</p>
+          <ol className="mt-3 hidden gap-2 overflow-x-auto pb-1 text-xs sm:flex">
             {STUDIO_STEPS.map((step) => {
               const isDone = step.step < currentStep;
               const isCurrent = step.step === currentStep;

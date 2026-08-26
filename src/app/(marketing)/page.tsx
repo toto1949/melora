@@ -73,7 +73,7 @@ export default async function HomePage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <Hero settings={settings} />
+      <Hero settings={settings} sample={samples[0]} />
       <TrustBar settings={settings} />
       <ReactionGallery reactions={reactions} />
       <HowItWorks />

@@ -64,12 +64,14 @@ export async function verifyListenPasswordAction(shareToken: string, formData: F
   redirect(`/listen/${shareToken}`);
 }
 
-export async function updatePrivacyAction(orderId: string, formData: FormData) {
+export type PrivacyState = { error: string } | null;
+
+export async function updatePrivacyAction(orderId: string, _prev: PrivacyState, formData: FormData): Promise<PrivacyState> {
   const user = await getCurrentUser();
   const order = await getOrder(orderId);
-  if (!order) throw new Error("Order not found");
+  if (!order) return { error: "Order not found." };
   if (!user || (order.userId && user.id !== order.userId && user.role === "customer")) {
-    throw new Error("Forbidden");
+    return { error: "You do not have permission to update this order." };
   }
 
   const privacyMode = String(formData.get("privacyMode")) as
@@ -83,7 +85,7 @@ export async function updatePrivacyAction(orderId: string, formData: FormData) {
   let passwordHash: string | null | undefined;
   if (privacyMode === "password") {
     if (!sharePassword || sharePassword.length < 4) {
-      throw new Error("Share password must be at least 4 characters");
+      return { error: "Share password must be at least 4 characters." };
     }
     passwordHash = await hashPassword(sharePassword);
   } else {

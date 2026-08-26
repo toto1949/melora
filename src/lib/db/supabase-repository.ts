@@ -624,6 +624,19 @@ export async function getProfileByEmail(email: string) {
   return data ? mapProfile(data) : null;
 }
 
+export async function updateProfile(userId: string, patch: { fullName: string | null; phone: string | null; marketingOptIn: boolean; trainingOptIn: boolean }) {
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb.from("profiles").update({
+    full_name: patch.fullName,
+    phone: patch.phone,
+    marketing_opt_in: patch.marketingOptIn,
+    training_opt_in: patch.trainingOptIn,
+    updated_at: new Date().toISOString(),
+  }).eq("id", userId).select().single();
+  if (error || !data) return null;
+  return mapProfile(data);
+}
+
 // Session auth handled by Supabase Auth — stubs for interface compatibility
 export async function createSession(_userId: string) {
   void _userId;
