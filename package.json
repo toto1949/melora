@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "jobs:process": "curl -s -X POST http://localhost:3000/api/jobs/process -H 'content-type: application/json' -H 'x-job-worker-secret: dev-worker-secret' -d '{}'"
+    "jobs:process": "curl -s -X POST http://localhost:3000/api/jobs/process -H 'content-type: application/json' -H 'x-job-worker-secret: dev-worker-secret' -d '{}'",
+    "marketing:check": "node scripts/check-marketing-video.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",
