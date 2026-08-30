@@ -22,6 +22,9 @@ export async function POST(request: Request) {
     if (!body.strictVideoPrompt?.trim()) {
       return NextResponse.json({ error: "Strict video prompt is required." }, { status: 400 });
     }
+    if (![10, 20, 30, 40].includes(body.durationSeconds)) {
+      return NextResponse.json({ error: "Video duration must be 10, 20, 30, or 40 seconds." }, { status: 400 });
+    }
 
     const response = await fetch(`${getN8nBaseUrl()}/webhook/mtm-generate-video`, {
       method: "POST",
@@ -35,6 +38,7 @@ export async function POST(request: Request) {
         facebookPost: body.facebookPost,
         tiktokCaption: body.tiktokCaption,
         platforms: body.platforms,
+        durationSeconds: body.durationSeconds,
       }),
       cache: "no-store",
     });
