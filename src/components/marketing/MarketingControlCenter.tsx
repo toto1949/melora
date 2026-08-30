@@ -36,10 +36,30 @@ function initialCampaign(): MarketingGenerationRequest {
 }
 
 function errorMessage(payload: unknown, fallback: string) {
-  if (payload && typeof payload === "object" && "error" in payload) {
-    const value = (payload as { error?: unknown }).error;
-    if (typeof value === "string" && value) return value;
+  if (!payload || typeof payload !== "object") return fallback;
+
+  const data = payload as {
+    error?: unknown;
+    message?: unknown;
+    details?: unknown;
+  };
+
+  const detail = data.details;
+  if (detail && typeof detail === "object") {
+    const detailObject = detail as { message?: unknown; error?: unknown; raw?: unknown };
+    if (typeof detailObject.message === "string" && detailObject.message) {
+      return detailObject.message;
+    }
+    if (typeof detailObject.error === "string" && detailObject.error) {
+      return detailObject.error;
+    }
+    if (typeof detailObject.raw === "string" && detailObject.raw) {
+      return detailObject.raw;
+    }
   }
+
+  if (typeof data.message === "string" && data.message) return data.message;
+  if (typeof data.error === "string" && data.error) return data.error;
   return fallback;
 }
 
@@ -108,7 +128,7 @@ export function MarketingControlCenter() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify(campaign),
       });
-      const payload = (await response.json()) as MarketingGenerationResult & { error?: string };
+      const payload = (await response.json()) as MarketingGenerationResult & { error?: string; details?: unknown };
       if (!response.ok) throw new Error(errorMessage(payload, "Video generation failed."));
 
       setResult(payload);
@@ -159,7 +179,7 @@ export function MarketingControlCenter() {
           strictVideoPrompt: action === "regenerate" ? campaign.strictVideoPrompt : undefined,
         }),
       });
-      const payload = (await response.json()) as MarketingReviewResult & { error?: string };
+      const payload = (await response.json()) as MarketingReviewResult & { error?: string; details?: unknown };
       if (!response.ok) throw new Error(errorMessage(payload, "Review action failed."));
 
       if (action === "regenerate" && payload.generationResult) {
