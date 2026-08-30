@@ -23,7 +23,7 @@ function initialCampaign(): MarketingGenerationRequest {
     campaign: `anniversary-${date}`,
     hook: "I had no idea what to get my wife for our anniversary, so I turned our story into a song.",
     strictVideoPrompt:
-      "0-2s: husband at an elegant candlelit dinner hands his wife headphones, close-up on her curious emotional reaction. 2-4s: flashback of the same couple on their first coffee date. 4-6s: same couple laughing on a beach vacation. 6-8s: three printed photos transform into an elegant glowing music waveform. 8-10s: return to the dinner; the wife becomes emotional while listening and hugs her husband. Same couple in every shot. Warm premium cinematic lighting, natural expressions, realistic hands, shallow depth of field. No additional people. No on-screen text. No website UI. No scene substitutions.",
+      "A husband struggles to find a meaningful anniversary gift, opens an old photo box, and remembers their first coffee date, a beach trip, their wedding, and quiet everyday moments together. Those memories visually transform into music. At an intimate anniversary dinner, he gives his wife headphones. She recognizes their shared story in the song, becomes genuinely emotional, and embraces him. Keep the same husband and wife throughout the entire film. Warm premium cinematic lighting, natural expressions, realistic hands, shallow depth of field, seamless timeline transitions, no additional romantic partners, no fake website UI, no scene substitutions, and no excessive on-screen text.",
     instagramCaption:
       "What if your favorite memories could become a song? Turn your story into something they can hear forever. #MemoriesToMelody #PersonalizedSong #AnniversaryGift",
     facebookPost:
@@ -31,6 +31,7 @@ function initialCampaign(): MarketingGenerationRequest {
     tiktokCaption:
       "POV: you turned your relationship into a song. #MemoriesToMelody #PersonalizedSong #GiftIdea",
     platforms: ["instagram", "facebook", "tiktok"],
+    durationSeconds: 30,
   };
 }
 
@@ -118,11 +119,12 @@ export function MarketingControlCenter() {
         status: payload.status,
         mediaUrl: payload.mediaUrl,
         platforms: campaign.platforms,
+        durationSeconds: payload.durationSeconds || campaign.durationSeconds,
         createdAt: new Date().toISOString(),
         generationPayload: payload.generationPayload || {},
         publishPayload: payload.publishPayload || {},
       });
-      setNotice("Video generated and stored. Review it before publishing.");
+      setNotice(`${payload.durationSeconds || campaign.durationSeconds}s storyline generated and stored. Review it before publishing.`);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Video generation failed.");
     } finally {
@@ -144,6 +146,7 @@ export function MarketingControlCenter() {
       const generationPayload = {
         ...result.generationPayload,
         platforms: selectedPlatforms,
+        durationSeconds: result.durationSeconds || campaign.durationSeconds,
       };
 
       const response = await fetch("/api/marketing/review", {
@@ -169,11 +172,12 @@ export function MarketingControlCenter() {
           status: regenerated.status,
           mediaUrl: regenerated.mediaUrl,
           platforms: selectedPlatforms,
+          durationSeconds: regenerated.durationSeconds || campaign.durationSeconds,
           createdAt: new Date().toISOString(),
           generationPayload: regenerated.generationPayload || generationPayload,
           publishPayload: regenerated.publishPayload || publishPayload,
         });
-        setNotice("A new video was generated. Review the replacement before approving it.");
+        setNotice("A new storyline video was generated. Review the replacement before approving it.");
         return;
       }
 
@@ -202,7 +206,7 @@ export function MarketingControlCenter() {
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">Internal marketing operations</p>
           <h1 className="mt-1 font-display text-4xl md:text-5xl">Marketing Control Center</h1>
           <p className="mt-2 max-w-3xl text-sm text-muted">
-            Control the exact Gemini creative brief, preview generated media, and approve publishing to Instagram, Facebook, and TikTok without exposing n8n secrets in the browser.
+            Build 10–40 second continuous Gemini storylines, control the creative brief, preview generated media, and approve publishing to Instagram, Facebook, and TikTok without exposing n8n secrets in the browser.
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-white px-4 py-3 text-sm">
