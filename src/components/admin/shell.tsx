@@ -4,6 +4,7 @@ import type { Profile } from "@/types";
 
 const links = [
   ["/admin", "Overview"],
+  ["/admin/marketing", "Marketing"],
   ["/admin/orders", "Orders"],
   ["/admin/jobs", "Jobs"],
   ["/admin/revisions", "Revisions"],
