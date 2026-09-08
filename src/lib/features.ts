@@ -1,8 +1,8 @@
 import type { FaqItem, Package } from "@/types";
+import { AUDIO_LAUNCH_SLUG } from "@/lib/launch-catalog";
 
-export function packageAvailableForRelease(pkg: Package, videoEnabled: boolean) {
-  if (!videoEnabled) return pkg.slug === "essential-song";
-  return true;
+export function packageAvailableForRelease(pkg: Package, _videoEnabled: boolean) {
+  return pkg.slug === AUDIO_LAUNCH_SLUG && !pkg.includesVideo && !pkg.includesLyricVideo;
 }
 
 export function filterPackagesForRelease(packages: Package[], videoEnabled: boolean) {
