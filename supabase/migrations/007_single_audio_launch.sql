@@ -26,3 +26,7 @@ where slug in ('premium-story', 'cinematic-memory');
 update public.add_ons
 set is_active = false
 where is_active = true;
+
+update public.coupons
+set is_active = false
+where is_active = true;
