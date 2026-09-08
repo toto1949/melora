@@ -23,11 +23,17 @@ export async function listPackages() {
 
 export async function getPackage(idOrSlug: string) {
   const pkg = await db.getPackage(idOrSlug);
-  return pkg ? normalizeAudioLaunchPackage(pkg) : null;
+  if (!pkg || pkg.slug !== AUDIO_LAUNCH_SLUG) return null;
+  return normalizeAudioLaunchPackage(pkg);
 }
 
 export const updatePackage = db.updatePackage;
-export const listAddOns = db.listAddOns;
+
+// No paid add-ons during the introductory audio-only launch.
+export async function listAddOns() {
+  return [];
+}
+
 export const listSamples = db.listSamples;
 export const listReactions = db.listReactions;
 export const listReviews = db.listReviews;
@@ -64,13 +70,16 @@ export const destroySession = db.destroySession;
 
 export async function createOrder(input: Parameters<typeof supabase.createOrder>[0]) {
   const pkg = await db.getPackage(input.packageId);
-  if (pkg?.slug === AUDIO_LAUNCH_SLUG) {
-    await db.updatePackage(pkg.id, {
-      priceCents: AUDIO_LAUNCH_PRICE_CENTS,
-      name: AUDIO_LAUNCH_NAME,
-      description: AUDIO_LAUNCH_DESCRIPTION,
-    });
+  if (!pkg || pkg.slug !== AUDIO_LAUNCH_SLUG) {
+    throw new Error("Only the Personalized Audio Song launch offer is currently available.");
   }
+
+  await db.updatePackage(pkg.id, {
+    priceCents: AUDIO_LAUNCH_PRICE_CENTS,
+    name: AUDIO_LAUNCH_NAME,
+    description: AUDIO_LAUNCH_DESCRIPTION,
+  });
+
   return db.createOrder(input);
 }
 
