@@ -77,7 +77,7 @@ export default async function ReviewStep({
         </label>
         <label className="flex items-start gap-3 text-sm">
           <input type="checkbox" name="rightsConfirmed" required className="mt-1" />
-          {copy.rights}
+          I confirm I have the right to use the story details I provided for this personalized song.
         </label>
         <div className="flex flex-wrap gap-3">
           <Link href={`/studio/${projectId}/lyrics`} className="btn-secondary">{messages.common.back}</Link>
