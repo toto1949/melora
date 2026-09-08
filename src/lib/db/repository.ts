@@ -1,4 +1,5 @@
 import { hasSupabase } from "@/lib/env";
+import type { AddOn } from "@/types";
 import { getSupabaseAdmin } from "./client";
 import {
   AUDIO_LAUNCH_DESCRIPTION,
@@ -31,7 +32,7 @@ export async function getPackage(idOrSlug: string) {
 export const updatePackage = db.updatePackage;
 
 // No paid add-ons during the introductory audio-only launch.
-export async function listAddOns() {
+export async function listAddOns(): Promise<AddOn[]> {
   return [];
 }
 
