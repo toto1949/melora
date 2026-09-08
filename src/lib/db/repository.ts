@@ -1,4 +1,11 @@
 import { hasSupabase } from "@/lib/env";
+import {
+  AUDIO_LAUNCH_DESCRIPTION,
+  AUDIO_LAUNCH_NAME,
+  AUDIO_LAUNCH_PRICE_CENTS,
+  AUDIO_LAUNCH_SLUG,
+  normalizeAudioLaunchPackage,
+} from "@/lib/launch-catalog";
 import * as mock from "./mock-repository";
 import * as supabase from "./supabase-repository";
 
@@ -6,8 +13,19 @@ const db = hasSupabase() ? supabase : mock;
 
 export const getSettings = db.getSettings;
 export const updateSettings = db.updateSettings;
-export const listPackages = db.listPackages;
-export const getPackage = db.getPackage;
+
+export async function listPackages() {
+  const packages = await db.listPackages();
+  return packages
+    .filter((pkg) => pkg.slug === AUDIO_LAUNCH_SLUG)
+    .map(normalizeAudioLaunchPackage);
+}
+
+export async function getPackage(idOrSlug: string) {
+  const pkg = await db.getPackage(idOrSlug);
+  return pkg ? normalizeAudioLaunchPackage(pkg) : null;
+}
+
 export const updatePackage = db.updatePackage;
 export const listAddOns = db.listAddOns;
 export const listSamples = db.listSamples;
@@ -43,7 +61,19 @@ export const updateProfile = db.updateProfile;
 export const createSession = db.createSession;
 export const getSessionUser = db.getSessionUser;
 export const destroySession = db.destroySession;
-export const createOrder = db.createOrder;
+
+export async function createOrder(input: Parameters<typeof supabase.createOrder>[0]) {
+  const pkg = await db.getPackage(input.packageId);
+  if (pkg?.slug === AUDIO_LAUNCH_SLUG) {
+    await db.updatePackage(pkg.id, {
+      priceCents: AUDIO_LAUNCH_PRICE_CENTS,
+      name: AUDIO_LAUNCH_NAME,
+      description: AUDIO_LAUNCH_DESCRIPTION,
+    });
+  }
+  return db.createOrder(input);
+}
+
 export const getOrder = db.getOrder;
 export const getOrderByNumber = db.getOrderByNumber;
 export const getOrderByShareToken = db.getOrderByShareToken;
