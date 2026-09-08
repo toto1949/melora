@@ -1,7 +1,8 @@
 import type { FaqItem, Package } from "@/types";
 
 export function packageAvailableForRelease(pkg: Package, videoEnabled: boolean) {
-  return videoEnabled || (!pkg.includesVideo && !pkg.includesLyricVideo);
+  if (!videoEnabled) return pkg.slug === "essential-song";
+  return true;
 }
 
 export function filterPackagesForRelease(packages: Package[], videoEnabled: boolean) {
@@ -10,5 +11,5 @@ export function filterPackagesForRelease(packages: Package[], videoEnabled: bool
 
 export function filterFaqsForRelease(faqs: FaqItem[], videoEnabled: boolean) {
   if (videoEnabled) return faqs;
-  return faqs.filter((faq) => !/\bvideos?\b/i.test(`${faq.question} ${faq.answer}`));
+  return faqs.filter((faq) => !/\b(videos?|higher packages?|premium packages?|wav|artwork|priority)\b/i.test(`${faq.question} ${faq.answer}`));
 }
