@@ -1,11 +1,10 @@
 import { Hero } from "@/components/marketing/hero";
+import { AudioLaunchOffer } from "@/components/marketing/audio-launch-offer";
 import {
   FaqSection,
   FinalCta,
   HowItWorks,
   OccasionsSection,
-  PricingSection,
-  ProductShowcase,
   ReactionGallery,
   SampleSongsSection,
   Testimonials,
@@ -35,6 +34,7 @@ export default async function HomePage() {
     listFaqs(),
   ]);
   const releaseFaqs = filterFaqsForRelease(faqs, videoEnabled);
+  const launchPackage = filterPackagesForRelease(packages, videoEnabled)[0];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -79,9 +79,8 @@ export default async function HomePage() {
       <HowItWorks />
       <SampleSongsSection samples={samples} />
       <OccasionsSection />
-      <ProductShowcase videoEnabled={videoEnabled} />
       <Testimonials reviews={reviews.items} />
-      <PricingSection packages={filterPackagesForRelease(packages, videoEnabled)} videoEnabled={videoEnabled} />
+      <AudioLaunchOffer pkg={launchPackage} />
       <FaqSection faqs={releaseFaqs.slice(0, 6)} viewAllHref="/faq" />
       <FinalCta />
     </>
