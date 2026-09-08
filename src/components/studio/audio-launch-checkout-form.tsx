@@ -87,7 +87,7 @@ export function AudioLaunchCheckoutForm({
           <input type="checkbox" name="termsAccepted" required className="mt-1" />
           <span>
             {copy.termsPrefix} <Link href="/legal/terms" className="underline">{copy.terms}</Link> {copy.and}{" "}
-            <Link href="/legal/refunds" className="underline">{copy.refunds}</Link>. {copy.termsSuffix}
+            <Link href="/legal/refunds" className="underline">{copy.refunds}</Link>. Your $19 launch order includes one guided revision.
           </span>
         </label>
 
