@@ -16,7 +16,7 @@ export default async function CheckoutStep({ params }: { params: Promise<{ proje
   const idempotencyKey = nanoid(24);
 
   return (
-    <StudioShell projectId={projectId} currentStep={8}>
+    <StudioShell projectId={projectId} currentStep={7}>
       <h1 className="font-display text-4xl text-navy">{messages.studio.checkout.title}</h1>
       <p className="mt-3 prose-muted">{messages.studio.checkout.body}</p>
       {pkg ? (
