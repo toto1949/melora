@@ -28,9 +28,6 @@ export default async function ReviewStep({
   const packages = filterPackagesForRelease(allPackages, getEnv().VIDEO_FEATURE_ENABLED);
   const pkg = packages.find((p) => p.id === project.packageId) || packages[0];
   const copy = messages.studio.review;
-  const packageCopy = pkg
-    ? messages.pricing.packages[pkg.slug as keyof typeof messages.pricing.packages]
-    : null;
   const occasion = project.occasion
     ? messages.occasions.items[project.occasion as keyof typeof messages.occasions.items]?.name ?? project.occasion
     : messages.common.notProvided;
@@ -43,8 +40,9 @@ export default async function ReviewStep({
   const tone = project.preferences?.lyricTone
     ? messages.catalog.tones[project.preferences.lyricTone as keyof typeof messages.catalog.tones] ?? project.preferences.lyricTone
     : messages.common.notProvided;
+
   return (
-    <StudioShell projectId={projectId} currentStep={7}>
+    <StudioShell projectId={projectId} currentStep={6}>
       <h1 className="font-display text-4xl text-navy">{copy.title}</h1>
       <p className="mt-3 prose-muted">{copy.body}</p>
       <FormError message={error} />
@@ -55,7 +53,6 @@ export default async function ReviewStep({
           [copy.story, project.story?.favoriteMemory, "story"],
           [copy.genreMood, `${genre} · ${mood}`, "style"],
           [copy.tone, tone, "lyrics"],
-          [copy.uploads, `${project.media?.length || 0} ${copy.files}`, "media"],
         ].map(([label, value, path]) => (
           <div key={String(path)} className="surface-card flex items-start justify-between gap-4 p-5">
             <div>
@@ -66,9 +63,11 @@ export default async function ReviewStep({
           </div>
         ))}
         <div className="surface-card p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gold">{copy.package}</p>
-          <p className="mt-1 font-display text-2xl text-navy">{packageCopy?.name ?? pkg?.name}</p>
-          <p className="text-muted">{pkg ? formatCurrency(pkg.priceCents, pkg.currency, locale) : ""} · {copy.delivery} {pkg?.deliveryHours}h</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gold">Personalized Audio Song</p>
+          <p className="mt-1 font-display text-2xl text-navy">{pkg?.name}</p>
+          <p className="text-muted">
+            {pkg ? formatCurrency(pkg.priceCents, pkg.currency, locale) : ""} · {copy.delivery} {pkg?.deliveryHours}h · 1 guided revision
+          </p>
         </div>
       </div>
       <form action={confirmReviewAction.bind(null, projectId)} className="mt-8 space-y-4">
@@ -81,7 +80,7 @@ export default async function ReviewStep({
           {copy.rights}
         </label>
         <div className="flex flex-wrap gap-3">
-          <Link href={`/studio/${projectId}/media`} className="btn-secondary">{messages.common.back}</Link>
+          <Link href={`/studio/${projectId}/lyrics`} className="btn-secondary">{messages.common.back}</Link>
           <SubmitButton label={copy.checkout} pendingLabel={messages.common.saving} />
         </div>
       </form>
