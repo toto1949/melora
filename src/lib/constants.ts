@@ -110,15 +110,15 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   refunded: "Refunded",
 };
 
+// Audio-only launch flow: no media/video step and no package-selection step.
 export const STUDIO_STEPS = [
   { step: 1, key: "occasion", title: "Occasion", path: "occasion" },
   { step: 2, key: "recipient", title: "Recipient", path: "recipient" },
   { step: 3, key: "story", title: "Story", path: "story" },
   { step: 4, key: "style", title: "Song style", path: "style" },
   { step: 5, key: "lyrics", title: "Lyrics", path: "lyrics" },
-  { step: 6, key: "media", title: "Photos & video", path: "media" },
-  { step: 7, key: "review", title: "Review", path: "review" },
-  { step: 8, key: "checkout", title: "Checkout", path: "checkout" },
+  { step: 6, key: "review", title: "Review", path: "review" },
+  { step: 7, key: "checkout", title: "Checkout", path: "checkout" },
 ] as const;
 
 export const REVISION_CATEGORIES = [
@@ -129,6 +129,5 @@ export const REVISION_CATEGORIES = [
   "Tempo",
   "Mood",
   "Instrumentation",
-  "Video",
   "Other",
 ] as const;
