@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { StudioShell } from "@/components/studio/studio-shell";
-import { CheckoutForm } from "@/components/studio/checkout-form";
+import { AudioLaunchCheckoutForm } from "@/components/studio/audio-launch-checkout-form";
 import { loadStudioProject } from "@/lib/studio/load-project";
 import { listPackages } from "@/lib/db/repository";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -10,36 +10,36 @@ import { getMessages } from "@/lib/i18n";
 
 export default async function CheckoutStep({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const project = await loadStudioProject(projectId);
+  await loadStudioProject(projectId);
   const [allPackages, user, messages] = await Promise.all([listPackages(), getCurrentUser(), getMessages()]);
-  const packages = filterPackagesForRelease(allPackages, getEnv().VIDEO_FEATURE_ENABLED);
-  const selectedPackageId = packages.some((pkg) => pkg.id === project.packageId)
-    ? project.packageId
-    : packages[0]?.id;
+  const pkg = filterPackagesForRelease(allPackages, getEnv().VIDEO_FEATURE_ENABLED)[0];
   const idempotencyKey = nanoid(24);
 
   return (
     <StudioShell projectId={projectId} currentStep={8}>
       <h1 className="font-display text-4xl text-navy">{messages.studio.checkout.title}</h1>
       <p className="mt-3 prose-muted">{messages.studio.checkout.body}</p>
-      <CheckoutForm
-        projectId={projectId}
-        idempotencyKey={idempotencyKey}
-        packages={packages.map((pkg) => ({
-          id: pkg.id,
-          slug: pkg.slug,
-          name: pkg.name,
-          description: pkg.description,
-          priceCents: pkg.priceCents,
-          currency: pkg.currency,
-          revisionCredits: pkg.revisionCredits,
-          deliveryHours: pkg.deliveryHours,
-          defaultChecked: selectedPackageId === pkg.id,
-        }))}
-        addOns={[]}
-        userEmail={user?.email ?? null}
-        isLoggedIn={Boolean(user)}
-      />
+      {pkg ? (
+        <AudioLaunchCheckoutForm
+          projectId={projectId}
+          idempotencyKey={idempotencyKey}
+          pkg={{
+            id: pkg.id,
+            name: pkg.name,
+            description: pkg.description,
+            priceCents: pkg.priceCents,
+            currency: pkg.currency,
+            revisionCredits: pkg.revisionCredits,
+            deliveryHours: pkg.deliveryHours,
+          }}
+          userEmail={user?.email ?? null}
+          isLoggedIn={Boolean(user)}
+        />
+      ) : (
+        <p className="mt-8 rounded-2xl border border-border bg-surface p-5 text-sm text-muted">
+          The launch offer is temporarily unavailable. Please try again shortly.
+        </p>
+      )}
     </StudioShell>
   );
 }
