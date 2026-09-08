@@ -9,7 +9,6 @@ export function filterPackagesForRelease(packages: Package[], videoEnabled: bool
   return packages.filter((pkg) => packageAvailableForRelease(pkg, videoEnabled));
 }
 
-export function filterFaqsForRelease(faqs: FaqItem[], videoEnabled: boolean) {
-  if (videoEnabled) return faqs;
+export function filterFaqsForRelease(faqs: FaqItem[], _videoEnabled: boolean) {
   return faqs.filter((faq) => !/\b(videos?|higher packages?|premium packages?|wav|artwork|priority)\b/i.test(`${faq.question} ${faq.answer}`));
 }
