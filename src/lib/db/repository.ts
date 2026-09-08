@@ -1,4 +1,5 @@
 import { hasSupabase } from "@/lib/env";
+import { getSupabaseAdmin } from "./client";
 import {
   AUDIO_LAUNCH_DESCRIPTION,
   AUDIO_LAUNCH_NAME,
@@ -80,7 +81,54 @@ export async function createOrder(input: Parameters<typeof supabase.createOrder>
     description: AUDIO_LAUNCH_DESCRIPTION,
   });
 
-  return db.createOrder(input);
+  const order = await db.createOrder({
+    ...input,
+    addOnIds: [],
+    couponCode: null,
+    deliverySpeed: "standard",
+  });
+
+  // The launch price is the final checkout amount. Until tax calculation is
+  // configured through Stripe Tax, do not apply the old placeholder 8% tax.
+  if (hasSupabase()) {
+    const sb = getSupabaseAdmin();
+    const { error } = await sb
+      .from("orders")
+      .update({
+        subtotal_cents: AUDIO_LAUNCH_PRICE_CENTS,
+        discount_cents: 0,
+        tax_cents: 0,
+        total_cents: AUDIO_LAUNCH_PRICE_CENTS,
+        delivery_speed: "standard",
+      })
+      .eq("id", order.id);
+    if (error) throw new Error(`Failed to normalize launch order total: ${error.message}`);
+    return (await db.getOrder(order.id)) ?? {
+      ...order,
+      subtotalCents: AUDIO_LAUNCH_PRICE_CENTS,
+      discountCents: 0,
+      taxCents: 0,
+      totalCents: AUDIO_LAUNCH_PRICE_CENTS,
+      deliverySpeed: "standard",
+    };
+  }
+
+  return (
+    (await db.updateOrderStatus(order.id, order.status, {
+      subtotalCents: AUDIO_LAUNCH_PRICE_CENTS,
+      discountCents: 0,
+      taxCents: 0,
+      totalCents: AUDIO_LAUNCH_PRICE_CENTS,
+      deliverySpeed: "standard",
+    })) ?? {
+      ...order,
+      subtotalCents: AUDIO_LAUNCH_PRICE_CENTS,
+      discountCents: 0,
+      taxCents: 0,
+      totalCents: AUDIO_LAUNCH_PRICE_CENTS,
+      deliverySpeed: "standard",
+    }
+  );
 }
 
 export const getOrder = db.getOrder;
