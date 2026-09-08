@@ -11,8 +11,14 @@ export function filterPackagesForRelease(packages: Package[], videoEnabled: bool
 
 export function filterFaqsForRelease(faqs: FaqItem[], _videoEnabled: boolean) {
   return faqs
-    .filter((faq) => !/\b(videos?|higher packages?|premium packages?|wav|artwork|priority)\b/i.test(`${faq.question} ${faq.answer}`))
     .map((faq) => {
+      if (/how long until my song is ready/i.test(faq.question) || /how long does delivery take/i.test(faq.question)) {
+        return {
+          ...faq,
+          answer:
+            "Standard launch delivery is typically within 48 hours after payment and your story details are complete. You can follow progress from your dashboard, and we will let you know when your song is ready.",
+        };
+      }
       if (/what if i want changes/i.test(faq.question)) {
         return {
           ...faq,
@@ -20,7 +26,21 @@ export function filterFaqsForRelease(faqs: FaqItem[], _videoEnabled: boolean) {
             "Your $19 launch song includes one guided revision. From your dashboard you can request a focused change to lyrics, pronunciation, tempo, mood, vocals, or instrumentation, and we will prepare an updated version.",
         };
       }
-      if (/what is included in each package/i.test(faq.question)) {
+      if (/how do i give the song as a gift/i.test(faq.question)) {
+        return {
+          ...faq,
+          answer:
+            "Your finished song comes with a private listening link you can send by text or email, or you can play it in person for the reveal. You can also download the MP3 to keep or share directly.",
+        };
+      }
+      if (/is my story kept private/i.test(faq.question)) {
+        return {
+          ...faq,
+          answer:
+            "Yes. The story details you provide are used to create and support your song. Listening pages are private by default, and you control how the private link is shared.",
+        };
+      }
+      if (/what is included in each package/i.test(faq.question) || /what is included in the \$19 launch offer/i.test(faq.question)) {
         return {
           ...faq,
           question: "What is included in the $19 launch offer?",
@@ -32,9 +52,17 @@ export function filterFaqsForRelease(faqs: FaqItem[], _videoEnabled: boolean) {
         return {
           ...faq,
           answer:
-            "Yes. Your launch order includes an MP3 download, and your private listening page is designed so you can return to the song and share it with the people you choose.",
+            "Yes. Your launch order includes an MP3 download, and your private listening page gives you an easy way to return to the song and share it with the people you choose.",
+        };
+      }
+      if (/what if i am not happy with the result/i.test(faq.question)) {
+        return {
+          ...faq,
+          answer:
+            "Start with the one guided revision included with your launch song. If a verified quality issue still cannot be resolved, our refund policy applies within 14 days of delivery.",
         };
       }
       return faq;
-    });
+    })
+    .filter((faq) => !/\b(videos?|higher packages?|premium packages?|wav|paid rush|rush fee)\b/i.test(`${faq.question} ${faq.answer}`));
 }
