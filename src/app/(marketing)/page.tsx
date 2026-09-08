@@ -1,8 +1,8 @@
 import { Hero } from "@/components/marketing/hero";
 import { AudioLaunchOffer } from "@/components/marketing/audio-launch-offer";
+import { AudioLaunchFinalCta } from "@/components/marketing/audio-launch-final-cta";
 import {
   FaqSection,
-  FinalCta,
   HowItWorks,
   OccasionsSection,
   ReactionGallery,
@@ -82,7 +82,7 @@ export default async function HomePage() {
       <Testimonials reviews={reviews.items} />
       <AudioLaunchOffer pkg={launchPackage} />
       <FaqSection faqs={releaseFaqs.slice(0, 6)} viewAllHref="/faq" />
-      <FinalCta />
+      <AudioLaunchFinalCta />
     </>
   );
 }
