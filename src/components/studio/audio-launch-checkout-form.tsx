@@ -38,8 +38,6 @@ export function AudioLaunchCheckoutForm({
     null,
   );
   const [createAccount, setCreateAccount] = useState(false);
-  const tax = Math.round(pkg.priceCents * 0.08);
-  const total = pkg.priceCents + tax;
 
   return (
     <form action={formAction} className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
@@ -104,9 +102,8 @@ export function AudioLaunchCheckoutForm({
         <h2 id="order-summary-title" className="font-display text-2xl text-navy">{copy.summary}</h2>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between gap-3"><span>{copy.subtotal}</span><span>{formatCurrency(pkg.priceCents, pkg.currency, locale)}</span></div>
-          <div className="flex justify-between gap-3"><span>{copy.estimatedTax}</span><span>{formatCurrency(tax, pkg.currency, locale)}</span></div>
           <div className="border-t border-border pt-3 text-base font-bold text-navy">
-            <div className="flex justify-between gap-3"><span>{copy.total}</span><span>{formatCurrency(total, pkg.currency, locale)}</span></div>
+            <div className="flex justify-between gap-3"><span>{copy.total}</span><span>{formatCurrency(pkg.priceCents, pkg.currency, locale)}</span></div>
           </div>
         </div>
         <p className="rounded-2xl bg-cream px-3 py-2 text-xs text-muted">{copy.delivery}: {copy.standardDelivery} · {pkg.deliveryHours}h</p>
