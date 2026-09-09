@@ -7,6 +7,7 @@ import { getLocale, getMessages, getTextDirection } from "@/lib/i18n";
 import { LocaleProvider } from "@/components/i18n/locale-provider";
 import { CookieConsent } from "@/components/shared/cookie-consent";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { MetaPixel } from "@/components/analytics/meta-pixel";
 import { COOKIE_CONSENT } from "@/lib/cookie-consent";
 import "./globals.css";
 
@@ -69,6 +70,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const [messages, cookieJar] = await Promise.all([getMessages(locale), cookies()]);
   const consent = cookieJar.get(COOKIE_CONSENT)?.value;
   const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
+  const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1393210939681079";
 
   return (
     <html lang={locale} dir={getTextDirection(locale)}>
@@ -86,6 +88,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <>
             <Analytics />
             {gaMeasurementId ? <GoogleAnalytics measurementId={gaMeasurementId} /> : null}
+            <MetaPixel pixelId={metaPixelId} />
           </>
         ) : null}
       </body>
