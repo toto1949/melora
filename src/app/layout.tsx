@@ -8,7 +8,7 @@ import { LocaleProvider } from "@/components/i18n/locale-provider";
 import { CookieConsent } from "@/components/shared/cookie-consent";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { MetaPixel } from "@/components/analytics/meta-pixel";
-import { COOKIE_CONSENT } from "@/lib/cookie-consent";
+import { COOKIE_CONSENT, type CookieConsentValue } from "@/lib/cookie-consent";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -68,8 +68,9 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale();
   const [messages, cookieJar] = await Promise.all([getMessages(locale), cookies()]);
-  const consent = cookieJar.get(COOKIE_CONSENT)?.value;
-  const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
+  const rawConsent = cookieJar.get(COOKIE_CONSENT)?.value;
+  const consent: CookieConsentValue | null = rawConsent === "all" || rawConsent === "essential" ? rawConsent : null;
+  const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-5J2N9TZ3JD";
   const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1393210939681079";
 
   return (
@@ -82,12 +83,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <div id="main-content" tabIndex={-1}>
             {children}
           </div>
-          <CookieConsent initialConsent={consent === "all" || consent === "essential" ? consent : null} />
+          <CookieConsent initialConsent={consent} />
         </LocaleProvider>
+        <GoogleAnalytics measurementId={gaMeasurementId} initialConsent={consent} />
         {consent === "all" ? (
           <>
             <Analytics />
-            {gaMeasurementId ? <GoogleAnalytics measurementId={gaMeasurementId} /> : null}
             <MetaPixel pixelId={metaPixelId} />
           </>
         ) : null}
