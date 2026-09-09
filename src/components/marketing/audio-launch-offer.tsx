@@ -9,7 +9,7 @@ const LAUNCH_FEATURES = [
   "MP3 download",
   "Private listening and share link",
   "One guided revision",
-  "Standard delivery",
+  "Usually ready within a few minutes",
   "One-time payment — no subscription",
 ];
 
@@ -55,7 +55,7 @@ export function AudioLaunchOffer({ pkg }: { pkg?: Package }) {
           <Link href={`/studio?package=${pkg.slug}`} className="btn-primary mt-8 w-full justify-center">
             Create Your Song
           </Link>
-          <p className="mt-4 text-center text-xs text-muted">Secure checkout · Private by default · Standard delivery</p>
+          <p className="mt-4 text-center text-xs text-muted">Secure checkout · Private by default · Creation starts after payment</p>
         </article>
       </div>
     </section>
