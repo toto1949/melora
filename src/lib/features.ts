@@ -16,7 +16,7 @@ export function filterFaqsForRelease(faqs: FaqItem[], _videoEnabled: boolean) {
         return {
           ...faq,
           answer:
-            "Standard launch delivery is typically within 48 hours after payment and your story details are complete. You can follow progress from your dashboard, and we will let you know when your song is ready.",
+            "Creation starts immediately after payment. Songs are usually ready within a few minutes, and the private listening page updates automatically as soon as yours is finished. If generation takes longer, you can follow progress from your dashboard and we will email you the moment it is ready.",
         };
       }
       if (/what if i want changes/i.test(faq.question)) {
@@ -45,7 +45,7 @@ export function filterFaqsForRelease(faqs: FaqItem[], _videoEnabled: boolean) {
           ...faq,
           question: "What is included in the $19 launch offer?",
           answer:
-            "The launch offer includes personalized lyrics, one complete personalized audio song, your choice of genre, mood, vocal style and language, an MP3 download, a private listening link, one guided revision, and standard delivery. It is a one-time $19 payment with no subscription.",
+            "The launch offer includes personalized lyrics, one complete personalized audio song, your choice of genre, mood, vocal style and language, an MP3 download, a private listening link, one guided revision, and automatic progress updates while your song is created. It is a one-time $19 payment with no subscription.",
         };
       }
       if (/can i download the song and keep it forever/i.test(faq.question)) {
