@@ -1,5 +1,6 @@
 import { getEnv, isMockMode } from "@/lib/env";
 import { emailTemplates, type EmailTemplate } from "./templates";
+import { renderLaunchOrderConfirmation } from "./launch-order-confirmation";
 
 export async function sendEmail(input: {
   to: string;
@@ -7,7 +8,10 @@ export async function sendEmail(input: {
   data?: Record<string, string | number | undefined | null>;
   idempotencyKey?: string;
 }) {
-  const rendered = emailTemplates[input.template](input.data || {});
+  const data = input.data || {};
+  const rendered = input.template === "order-confirmation"
+    ? renderLaunchOrderConfirmation(data)
+    : emailTemplates[input.template](data);
   const env = getEnv();
 
   if (isMockMode() || !env.RESEND_API_KEY) {
