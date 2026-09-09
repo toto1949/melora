@@ -14,12 +14,17 @@ export default async function PricingPage() {
   const videoEnabled = getEnv().VIDEO_FEATURE_ENABLED;
   const launchPackage = filterPackagesForRelease(await listPackages(), videoEnabled)[0];
   const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const productLd = launchPackage
+  const serviceLd = launchPackage
     ? {
         "@context": "https://schema.org",
-        "@type": "Product",
+        "@type": "Service",
         name: launchPackage.name,
-        brand: { "@type": "Brand", name: "Memories to Melody" },
+        serviceType: "Personalized song creation service",
+        provider: {
+          "@type": "Organization",
+          name: "Memories to Melody",
+          url: base,
+        },
         description: launchPackage.description,
         url: `${base}/pricing`,
         offers: {
@@ -27,7 +32,6 @@ export default async function PricingPage() {
           name: launchPackage.name,
           price: (launchPackage.priceCents / 100).toFixed(2),
           priceCurrency: launchPackage.currency?.toUpperCase() || "USD",
-          availability: "https://schema.org/InStock",
           url: `${base}/studio?package=${launchPackage.slug}`,
         },
       }
@@ -35,8 +39,8 @@ export default async function PricingPage() {
 
   return (
     <>
-      {productLd ? (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }} />
+      {serviceLd ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }} />
       ) : null}
       <AudioLaunchOffer pkg={launchPackage} />
     </>
