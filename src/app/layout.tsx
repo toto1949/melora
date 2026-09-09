@@ -6,6 +6,7 @@ import { BRAND } from "@/lib/constants";
 import { getLocale, getMessages, getTextDirection } from "@/lib/i18n";
 import { LocaleProvider } from "@/components/i18n/locale-provider";
 import { CookieConsent } from "@/components/shared/cookie-consent";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { COOKIE_CONSENT } from "@/lib/cookie-consent";
 import "./globals.css";
 
@@ -67,6 +68,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const locale = await getLocale();
   const [messages, cookieJar] = await Promise.all([getMessages(locale), cookies()]);
   const consent = cookieJar.get(COOKIE_CONSENT)?.value;
+  const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
+
   return (
     <html lang={locale} dir={getTextDirection(locale)}>
       <body className={`${fraunces.variable} ${manrope.variable} ${notoSansArabic.variable} antialiased`}>
@@ -79,7 +82,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           </div>
           <CookieConsent initialConsent={consent === "all" || consent === "essential" ? consent : null} />
         </LocaleProvider>
-        {consent === "all" ? <Analytics /> : null}
+        {consent === "all" ? (
+          <>
+            <Analytics />
+            {gaMeasurementId ? <GoogleAnalytics measurementId={gaMeasurementId} /> : null}
+          </>
+        ) : null}
       </body>
     </html>
   );

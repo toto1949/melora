@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PurchaseTracker } from "@/components/analytics/purchase-tracker";
 import { getOrder } from "@/lib/db/repository";
 import { getMessages } from "@/lib/i18n";
 import { formatCurrency } from "@/lib/utils";
@@ -17,6 +18,13 @@ export default async function SuccessPage({
   const copy = messages.studio.success;
   return (
     <div className="atmosphere grain flex min-h-screen items-center justify-center px-4">
+      {order ? (
+        <PurchaseTracker
+          transactionId={order.orderNumber}
+          value={order.totalCents / 100}
+          currency={(order.currency || "USD").toUpperCase()}
+        />
+      ) : null}
       <div className="surface-card max-w-lg p-8 text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gold/15 text-2xl text-gold" aria-hidden="true">✓</div>
         <p className="font-display text-4xl text-navy">Payment confirmed</p>
