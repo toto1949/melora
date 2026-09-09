@@ -70,7 +70,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const [messages, cookieJar] = await Promise.all([getMessages(locale), cookies()]);
   const rawConsent = cookieJar.get(COOKIE_CONSENT)?.value;
   const consent: CookieConsentValue | null = rawConsent === "all" || rawConsent === "essential" ? rawConsent : null;
-  const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-5J2N9TZ3JD";
+  const gaMeasurementId = "G-5J2N9TZ3JD";
   const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1393210939681079";
 
   return (
