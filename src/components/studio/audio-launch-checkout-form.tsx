@@ -5,6 +5,7 @@ import Link from "next/link";
 import { checkoutAction, type CheckoutState } from "@/lib/actions/studio";
 import { formatCurrency } from "@/lib/utils";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { trackMetaEvent } from "@/components/analytics/meta-pixel";
 
 interface AudioLaunchCheckoutFormProps {
   projectId: string;
@@ -39,8 +40,19 @@ export function AudioLaunchCheckoutForm({
   );
   const [createAccount, setCreateAccount] = useState(false);
 
+  const trackCheckoutStart = () => {
+    trackMetaEvent("InitiateCheckout", {
+      value: pkg.priceCents / 100,
+      currency: pkg.currency.toUpperCase(),
+      content_name: pkg.name,
+      content_type: "product",
+      content_ids: ["personalized-audio-song"],
+      num_items: 1,
+    });
+  };
+
   return (
-    <form action={formAction} className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+    <form action={formAction} onSubmit={trackCheckoutStart} className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
       <input type="hidden" name="packageId" value={pkg.id} />
       <input type="hidden" name="deliverySpeed" value="standard" />
