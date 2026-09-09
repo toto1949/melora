@@ -1,6 +1,7 @@
 import { Hero } from "@/components/marketing/hero";
 import { AudioLaunchOffer } from "@/components/marketing/audio-launch-offer";
 import { AudioLaunchFinalCta } from "@/components/marketing/audio-launch-final-cta";
+import { AudioLaunchTrustBar } from "@/components/marketing/audio-launch-trust-bar";
 import {
   FaqSection,
   HowItWorks,
@@ -8,7 +9,6 @@ import {
   ReactionGallery,
   SampleSongsSection,
   Testimonials,
-  TrustBar,
 } from "@/components/marketing/sections";
 import {
   getSettings,
@@ -74,7 +74,7 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
       <Hero settings={settings} sample={samples[0]} />
-      <TrustBar settings={settings} />
+      <AudioLaunchTrustBar settings={settings} />
       <ReactionGallery reactions={reactions} />
       <HowItWorks />
       <SampleSongsSection samples={samples} />
