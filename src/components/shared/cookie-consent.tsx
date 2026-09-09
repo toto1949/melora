@@ -16,6 +16,14 @@ export function CookieConsent({ initialConsent }: { initialConsent: CookieConsen
 
   const choose = (value: "all" | "essential") => {
     document.cookie = `${COOKIE_CONSENT}=${value}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+
+    window.gtag?.("consent", "update", {
+      analytics_storage: value === "all" ? "granted" : "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+
     setVisible(false);
     router.refresh();
   };
