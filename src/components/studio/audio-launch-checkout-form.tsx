@@ -54,7 +54,7 @@ export function AudioLaunchCheckoutForm({
             <span className="font-display text-3xl text-navy">{formatCurrency(pkg.priceCents, pkg.currency, locale)}</span>
           </div>
           <p className="mt-2 text-sm text-muted">{pkg.description}</p>
-          <p className="mt-3 text-xs font-medium text-navy">{pkg.deliveryHours}h · {pkg.revisionCredits} guided revision</p>
+          <p className="mt-3 text-xs font-medium text-navy">Usually ready within a few minutes · {pkg.revisionCredits} guided revision</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -106,7 +106,7 @@ export function AudioLaunchCheckoutForm({
             <div className="flex justify-between gap-3"><span>{copy.total}</span><span>{formatCurrency(pkg.priceCents, pkg.currency, locale)}</span></div>
           </div>
         </div>
-        <p className="rounded-2xl bg-cream px-3 py-2 text-xs text-muted">{copy.delivery}: {copy.standardDelivery} · {pkg.deliveryHours}h</p>
+        <p className="rounded-2xl bg-cream px-3 py-2 text-xs text-muted">Creation starts immediately after payment · usually ready within a few minutes</p>
         <ul className="space-y-2 rounded-2xl border border-border bg-surface px-4 py-3 text-xs text-muted">
           <li>✓ One-time payment — no subscription</li>
           <li>✓ One complete personalized audio song</li>
