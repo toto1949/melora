@@ -62,7 +62,9 @@ export function Hero({ settings, sample }: { settings: SiteSettings; sample?: Sa
             </Link>
           </motion.div>
           <motion.p {...rise(0.32)} className="mt-5 text-sm text-muted">
-            {copy.assurance}
+            {locale === "en"
+              ? "Usually ready within a few minutes · One guided revision · Secure checkout"
+              : copy.assurance}
           </motion.p>
         </div>
 
