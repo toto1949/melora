@@ -18,25 +18,29 @@ export default async function SuccessPage({
   return (
     <div className="atmosphere grain flex min-h-screen items-center justify-center px-4">
       <div className="surface-card max-w-lg p-8 text-center">
-        <p className="font-display text-4xl text-navy">{copy.title}</p>
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gold/15 text-2xl text-gold" aria-hidden="true">✓</div>
+        <p className="font-display text-4xl text-navy">Payment confirmed</p>
         <p className="mt-3 prose-muted">
           {order
-            ? copy.confirmed.replace("{order}", order.orderNumber)
-            : copy.payment}
+            ? `Order ${order.orderNumber} is confirmed. We’ve started creating your personalized song now.`
+            : "Your payment is confirmed. We’ve started creating your personalized song now."}
         </p>
         {order ? (
           <dl className="mt-6 space-y-3 rounded-2xl bg-cream p-4 text-left text-sm">
             <div className="flex justify-between gap-4"><dt className="text-muted">Order</dt><dd className="font-semibold">{order.orderNumber}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-muted">Receipt sent to</dt><dd className="break-all text-right font-semibold">{order.email}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-muted">Total</dt><dd className="font-semibold">{formatCurrency(order.totalCents, order.currency, locale)}</dd></div>
-            <div className="flex justify-between gap-4"><dt className="text-muted">Estimated delivery</dt><dd className="text-right font-semibold">{order.estimatedDeliveryAt ? new Date(order.estimatedDeliveryAt).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" }) : "We’ll email you when it’s ready"}</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-muted">Status</dt><dd className="text-right font-semibold">Creating your song</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-muted">Typical wait</dt><dd className="text-right font-semibold">Usually a few minutes</dd></div>
           </dl>
         ) : null}
-        <p className="mt-5 text-sm text-muted">You can close this page safely. We’ll keep your progress updated and email you as soon as the song is ready.</p>
+        <p className="mt-5 text-sm text-muted">
+          Your listening page updates automatically as soon as the song is ready. We’ll also email you the moment it’s finished.
+        </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           {order ? (
             <Link href={`/listen/${order.shareToken}`} className="btn-primary">
-              {copy.listen}
+              Watch song progress
             </Link>
           ) : null}
           <Link href="/dashboard/orders" className="btn-secondary">
