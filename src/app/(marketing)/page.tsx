@@ -82,9 +82,9 @@ export default async function HomePage() {
       <AudioLaunchTrustBar settings={settings} />
       <ReactionGallery reactions={reactions} />
       <HowItWorks />
+      <Testimonials reviews={reviews.items} />
       <SampleSongsSection samples={samples} />
       <OccasionsSection />
-      <Testimonials reviews={reviews.items} />
       <AudioLaunchOffer pkg={launchPackage} />
       <FaqSection faqs={releaseFaqs.slice(0, 6)} viewAllHref="/faq" />
       <AudioLaunchFinalCta />
