@@ -15,6 +15,7 @@ export function PurchaseTracker({
   useEffect(() => {
     const gaStorageKey = `mtm-ga4-purchase-${transactionId}`;
     const metaStorageKey = `mtm-meta-purchase-${transactionId}`;
+    const tiktokStorageKey = `mtm-tiktok-purchase-${transactionId}`;
     let attempts = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -54,6 +55,22 @@ export function PurchaseTracker({
           })
         ) {
           window.localStorage.setItem(metaStorageKey, "1");
+        } else {
+          waiting = true;
+        }
+      }
+
+      if (!window.localStorage.getItem(tiktokStorageKey)) {
+        if (window.ttq?.track) {
+          window.ttq.track("CompletePayment", {
+            value,
+            currency,
+            content_name: "Personalized Audio Song",
+            content_type: "product",
+            content_ids: ["personalized-audio-song"],
+            quantity: 1,
+          });
+          window.localStorage.setItem(tiktokStorageKey, "1");
         } else {
           waiting = true;
         }

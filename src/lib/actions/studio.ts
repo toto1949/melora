@@ -10,7 +10,6 @@ import {
   createOrder,
   findCoupon,
   getProject,
-  trackEvent,
   updateProjectStep,
   upsertPreferences,
   upsertRecipient,
@@ -33,6 +32,21 @@ import { ownsProject } from "@/lib/security/ownership";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { logEvent } from "@/lib/observability/logger";
 import { packageAvailableForRelease } from "@/lib/features";
+import { readServerAnalyticsContext, safeTrackEvent } from "@/lib/analytics/server";
+
+async function trackProjectEvent(projectId: string, eventName: string, properties: Record<string, unknown>) {
+  const project = await getProject(projectId);
+  if (!project?.analyticsVisitorId) return null;
+  return safeTrackEvent(eventName, properties, {
+    projectId,
+    visitorId: project?.analyticsVisitorId,
+    sessionId: project?.analyticsSessionId,
+    firstTouch: project?.firstTouch,
+    lastTouch: project?.lastTouch,
+    isInternal: project?.analyticsInternal,
+    dedupeKey: eventName === "studio_started" ? `studio_started:${projectId}` : null,
+  });
+}
 
 async function assertProjectAccess(projectId: string, checkout = false) {
   const guestToken = await getGuestToken();
@@ -61,9 +75,17 @@ function parseStepInput<T>(schema: { safeParse: (input: unknown) => { success: b
 
 export async function startStudioAction(formData?: FormData) {
   const locale = String(formData?.get("locale") || "en");
-  const project = await createGuestProject(locale);
+  const user = await getCurrentUser();
+  const analytics = await readServerAnalyticsContext(user);
+  const project = await createGuestProject(locale, analytics);
   if (project.guestToken) await setGuestToken(project.guestToken);
-  await trackEvent("studio_started", {}, { projectId: project.id, sessionId: project.guestToken });
+  if (analytics.visitorId) {
+    await safeTrackEvent("studio_started", {}, {
+      ...analytics,
+      projectId: project.id,
+      dedupeKey: `studio_started:${project.id}`,
+    });
+  }
 
   // Honor entry-point intent (occasion pages, pricing, examples) so the
   // customer never has to repeat a choice they already made.
@@ -103,7 +125,7 @@ export async function saveOccasionAction(projectId: string, formData: FormData) 
   await assertProjectAccess(projectId);
   const parsed = parseStepInput(occasionSchema, { occasion: formData.get("occasion") }, `/studio/${projectId}/occasion`);
   await updateProjectStep(projectId, 2, { occasion: parsed.occasion });
-  await trackEvent("studio_step_completed", { step: 1 }, { projectId });
+  await trackProjectEvent(projectId, "studio_step_completed", { step: 1 });
   redirect(`/studio/${projectId}/recipient`);
 }
 
@@ -130,7 +152,7 @@ export async function saveRecipientAction(projectId: string, formData: FormData)
     fromName: parsed.fromName ?? null,
   });
   await updateProjectStep(projectId, 3);
-  await trackEvent("studio_step_completed", { step: 2 }, { projectId });
+  await trackProjectEvent(projectId, "studio_step_completed", { step: 2 });
   redirect(`/studio/${projectId}/story`);
 }
 
@@ -157,7 +179,7 @@ export async function saveStoryAction(projectId: string, formData: FormData) {
     personalMessage: parsed.personalMessage ?? null,
   });
   await updateProjectStep(projectId, 4);
-  await trackEvent("studio_step_completed", { step: 3 }, { projectId });
+  await trackProjectEvent(projectId, "studio_step_completed", { step: 3 });
   redirect(`/studio/${projectId}/style`);
 }
 
@@ -201,7 +223,7 @@ export async function saveStyleAction(projectId: string, formData: FormData) {
     videoStyle: existing?.videoStyle ?? null,
   });
   await updateProjectStep(projectId, 5);
-  await trackEvent("studio_step_completed", { step: 4 }, { projectId });
+  await trackProjectEvent(projectId, "studio_step_completed", { step: 4 });
   redirect(`/studio/${projectId}/lyrics`);
 }
 
@@ -244,7 +266,7 @@ export async function saveLyricsAction(projectId: string, formData: FormData) {
     videoStyle: existing?.videoStyle ?? null,
   });
   await updateProjectStep(projectId, getEnv().VIDEO_FEATURE_ENABLED ? 6 : 7);
-  await trackEvent("studio_step_completed", { step: 5 }, { projectId });
+  await trackProjectEvent(projectId, "studio_step_completed", { step: 5 });
   redirect(`/studio/${projectId}/${getEnv().VIDEO_FEATURE_ENABLED ? "media" : "review"}`);
 }
 
@@ -285,7 +307,7 @@ export async function saveMediaAction(projectId: string, formData: FormData) {
   }
 
   await updateProjectStep(projectId, 7);
-  await trackEvent("studio_step_completed", { step: 6 }, { projectId });
+  await trackProjectEvent(projectId, "studio_step_completed", { step: 6 });
   redirect(`/studio/${projectId}/review`);
 }
 
@@ -295,7 +317,7 @@ export async function confirmReviewAction(projectId: string, formData: FormData)
     redirect(`/studio/${projectId}/review?error=${encodeURIComponent("Please confirm accuracy and content rights before continuing.")}`);
   }
   await updateProjectStep(projectId, 8);
-  await trackEvent("studio_step_completed", { step: 7 }, { projectId });
+  await trackProjectEvent(projectId, "studio_step_completed", { step: 7 });
   redirect(`/studio/${projectId}/checkout`);
 }
 
@@ -391,11 +413,6 @@ export async function checkoutAction(
     });
 
     logEvent("info", "order_created", { orderId: order.id });
-    await trackEvent(
-      "checkout_started",
-      { packageId: parsed.packageId, total: order.totalCents },
-      { projectId, orderId: order.id, userId },
-    );
 
     const env = getEnv();
     const session = await createCheckoutSession(
@@ -404,8 +421,22 @@ export async function checkoutAction(
       `${env.NEXT_PUBLIC_APP_URL}/payment-cancelled?order_id=${order.id}`,
     );
 
-
     checkoutUrl = session.url ?? null;
+    if (order.analyticsVisitorId) await safeTrackEvent(
+      "stripe_checkout_started",
+      { packageId: parsed.packageId, value_cents: order.totalCents, currency: order.currency },
+      {
+        projectId,
+        orderId: order.id,
+        userId,
+        visitorId: order.analyticsVisitorId,
+        sessionId: order.analyticsSessionId,
+        firstTouch: order.firstTouch,
+        lastTouch: order.lastTouch,
+        isInternal: order.analyticsInternal,
+        dedupeKey: `stripe_checkout_started:${session.id}`,
+      },
+    );
   } catch (error) {
     if (error instanceof ZodError) {
       return { error: error.issues[0]?.message ?? "Please review the form and try again." };
@@ -424,7 +455,7 @@ export async function completeMockPaymentAction(orderId: string) {
     throw new Error("Mock payments are disabled in production");
   }
 
-  const { updateOrderStatus, getOrder, trackEvent } = await import("@/lib/db/repository");
+  const { updateOrderStatus, getOrder } = await import("@/lib/db/repository");
   const order = await getOrder(orderId);
   if (!order) throw new Error("Order not found");
   await assertProjectAccess(order.projectId, true);
@@ -439,7 +470,16 @@ export async function completeMockPaymentAction(orderId: string) {
       estimatedDelivery: order.estimatedDeliveryAt || "soon",
     },
   });
-  await trackEvent("purchase_completed", { total: order.totalCents }, { orderId });
+  await safeTrackEvent("purchase_completed", { value_cents: order.totalCents, currency: order.currency }, {
+    orderId,
+    projectId: order.projectId,
+    visitorId: order.analyticsVisitorId,
+    sessionId: order.analyticsSessionId,
+    firstTouch: order.firstTouch,
+    lastTouch: order.lastTouch,
+    isInternal: order.analyticsInternal,
+    dedupeKey: `purchase:${order.id}`,
+  });
   await startGenerationPipeline(orderId);
   revalidatePath(`/dashboard`);
   return { ok: true };

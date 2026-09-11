@@ -199,6 +199,11 @@ export interface Project {
   claimedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  analyticsVisitorId?: string | null;
+  analyticsSessionId?: string | null;
+  firstTouch?: AttributionTouch | null;
+  lastTouch?: AttributionTouch | null;
+  analyticsInternal?: boolean;
   recipient?: Recipient | null;
   story?: StoryAnswers | null;
   preferences?: SongPreferences | null;
@@ -241,6 +246,12 @@ export interface Order {
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  analyticsVisitorId?: string | null;
+  analyticsSessionId?: string | null;
+  firstTouch?: AttributionTouch | null;
+  lastTouch?: AttributionTouch | null;
+  analyticsInternal?: boolean;
+  paidAt?: string | null;
   progress?: number;
   project?: Project;
   package?: Package;
@@ -403,6 +414,76 @@ export interface AnalyticsEvent {
   userId: string | null;
   projectId: string | null;
   orderId: string | null;
+  visitorId: string | null;
+  pagePath: string | null;
+  source: string | null;
+  medium: string | null;
+  campaign: string | null;
+  content: string | null;
+  isInternal: boolean;
+  dedupeKey: string | null;
   properties: Record<string, unknown>;
   createdAt: string;
+}
+
+export interface AttributionTouch {
+  source: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_content?: string;
+  gclid?: string;
+  fbclid?: string;
+  ttclid?: string;
+  landing_path?: string;
+  referrer_host?: string;
+  captured_at?: string;
+}
+
+export interface AnalyticsContext {
+  visitorId?: string | null;
+  sessionId?: string | null;
+  firstTouch?: AttributionTouch | null;
+  lastTouch?: AttributionTouch | null;
+  isInternal?: boolean;
+  dedupeKey?: string | null;
+  pagePath?: string | null;
+}
+
+export interface AnalyticsDashboard {
+  range: "today" | "7d" | "30d";
+  since: string;
+  uniqueVisitors: number;
+  sessions: number;
+  pageViews: number;
+  createSongClicks: number;
+  studioStarts: number;
+  checkoutViews: number;
+  stripeCheckoutStarts: number;
+  purchases: number;
+  attributedPurchases: number;
+  revenueCents: number;
+  visitorToStudioRate: number;
+  visitorToPurchaseRate: number;
+  checkoutConversionRate: number;
+  checkoutAbandonment: number;
+  checkoutAbandonmentRate: number;
+  topPages: Array<{ path: string; views: number }>;
+  sources: Array<{
+    source: string;
+    visitors: number;
+    studioStarts: number;
+    checkoutViews: number;
+    stripeCheckoutStarts: number;
+    purchases: number;
+    revenueCents: number;
+  }>;
+  campaigns: Array<{
+    source: string;
+    campaign: string;
+    content: string;
+    visitors: number;
+    purchases: number;
+    revenueCents: number;
+  }>;
 }

@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
+import { isExternalAnalyticsPath, isPublicAnalyticsPage } from "@/lib/analytics/attribution";
+import { SONG_PRICE_CENTS } from "@/lib/pricing";
 
 declare global {
   interface Window {
@@ -22,9 +24,10 @@ export function MetaPixel({ pixelId }: { pixelId: string }) {
   const firstRoute = useRef(true);
 
   useEffect(() => {
+    if (!isExternalAnalyticsPath(pathname)) return;
     if (firstRoute.current) {
       firstRoute.current = false;
-    } else {
+    } else if (isPublicAnalyticsPage(pathname)) {
       trackMetaEvent("PageView");
     }
 
@@ -36,7 +39,7 @@ export function MetaPixel({ pixelId }: { pixelId: string }) {
           trackMetaEvent("ViewContent", {
             content_name: "Personalized Audio Song",
             content_type: "product",
-            value: 19,
+            value: SONG_PRICE_CENTS / 100,
             currency: "USD",
           })
         ) {
@@ -52,11 +55,11 @@ export function MetaPixel({ pixelId }: { pixelId: string }) {
     }
   }, [pathname]);
 
-  if (!pixelId) return null;
+  if (!pixelId || !isExternalAnalyticsPath(pathname)) return null;
 
   return (
     <Script id="meta-pixel" strategy="afterInteractive">
-      {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${pixelId}');fbq('track','PageView');`}
+      {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${pixelId}');${isPublicAnalyticsPage(pathname) ? "fbq('track','PageView');" : ""}`}
     </Script>
   );
 }

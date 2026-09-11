@@ -109,6 +109,18 @@ function migrateStore(store: MeloraStore) {
     }
   }
 
+  for (const event of store.events) {
+    const legacy = event as Partial<AnalyticsEvent>;
+    if (legacy.visitorId === undefined) { event.visitorId = null; changed = true; }
+    if (legacy.pagePath === undefined) { event.pagePath = null; changed = true; }
+    if (legacy.source === undefined) { event.source = "direct"; changed = true; }
+    if (legacy.medium === undefined) { event.medium = null; changed = true; }
+    if (legacy.campaign === undefined) { event.campaign = null; changed = true; }
+    if (legacy.content === undefined) { event.content = null; changed = true; }
+    if (legacy.isInternal === undefined) { event.isInternal = false; changed = true; }
+    if (legacy.dedupeKey === undefined) { event.dedupeKey = null; changed = true; }
+  }
+
   return changed;
 }
 

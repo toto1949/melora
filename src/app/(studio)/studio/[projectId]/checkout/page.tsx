@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getEnv } from "@/lib/env";
 import { filterPackagesForRelease } from "@/lib/features";
 import { getMessages } from "@/lib/i18n";
+import { CheckoutViewTracker } from "@/components/analytics/funnel-event";
 
 export default async function CheckoutStep({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
@@ -17,6 +18,7 @@ export default async function CheckoutStep({ params }: { params: Promise<{ proje
 
   return (
     <StudioShell projectId={projectId} currentStep={7}>
+      <CheckoutViewTracker projectId={projectId} />
       <h1 className="font-display text-4xl text-navy">{messages.studio.checkout.title}</h1>
       <p className="mt-3 prose-muted">{messages.studio.checkout.body}</p>
       {pkg ? (

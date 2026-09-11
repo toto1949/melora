@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { Fraunces, Manrope, Noto_Sans_Arabic } from "next/font/google";
 import { cookies } from "next/headers";
-import { Analytics } from "@vercel/analytics/next";
 import { BRAND } from "@/lib/constants";
 import { getLocale, getMessages, getTextDirection } from "@/lib/i18n";
 import { LocaleProvider } from "@/components/i18n/locale-provider";
 import { CookieConsent } from "@/components/shared/cookie-consent";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { MetaPixel } from "@/components/analytics/meta-pixel";
+import { TikTokPixel } from "@/components/analytics/tiktok-pixel";
+import { AnalyticsTracker } from "@/components/analytics/analytics-tracker";
+import { VercelAnalytics } from "@/components/analytics/vercel-analytics";
 import { COOKIE_CONSENT, type CookieConsentValue } from "@/lib/cookie-consent";
 import "./globals.css";
 
@@ -70,8 +72,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const [messages, cookieJar] = await Promise.all([getMessages(locale), cookies()]);
   const rawConsent = cookieJar.get(COOKIE_CONSENT)?.value;
   const consent: CookieConsentValue | null = rawConsent === "all" || rawConsent === "essential" ? rawConsent : null;
-  const gaMeasurementId = "G-5J2N9TZ3JD";
-  const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1393210939681079";
+  const liveAnalytics = process.env.VERCEL_ENV === "production";
+  const gaMeasurementId = liveAnalytics ? process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "G-5J2N9TZ3JD" : "";
+  const metaPixelId = liveAnalytics ? process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1393210939681079" : "";
+  const tiktokPixelId = liveAnalytics ? process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID?.trim() || "" : "";
 
   return (
     <html lang={locale} dir={getTextDirection(locale)}>
@@ -88,8 +92,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <GoogleAnalytics measurementId={gaMeasurementId} initialConsent={consent} />
         {consent === "all" ? (
           <>
-            <Analytics />
+            <VercelAnalytics />
+            <AnalyticsTracker />
             <MetaPixel pixelId={metaPixelId} />
+            <TikTokPixel pixelId={tiktokPixelId} />
           </>
         ) : null}
       </body>

@@ -14,5 +14,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ orderId
     retrying: jobs.some(job => job.status === "failed" && job.attempt < job.maxAttempts),
     listenUrl: order.paymentStatus === "paid" && ["ready", "completed"].includes(order.status) ? `/listen/${order.shareToken}` : null,
     checkoutUrl: `/studio/${order.projectId}/checkout`,
+    transactionId: order.orderNumber || order.id,
+    value: Number(order.totalCents || 0) / 100,
+    currency: (order.currency || "usd").toUpperCase(),
   }, { headers: { "Cache-Control": "private, no-store" } });
 }

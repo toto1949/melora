@@ -5,6 +5,7 @@ import Link from "next/link";
 import { applyCouponAction, checkoutAction, type CheckoutState } from "@/lib/actions/studio";
 import { formatCurrency } from "@/lib/utils";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { trackCheckoutInitiated } from "@/lib/analytics/client";
 
 interface PackageOption {
   id: string;
@@ -99,7 +100,16 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
   }
 
   return (
-    <form action={formAction} className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+    <form
+      action={formAction}
+      onSubmit={() => selectedPackage && trackCheckoutInitiated({
+        projectId,
+        value: totals.total / 100,
+        currency: selectedPackage.currency,
+        itemName: selectedPackage.name,
+      })}
+      className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start"
+    >
       {locked && <p role="status" className="rounded-2xl border border-border bg-cream-deep p-4 text-sm text-navy lg:col-span-2">{messages.v1.checkoutLock}</p>}
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
       <input type="hidden" name="deliverySpeed" value={isRush ? "rush" : "standard"} />
