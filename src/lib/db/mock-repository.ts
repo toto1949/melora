@@ -100,7 +100,7 @@ export async function listReactions() {
 
 export async function listReviews(limit = 10, offset = 0) {
   const store = await getStore();
-  const published = store.reviews.filter((r) => r.isPublished && !r.isDemo);
+  const published = store.reviews.filter((r) => r.isPublished);
   return {
     items: published.slice(offset, offset + limit),
     total: published.length,

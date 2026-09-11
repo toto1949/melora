@@ -109,6 +109,17 @@ function migrateStore(store: MeloraStore) {
     }
   }
 
+  // Keep launch/marketing reviews in sync with seed (ids rev-1..rev-5).
+  {
+    const launchIds = new Set(seedReviews.map((review) => review.id));
+    const nonLaunch = store.reviews.filter((review) => !launchIds.has(review.id));
+    const nextReviews = [...structuredClone(seedReviews), ...nonLaunch];
+    if (JSON.stringify(store.reviews) !== JSON.stringify(nextReviews)) {
+      store.reviews = nextReviews;
+      changed = true;
+    }
+  }
+
   for (const event of store.events) {
     const legacy = event as Partial<AnalyticsEvent>;
     if (legacy.visitorId === undefined) { event.visitorId = null; changed = true; }

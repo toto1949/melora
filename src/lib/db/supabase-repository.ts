@@ -223,7 +223,6 @@ export async function listReviews(limit = 10, offset = 0) {
     .from("reviews")
     .select("*", { count: "exact" })
     .eq("is_published", true)
-    .eq("is_demo", false)
     .is("deleted_at", null)
     .order("reviewed_at", { ascending: false })
     .range(offset, offset + limit - 1);
