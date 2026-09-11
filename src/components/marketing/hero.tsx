@@ -51,8 +51,7 @@ export function Hero({ sample }: { settings: SiteSettings; sample?: SampleSong }
           <motion.p {...rise(0.16)} className="mt-5 max-w-xl text-base prose-muted md:text-lg">
             {copy.supporting}
           </motion.p>
-          <p className="mt-6 text-sm font-semibold text-navy">{messages.v1.priceNote}</p>
-          <motion.div {...rise(0.24)} className="mt-4 flex flex-wrap gap-3">
+          <motion.div {...rise(0.24)} className="mt-6 flex flex-wrap gap-3">
             <Link href="/studio" className="btn-primary group">
               {copy.create}
               <ArrowRight className="directional-icon h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
