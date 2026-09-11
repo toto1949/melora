@@ -20,6 +20,7 @@ import type {
 } from "@/types";
 import { orderNumber } from "@/lib/utils";
 import { calculateOrderProgress } from "@/lib/generation-progress";
+import { SONG_PRICE_CENTS } from "@/lib/pricing";
 import { getStore, id, mutateStore, nowIso, saveStore } from "./store";
 
 function attachProject(store: Awaited<ReturnType<typeof getStore>>, project: Project): Project {
@@ -448,7 +449,7 @@ export async function createOrder(input: {
     if (!pkg) throw new Error("Package not found");
 
     const addOns = store.addOns.filter((a) => input.addOnIds?.includes(a.id));
-    const subtotal = pkg.priceCents + addOns.reduce((sum, a) => sum + a.priceCents, 0);
+    const subtotal = (pkg.slug === "essential-song" ? SONG_PRICE_CENTS : pkg.priceCents) + addOns.reduce((sum, a) => sum + a.priceCents, 0);
 
     let discount = 0;
     let couponId: string | null = null;
@@ -465,7 +466,7 @@ export async function createOrder(input: {
       coupon.redemptionCount += 1;
     }
 
-    const tax = Math.round((subtotal - discount) * 0.08);
+    const tax = 0;
     const total = subtotal - discount + tax;
     const isRush = addOns.some((addOn) => addOn.slug === "rush-delivery");
     const deliveryHours = isRush ? Math.max(6, Math.floor(pkg.deliveryHours / 2)) : pkg.deliveryHours;
@@ -518,6 +519,12 @@ export async function createOrder(input: {
 export async function getOrder(orderId: string) {
   const store = await getStore();
   const order = store.orders.find((o) => o.id === orderId);
+  return order ? attachOrder(store, order) : null;
+}
+
+export async function getProjectOrder(projectId: string) {
+  const store = await getStore();
+  const order = [...store.orders].reverse().find(item => item.projectId === projectId);
   return order ? attachOrder(store, order) : null;
 }
 
@@ -596,7 +603,7 @@ export async function enqueueJob(orderId: string, jobType: JobType, input: Recor
   return mutateStore((store) => {
     const idempotencyKey = `${orderId}:${jobType}`;
     const existing = store.jobs.find((j) => j.idempotencyKey === idempotencyKey);
-    if (existing && existing.status !== "dead_letter" && existing.status !== "failed") {
+    if (existing) {
       return existing;
     }
     const job: GenerationJob = {
@@ -607,7 +614,7 @@ export async function enqueueJob(orderId: string, jobType: JobType, input: Recor
       progress: 0,
       attempt: 0,
       maxAttempts: 5,
-      idempotencyKey: existing ? `${idempotencyKey}:${Date.now()}` : idempotencyKey,
+      idempotencyKey,
       provider: null,
       providerJobId: null,
       error: null,

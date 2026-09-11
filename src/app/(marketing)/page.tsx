@@ -1,3 +1,5 @@
+import { getMessages } from "@/lib/i18n";
+import { localizeReleaseFaqs, v1Packages } from "@/lib/release";
 import { Hero } from "@/components/marketing/hero";
 import {
   FaqSection,
@@ -20,7 +22,7 @@ import {
   listSamples,
 } from "@/lib/db/repository";
 import { getEnv } from "@/lib/env";
-import { filterFaqsForRelease, filterPackagesForRelease } from "@/lib/features";
+import { filterFaqsForRelease } from "@/lib/features";
 
 export const metadata = { alternates: { canonical: "/" } };
 
@@ -34,7 +36,7 @@ export default async function HomePage() {
     listReviews(8),
     listFaqs(),
   ]);
-  const releaseFaqs = filterFaqsForRelease(faqs, videoEnabled);
+  const releaseFaqs = localizeReleaseFaqs(filterFaqsForRelease(faqs, videoEnabled), await getMessages());
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -42,7 +44,7 @@ export default async function HomePage() {
       {
         "@type": "Organization",
         "@id": `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/#organization`,
-        name: settings.brandName,
+        name: "Memories to Melody",
         description: settings.heroSupporting,
         url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
         email: "hello@memoriestomelody.com",
@@ -50,7 +52,7 @@ export default async function HomePage() {
       {
         "@type": "WebSite",
         "@id": `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/#website`,
-        name: settings.brandName,
+        name: "Memories to Melody",
         url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
         publisher: {
           "@id": `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/#organization`,
@@ -62,7 +64,7 @@ export default async function HomePage() {
   const faqLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: releaseFaqs.map((f) => ({
+    mainEntity: releaseFaqs.slice(0, 6).map((f) => ({
       "@type": "Question",
       name: f.question,
       acceptedAnswer: { "@type": "Answer", text: f.answer },
@@ -71,17 +73,17 @@ export default async function HomePage() {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd).replace(/</g, "\\u003c") }} />
       <Hero settings={settings} sample={samples[0]} />
-      <TrustBar settings={settings} />
+      <TrustBar />
       <ReactionGallery reactions={reactions} />
       <HowItWorks />
       <SampleSongsSection samples={samples} />
       <OccasionsSection />
       <ProductShowcase videoEnabled={videoEnabled} />
       <Testimonials reviews={reviews.items} />
-      <PricingSection packages={filterPackagesForRelease(packages, videoEnabled)} videoEnabled={videoEnabled} />
+      <PricingSection packages={v1Packages(packages)} videoEnabled={videoEnabled} />
       <FaqSection faqs={releaseFaqs.slice(0, 6)} viewAllHref="/faq" />
       <FinalCta />
     </>

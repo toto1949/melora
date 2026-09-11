@@ -16,7 +16,7 @@ export async function GET(
 
   if (order.privacyMode === "private") {
     const user = await getCurrentUser();
-    if (!user || (order.userId && user.id !== order.userId && user.role === "customer")) {
+    if (!user || user.id !== order.userId) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
   }

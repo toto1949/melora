@@ -8,6 +8,8 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const response = NextResponse.next({ request });
 
+  if (pathname === "/api/stripe/webhook" || pathname === "/api/jobs/process") return response;
+
   if (pathname.startsWith("/api/")) {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
     const { success } = await rateLimit(`api:${ip}:${pathname}`, 120, 60_000);
@@ -40,7 +42,7 @@ export async function proxy(request: NextRequest) {
 
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Referrer-Policy", "no-referrer");
   response.headers.set(
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=()",

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { StudioShell } from "@/components/studio/studio-shell";
 import { FormError } from "@/components/studio/form-error";
@@ -19,6 +20,7 @@ export default async function MediaStep({
   const { error } = await searchParams;
   const [project, messages] = await Promise.all([loadStudioProject(projectId), getMessages()]);
   const videoEnabled = getEnv().VIDEO_FEATURE_ENABLED;
+  if (!videoEnabled) redirect(`/studio/${projectId}/review`);
   const copy = messages.studio.media;
   return (
     <StudioShell projectId={projectId} currentStep={6}>

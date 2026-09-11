@@ -11,7 +11,7 @@ const MAX_TITLE_CHARS = 80;
 
 // Leave headroom under the route's 300s maxDuration; on timeout the job
 // worker retries and the Idempotency-Key resumes this same generation.
-const POLL_DEADLINE_MS = 210_000;
+const POLL_DEADLINE_MS = 120_000;
 const POLL_INTERVAL_MS = 10_000;
 
 interface KunavoTrack {
@@ -35,7 +35,9 @@ export class KunavoMusicProvider implements MusicProvider {
     lyrics: string;
     title: string;
     idempotencyKey?: string;
+    providerJobId?: string;
     onProviderJobId?: (providerJobId: string) => void | Promise<void>;
+    onProviderTerminalFailure?: () => void | Promise<void>;
     onProgress?: (progress: number) => void | Promise<void>;
   }): Promise<MusicResult> {
     const env = getEnv();
@@ -56,7 +58,10 @@ export class KunavoMusicProvider implements MusicProvider {
     // customMode makes Suno sing the prompt verbatim as lyrics; without it
     // Suno improvises its own lyrics from the description and the displayed
     // lyrics would not match the audio.
-    const submitRes = await fetch(env.MUSIC_PROVIDER_URL || KUNAVO_JOBS_URL, {
+    const jobsUrl = env.MUSIC_PROVIDER_URL || KUNAVO_JOBS_URL;
+    const submitRes = input.providerJobId
+      ? await fetch(`${jobsUrl}/${encodeURIComponent(input.providerJobId)}`, { headers: { Authorization: `Bearer ${apiKey}` }, signal: AbortSignal.timeout(30_000) })
+      : await fetch(jobsUrl, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -71,8 +76,7 @@ export class KunavoMusicProvider implements MusicProvider {
     });
 
     if (!submitRes.ok) {
-      const body = await submitRes.text().catch(() => "");
-      throw new Error(`Kunavo submit failed (${submitRes.status}): ${body.slice(0, 300)}`);
+      throw new Error(`Kunavo request failed (${submitRes.status})`);
     }
 
     let job = (await submitRes.json()) as KunavoJob;
@@ -86,7 +90,7 @@ export class KunavoMusicProvider implements MusicProvider {
         throw new Error(`Kunavo generation still ${job.status} after ${Math.round(POLL_DEADLINE_MS / 1000)}s; will resume on retry`);
       }
       await sleep(POLL_INTERVAL_MS);
-      const pollRes = await fetch(`${KUNAVO_JOBS_URL}/${job.id}`, {
+      const pollRes = await fetch(`${jobsUrl}/${encodeURIComponent(job.id)}`, {
         headers: { Authorization: `Bearer ${apiKey}` },
         signal: AbortSignal.timeout(30_000),
       });
@@ -100,7 +104,10 @@ export class KunavoMusicProvider implements MusicProvider {
     }
 
     if (job.status === "failed") {
-      throw new Error(`Kunavo generation failed: ${job.error?.message ?? "unknown error"}`);
+      // A terminal provider job is safe to replace. Rotate its idempotency key
+      // before the worker retries so Kunavo does not replay the failed result.
+      await input.onProviderTerminalFailure?.();
+      throw new Error("Kunavo generation failed; inspect saved provider job");
     }
 
     const tracks = job.output?.tracks ?? [];

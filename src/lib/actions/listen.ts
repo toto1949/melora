@@ -70,7 +70,7 @@ export async function updatePrivacyAction(orderId: string, _prev: PrivacyState, 
   const user = await getCurrentUser();
   const order = await getOrder(orderId);
   if (!order) return { error: "Order not found." };
-  if (!user || (order.userId && user.id !== order.userId && user.role === "customer")) {
+  if (!user || (user.id !== order.userId && user.role === "customer")) {
     return { error: "You do not have permission to update this order." };
   }
 
@@ -79,6 +79,7 @@ export async function updatePrivacyAction(orderId: string, _prev: PrivacyState, 
     | "password"
     | "unlisted"
     | "public";
+  if (!["private", "password", "unlisted", "public"].includes(privacyMode)) return { error: "Invalid privacy setting." };
   const giftRevealEnabled = formData.get("giftRevealEnabled") === "on";
   const sharePassword = String(formData.get("sharePassword") || "");
 

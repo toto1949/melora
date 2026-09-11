@@ -1,7 +1,7 @@
+import { v1Packages } from "@/lib/release";
 import { PricingSection } from "@/components/marketing/sections";
 import { listPackages } from "@/lib/db/repository";
 import { getEnv } from "@/lib/env";
-import { filterPackagesForRelease } from "@/lib/features";
 
 export const metadata = {
   title: "Pricing",
@@ -12,7 +12,7 @@ export const metadata = {
 
 export default async function PricingPage() {
   const videoEnabled = getEnv().VIDEO_FEATURE_ENABLED;
-  const packages = filterPackagesForRelease(await listPackages(), videoEnabled);
+  const packages = v1Packages(await listPackages());
   const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const productLd = {
     "@context": "https://schema.org",

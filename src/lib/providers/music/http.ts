@@ -9,6 +9,7 @@ export class HttpMusicProvider implements MusicProvider {
     lyrics: string;
     title: string;
     idempotencyKey?: string;
+    providerJobId?: string;
     onProviderJobId?: (providerJobId: string) => void | Promise<void>;
     onProgress?: (progress: number) => void | Promise<void>;
   }): Promise<MusicResult> {

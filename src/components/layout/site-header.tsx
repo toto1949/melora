@@ -70,8 +70,6 @@ export function SiteHeader({
   const links = [
     { href: "/examples", label: labels.examples },
     { href: "/how-it-works", label: labels.howItWorks },
-    { href: "/occasions", label: labels.occasions },
-    { href: "/reviews", label: labels.reviews },
     { href: "/pricing", label: labels.pricing },
     { href: "/faq", label: labels.faq },
     { href: "/track-order", label: labels.trackOrder },
@@ -87,7 +85,7 @@ export function SiteHeader({
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
         <Link
           href="/"
-          className="font-display text-2xl tracking-tight text-navy transition-opacity hover:opacity-80"
+          className="max-w-[13rem] font-display text-xl leading-tight tracking-tight sm:max-w-none sm:text-2xl text-navy transition-opacity hover:opacity-80"
         >
           {BRAND.name}
         </Link>
@@ -97,6 +95,7 @@ export function SiteHeader({
             <Link
               key={link.href}
               href={link.href}
+              aria-current={pathname === link.href ? "page" : undefined}
               data-active={pathname === link.href}
               className="link-underline text-sm font-medium text-navy/80 transition hover:text-navy data-[active=true]:text-navy"
             >
@@ -116,7 +115,7 @@ export function SiteHeader({
 
         <button
           type="button"
-          className="rounded-full p-2 text-navy lg:hidden"
+          className="shrink-0 rounded-full p-3 text-navy lg:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}

@@ -31,6 +31,25 @@ const PIPELINE: Array<GenerationJob["jobType"]> = [
   "notify",
 ];
 
+const MAX_SUPPORT_RETRIES = 2;
+
+function withoutProviderRetrySuffix(idempotencyKey: string) {
+  return idempotencyKey.replace(/:provider-\d+$/, "");
+}
+
+function nextProviderRetryKey(idempotencyKey: string, attempt: number) {
+  return `${withoutProviderRetrySuffix(idempotencyKey)}:provider-${attempt}`.slice(0, 128);
+}
+
+function nextSupportRetryKey(idempotencyKey: string) {
+  const withoutProvider = withoutProviderRetrySuffix(idempotencyKey);
+  const existing = withoutProvider.match(/:support-(\d+)$/);
+  const retryNumber = Number(existing?.[1] ?? 0) + 1;
+  if (retryNumber > MAX_SUPPORT_RETRIES) return null;
+  const base = withoutProvider.replace(/:support-\d+$/, "");
+  return `${base}:support-${retryNumber}`.slice(0, 128);
+}
+
 function buildBrief(order: Order): CreativeBrief {
   const project = order.project as Project;
   const story = project?.story;
@@ -82,7 +101,7 @@ async function withRetry<T>(
     });
     return result;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+    const message = "Generation stage failed; inspect provider dashboard using the saved job ID";
     const failed = job.attempt >= job.maxAttempts;
     const backoffMs = Math.min(15 * 60_000, 2 ** job.attempt * 15_000);
     await updateJob(job.id, {
@@ -96,7 +115,7 @@ async function withRetry<T>(
         failedReason: `${job.jobType}: ${message}`,
       });
     }
-    logEvent(failed ? "error" : "warn", "generation_job_failed", {
+    logEvent(failed ? "error" : "warn", "generation_failed", {
       jobId: job.id,
       orderId: job.orderId,
       jobType: job.jobType,
@@ -110,10 +129,11 @@ async function withRetry<T>(
 }
 
 export async function startGenerationPipeline(orderId: string) {
+  const order = await getOrder(orderId);
+  if (order?.paymentStatus !== "paid") throw new Error("Payment required before generation");
   for (const jobType of PIPELINE) {
     await enqueueJob(orderId, jobType);
   }
-  await updateOrderStatus(orderId, "payment_confirmed");
   if (getEnv().USE_MOCK_PROVIDERS) return processQueuedJobs(orderId);
 
   try {
@@ -181,7 +201,8 @@ export async function processQueuedJobs(orderId?: string) {
   });
 
   const results = [];
-  orderGroups: for (const { group } of prioritizedGroups) {
+  orderGroups: for (const { group, order } of prioritizedGroups) {
+    if (order?.paymentStatus !== "paid") continue;
     group.sort((a, b) => PIPELINE.indexOf(a.jobType) - PIPELINE.indexOf(b.jobType));
     for (const job of group) {
       if (processed >= MAX_JOBS_PER_RUN || Date.now() - startedAt >= WORKER_BUDGET_MS) {
@@ -205,6 +226,11 @@ export async function processQueuedJobs(orderId?: string) {
         const age = Date.now() - new Date(job.updatedAt).getTime();
         // Another worker is likely on it; only reclaim if it looks stale.
         if (age < STALE_RUNNING_MS) break;
+        if (job.attempt >= job.maxAttempts) {
+          await updateJob(job.id, { status: "dead_letter", error: "Retry limit reached after interrupted worker" });
+          await updateOrderStatus(job.orderId, "failed", { failedReason: "Generation needs support reconciliation" });
+          break;
+        }
       }
       try {
         processed += 1;
@@ -228,10 +254,12 @@ export async function processQueuedJobs(orderId?: string) {
 }
 
 export async function processJob(jobId: string) {
+  const pending = await (await import("@/lib/db/repository")).getJob(jobId);
+  if (!pending || (await getOrder(pending.orderId))?.paymentStatus !== "paid") throw new Error("Payment required before generation");
   const job = await claimJob(jobId);
   if (!job) return { jobId, skipped: "not-claimed" as const };
 
-  logEvent("info", "generation_job_started", {
+  logEvent("info", "generation_started", {
     jobId: job.id,
     orderId: job.orderId,
     jobType: job.jobType,
@@ -248,6 +276,7 @@ export async function processJob(jobId: string) {
     throw new Error("Order not found");
   }
 
+  if (order.paymentStatus !== "paid") throw new Error("Payment authorization revoked");
   const packageIncludesVideo = order.package?.includesVideo;
   const packageIncludesLyricVideo = order.package?.includesLyricVideo;
 
@@ -276,7 +305,7 @@ export async function processJob(jobId: string) {
         const existing = await versions(order.id);
         await saveSongVersion({
           orderId: order.id,
-          versionNumber: existing.length + 1,
+          versionNumber: existing[0]?.versionNumber ?? 1,
           title: result.title,
           lyrics: result.lyrics,
           timedLyrics: result.timedLyrics,
@@ -302,13 +331,22 @@ export async function processJob(jobId: string) {
         if (!current) throw new Error("Lyrics version is missing before music generation");
         const provider = getMusicProvider();
         await updateJob(job.id, { progress: 25, provider: provider.name });
+        if (provider.name === "http-music" && job.attempt > 1) throw new Error("HTTP provider retry requires reconciliation; its idempotency contract is unverified");
+        if (!job.providerJobId && job.attempt > 1 && Date.now() - new Date(job.createdAt).getTime() > 23 * 3600_000) throw new Error("Provider submission requires support reconciliation");
         const result = await provider.generateMusic({
           brief,
           lyrics: current?.lyrics || "",
           title: current?.title || "Untitled",
           idempotencyKey: job.idempotencyKey,
+          providerJobId: job.providerJobId ?? undefined,
           onProviderJobId: async (providerJobId) => {
             await updateJob(job.id, { providerJobId });
+          },
+          onProviderTerminalFailure: async () => {
+            await updateJob(job.id, {
+              providerJobId: null,
+              idempotencyKey: nextProviderRetryKey(job.idempotencyKey, job.attempt),
+            });
           },
           onProgress: async (progress) => {
             await updateJob(job.id, { progress });
@@ -465,10 +503,10 @@ export async function processJob(jobId: string) {
         ) {
           throw new Error("Video quality check failed: asset missing");
         }
+        await updateOrderStatus(order.id, "ready");
         await updateJob(job.id, { progress: 90 });
         return true;
       });
-      await updateOrderStatus(order.id, "ready");
       return { jobType: job.jobType, ok: true };
     }
     case "notify": {
@@ -477,6 +515,7 @@ export async function processJob(jobId: string) {
         await updateJob(job.id, { progress: 40, provider: "resend-or-console" });
         await sendEmail({
           to: order.email,
+          orderId: order.id,
           template: "song-ready",
           idempotencyKey: `song-ready-owner-${order.id}`,
           data: {
@@ -493,6 +532,7 @@ export async function processJob(jobId: string) {
         ) {
           await sendEmail({
             to: recipient.email,
+            orderId: order.id,
             template: "recipient-gift-ready",
             idempotencyKey: `song-ready-recipient-${order.id}`,
             data: {
@@ -513,10 +553,11 @@ export async function processJob(jobId: string) {
             href: `/listen/${order.shareToken}`,
           });
         }
+        await updateOrderStatus(order.id, "completed");
         await updateJob(job.id, { progress: 90 });
         return true;
       });
-      await updateOrderStatus(order.id, "completed");
+      logEvent("info", "generation_completed", { orderId: order.id });
       return { jobType: job.jobType, notified: true };
     }
     default:
@@ -530,16 +571,25 @@ export async function processJob(jobId: string) {
 }
 
 export async function retryJob(jobId: string) {
+  const job = await (await import("@/lib/db/repository")).getJob(jobId);
+  if (!job || (job.status !== "failed" && job.status !== "dead_letter")) {
+    throw new Error("Retry unavailable; support reconciliation required");
+  }
+  if ((await getOrder(job.orderId))?.paymentStatus !== "paid") throw new Error("Payment required");
+  const idempotencyKey = nextSupportRetryKey(job.idempotencyKey);
+  if (!idempotencyKey) throw new Error("Retry unavailable; support reconciliation required");
   await updateJob(jobId, {
     status: "queued",
     error: null,
     progress: 0,
     attempt: 0,
+    idempotencyKey,
+    providerJobId: null,
     nextRetryAt: null,
     startedAt: null,
     finishedAt: null,
   });
-  return processJob(jobId);
+  return { queued: true as const };
 }
 
 function isExternalAssetUrl(value: string) {

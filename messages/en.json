@@ -61,7 +61,7 @@
     "howItWorks": "How It Works",
     "help": "Help Center",
     "contact": "Contact",
-    "feedback": "Beta feedback",
+    "feedback": "Share feedback",
     "reviews": "Reviews",
     "privacy": "Privacy policy",
     "terms": "Terms",
@@ -69,7 +69,7 @@
     "rights": "All rights reserved."
   },
   "feedback": {
-    "eyebrow": "Community beta",
+    "eyebrow": "Your feedback",
     "title": "Help us make the gift experience better",
     "body": "Try the creation and listening experience, then tell us exactly where you felt delighted, confused, or unsure. Every submission goes directly to the product team.",
     "prompts": ["Test on the device you normally use", "Mention the exact page or step", "Do not include passwords, payment details, or private story content"],
@@ -85,7 +85,7 @@
     "send": "Send feedback",
     "sending": "Sending…",
     "sent": "Thank you — your feedback reached the team.",
-    "privacy": "Used only to improve the beta and reply if clarification is needed."
+    "privacy": "Used to improve Memories to Melody and reply if clarification is needed."
   },
   "cookie": {
     "title": "Cookie preferences",
@@ -96,12 +96,12 @@
     "essential": "Essential only"
   },
   "hero": {
-    "trustBadge": "Personalized music made from your memories",
-    "headline": "Turn your memories into a song they'll keep forever.",
-    "supporting": "Share your story, choose your sound, and let our creative technology transform your favorite moments into a deeply personal song.",
+    "trustBadge": "Made from your memories",
+    "headline": "A song only you could give.",
+    "supporting": "Your stories, their personality, a sound they love. Create a personalized AI song for someone who matters.",
     "create": "Create Your Song",
     "listen": "Listen to Examples",
-    "assurance": "Typically ready within 48 hours · Satisfaction-minded revision support · Secure checkout",
+    "assurance": "No subscription. No account needed to begin.",
     "imageAlt": "A woman closing her eyes, moved while listening to her personalized song",
     "imageTitle": "A song for someone you love",
     "imageEyebrow": "Made from your memories",
@@ -225,7 +225,7 @@
     "eyebrow": "Pricing",
     "title": "Choose the keepsake that fits",
     "bodyVideo": "One-time payment, no subscription. Video packages are available at checkout.",
-    "bodyNoVideo": "One-time payment, no subscription. Video packages will return in the next release.",
+    "bodyNoVideo": "Everything you need to turn your memories into a song. Pay once, then listen, download, and share.",
     "popular": "Most popular",
     "choose": "Choose",
     "packages": {
@@ -252,24 +252,24 @@
     "viewAll": "See all questions",
     "items": {
       "faq-1": { "question": "How does Memories to Melody work?", "answer": "You tell us your story in a guided five-minute studio — who the song is for, the occasion, the memories that matter, and the sound you love. We turn that into custom lyrics and a fully produced song, then deliver it on a private listening page you can share whenever the moment is right." },
-      "faq-2": { "question": "How long until my song is ready?", "answer": "Most songs are ready within 48 hours, and many arrive the same day. Priority delivery on Premium packages moves you to the front of the queue. You can follow progress live from your dashboard, and we email you the moment your song is ready." },
+      "faq-2": { "question": "How long until my song is ready?", "answer": "Your order status shows progress after payment is confirmed. Allow up to 48 hours for delivery. We’ll email you when your song is ready; you can also check from the browser you ordered in or your account." },
       "faq-3": { "question": "What do I need to prepare before I start?", "answer": "Just a few memories. The studio asks simple questions — how you met, an inside joke, a moment you will never forget. Two or three honest details are enough; you do not need to write anything polished. The more specific the memory, the more personal the song feels." },
       "faq-4": { "question": "Can I choose the music style and voice?", "answer": "Yes. Pick from 16+ genres — pop, acoustic, R&B, country, gospel, Arabic, Latin and more — then set the mood and the vocal style: female, male, duet, or choir blend. Not sure? Our guided defaults produce a beautiful result every time." },
       "faq-5": { "question": "Can the song be in another language?", "answer": "Yes — songs can be written and sung in English, French, Spanish, or Arabic. Listen to the multilingual songs on the examples page to hear how natural they sound." },
-      "faq-6": { "question": "What if I want changes to my song?", "answer": "Every package includes revision credits. From your dashboard you can request changes to lyrics, the pronunciation of names, tempo, mood, or vocals, and we will produce a new version of your song. Most revisions are delivered within 24 hours." },
+      "faq-6": { "question": "What if I want changes to my song?", "answer": "If something needs attention, contact us from your order email. We’ll review the request with you. A generation failure does not require a second payment." },
       "faq-7": { "question": "Who owns the song — can I share it online?", "answer": "You receive a lifetime personal-use license: listen, download, gift it, play the song at your event, and share it with friends and family, including on your personal social media. Commercial use such as ads or monetized content requires a separate license — just contact us." },
       "faq-8": { "question": "How do I give the song as a gift?", "answer": "Every order includes a private listening page with cover artwork, synchronized lyrics, and an optional gift-reveal mode that builds anticipation before the song plays. Share the link by text or email — or play it in person and watch their reaction." },
       "faq-9": { "question": "Is my story kept private?", "answer": "Completely. Your answers and uploaded files are used only to create your song and live in private storage. Listening pages are private by default, and you control how they are shared." },
-      "faq-10": { "question": "What is included in each package?", "answer": "Essential includes personalized lyrics, a fully produced song, a private listening page, and an MP3 download. Higher packages add more formats, artwork, and revisions. All are one-time payments — no subscription." },
-      "faq-11": { "question": "Can I download the song and keep it forever?", "answer": "Yes. Every package includes an MP3 download, and your listening page does not expire. Higher packages may add studio-quality WAV files. The song is yours to keep, replay, and pass on." },
+      "faq-10": { "question": "What is included in each package?", "answer": "The $19.99 USD personalized song includes custom lyrics, one AI-generated song, a listening link, and an MP3 download. Applicable tax is calculated at checkout. It is a one-time payment, with no subscription." },
+      "faq-11": { "question": "Can I download the song and keep it forever?", "answer": "Yes. Download your MP3 from the listening page and save a copy for yourself. You can replay it and share your listening link with the people you choose." },
       "faq-12": { "question": "What if I am not happy with the result?", "answer": "We will make it right. Start with your included revision credits — most concerns are solved with a lyric or vocal change. If a verified quality issue cannot be resolved through revisions, our refund policy applies within 14 days of delivery." }
     }
   },
   "finalCta": {
     "title": "Ready to give them a song they'll keep forever?",
-    "body": "Most customers finish the studio in under five minutes. Secure checkout, private delivery, and revision support when you need it.",
+    "body": "Start with the memories that matter. Choose your sound, review your story, then pay securely.",
     "create": "Create Their Song",
-    "packages": "View packages",
+    "packages": "See what’s included",
     "assurance": "Satisfaction-minded guarantee · Encrypted payments via Stripe"
   },
   "trackOrder": {
@@ -277,7 +277,7 @@
     "body": "Enter the order number from your confirmation email and the email used at checkout.",
     "orderNumber": "Order number",
     "email": "Email",
-    "submit": "Track order", "submitting": "Checking…", "notFound": "We couldn't find an order matching that number and email.", "invalid": "Enter a valid order number and email."
+    "submit": "Track order", "submitting": "Checking…", "notFound": "We couldn’t verify this order in your current session. Try the original browser, sign in, or contact support from your order email.", "invalid": "Enter a valid order number and email."
   },
   "catalog": {
     "genres": { "pop": "Pop", "rnb": "R&B", "country": "Country", "acoustic": "Acoustic", "rock": "Rock", "hip-hop": "Hip-hop", "soul": "Soul", "jazz": "Jazz", "classical": "Classical", "gospel": "Gospel", "electronic": "Electronic", "indie": "Indie", "latin": "Latin", "afrobeats": "Afrobeats", "arabic": "Arabic", "custom": "Custom style" },
@@ -290,7 +290,7 @@
     "shell": {
       "title": "Memories to Melody Studio",
       "minutesLeft": "About {minutes} min left",
-      "autosaves": "Autosaves",
+      "autosaves": "Progress is saved when you select Continue.",
       "progress": "Studio progress",
       "steps": {
         "occasion": "Occasion",
@@ -305,7 +305,7 @@
     },
     "entry": {
       "title": "Memories to Melody Studio",
-      "body": "Create a personalized song in about five minutes. No account is required to begin—we save your progress as you go.",
+      "body": "Tell us who it’s for, share the memories that matter, and choose their sound. Review your story before paying securely.",
       "occasionBody": "Let's create a {occasion} song they'll never forget. We'll guide you step by step.",
       "begin": "Begin your song",
       "beginOccasion": "Begin their {occasion} song"
@@ -536,5 +536,43 @@
     "order": { "revisionsLeft": "Revisions left", "listen": "Open listening page", "revision": "Request revision", "privacyTitle": "Privacy & gift reveal", "private": "Private", "password": "Password protected", "unlisted": "Unlisted", "public": "Public", "gift": "Enable gift reveal mode", "sharePassword": "Share password (required for password-protected links)", "passwordHint": "Set or update share password", "save": "Save privacy settings", "saving": "Saving…", "jobs": "Generation jobs", "reviewTitle": "Your review", "reviewThanks": "Thank you! Your review is now live on our reviews page.", "sharedAs": "Shared as", "reviewPrompt": "How was your experience? Your review helps other gift-givers and appears on our reviews page.", "reviewWait": "You can leave a review once your song is ready.", "versions": "Versions", "current": "current", "rating": "Rating", "reviewName": "Name shown publicly", "reviewBody": "Your review", "publish": "Publish review", "publishing": "Publishing…" },
     "revision": { "title": "Revision request", "credits": "Credits remaining: {count}. Previous versions are kept.", "what": "What should we change?", "timestamps": "Timestamps (optional)", "notes": "Detailed notes", "submit": "Submit revision request", "submitting": "Submitting…", "history": "Revision history", "empty": "No revisions yet.", "categories": { "Lyrics": "Lyrics", "Pronunciation": "Pronunciation", "Genre": "Genre", "Vocal": "Vocal", "Tempo": "Tempo", "Mood": "Mood", "Instrumentation": "Instrumentation", "Video": "Video", "Other": "Other" } }
   },
-  "genrePage": { "title": "{genre} songs", "body": "Shape a personalized {genre} song around names, memories, and the feeling you want to leave behind.", "create": "Create in {genre}", "empty": "No {genre} examples are available yet." }
+  "genrePage": { "title": "{genre} songs", "body": "Shape a personalized {genre} song around names, memories, and the feeling you want to leave behind.", "create": "Create in {genre}", "empty": "No {genre} examples are available yet." },
+  "v1": {
+    "headline": "A song only you could give.",
+    "supporting": "Your stories, their personality, a sound they love. Create a personalized AI song for someone who matters.",
+    "badge": "Made from your memories",
+    "priceNote": "One song · $19.99 USD + applicable tax",
+    "assurance": "No subscription. No account needed to begin.",
+    "pricingTitle": "One meaningful gift. One simple price.",
+    "pricingBody": "Everything you need to turn your memories into a song. Pay once, then listen, download, and share.",
+    "oneTime": "One-time payment",
+    "taxNote": "Applicable tax is calculated at Stripe Checkout.",
+    "create": "Create my song",
+    "included": "Made for your moment",
+    "includedBody": "Personalized lyrics, your choice of sound, and a listening link to share when the time is right.",
+    "trust": [
+      "Personalized with AI",
+      "Secure Stripe checkout",
+      "MP3 download",
+      "Delivered by email"
+    ],
+    "steps": [
+      "Tell your story",
+      "Choose your sound",
+      "Review, then pay"
+    ],
+    "entryPrice": "Your personalized song: $19.99 USD + applicable tax.",
+    "saveNote": "Progress is saved when you select Continue.",
+    "checkoutLock": "Your story is saved and locked once checkout begins. Review the details before continuing.",
+    "trackHelp": "Use the same browser you ordered in, or sign in to your purchasing account. If you no longer have access, contact us from your order email.",
+    "signIn": "Sign in to view my orders",
+    "support": "Contact support",
+    "backHome": "Back to home",
+    "savedOrder": "Your saved order",
+    "legal": "A service by ZEVYNTA LABS LLC.",
+    "privacyNote": "Your story is used to create your song. Share only what you’re comfortable including.",
+    "exampleNote": "An example of the listening experience.",
+    "beforeTax": "Total before tax",
+    "stripeTax": "Calculated at checkout"
+  }
 }

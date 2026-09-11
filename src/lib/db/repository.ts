@@ -45,6 +45,7 @@ export const getSessionUser = db.getSessionUser;
 export const destroySession = db.destroySession;
 export const createOrder = db.createOrder;
 export const getOrder = db.getOrder;
+export const getProjectOrder = db.getProjectOrder;
 export const getOrderByNumber = db.getOrderByNumber;
 export const getOrderByShareToken = db.getOrderByShareToken;
 export const listUserOrders = db.listUserOrders;

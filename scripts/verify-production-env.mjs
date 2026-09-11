@@ -39,7 +39,7 @@ if (!["true", "false"].includes(process.env.VIDEO_FEATURE_ENABLED ?? "")) {
   "SUPABASE_SERVICE_ROLE_KEY",
   "STRIPE_SECRET_KEY",
   "STRIPE_WEBHOOK_SECRET",
-  "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+  "STRIPE_PRICE_ID",
   "RESEND_API_KEY",
   "EMAIL_FROM",
   "OPENAI_API_KEY",
@@ -119,14 +119,8 @@ const stripeSecretMode = process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_")
   : process.env.STRIPE_SECRET_KEY?.startsWith("sk_test_")
     ? "test"
     : null;
-const stripePublicMode = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.startsWith("pk_live_")
-  ? "live"
-  : process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.startsWith("pk_test_")
-    ? "test"
-    : null;
-if (!stripeSecretMode || stripeSecretMode !== stripePublicMode) {
-  missing.push("matching Stripe secret/publishable key modes");
-}
+if (stripeSecretMode !== "live") missing.push("Production requires a live Stripe secret key");
+if (!process.env.STRIPE_PRICE_ID?.startsWith("price_")) missing.push("STRIPE_PRICE_ID=price_...");
 if (!process.env.STRIPE_WEBHOOK_SECRET?.startsWith("whsec_")) {
   missing.push("STRIPE_WEBHOOK_SECRET=whsec_...");
 }

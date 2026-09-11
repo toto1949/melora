@@ -18,8 +18,10 @@ export function StudioShell({
 }) {
   const { messages } = useLocale();
   const copy = messages.studio.shell;
-  const progress = Math.round((currentStep / STUDIO_STEPS.length) * 100);
-  const minutesLeft = Math.max(1, Math.ceil(((STUDIO_STEPS.length - currentStep + 1) * 5) / STUDIO_STEPS.length));
+  const steps = STUDIO_STEPS.filter(step => step.key !== "media");
+  const displayStep = Math.max(1, steps.findIndex(step => step.step === currentStep) + 1);
+  const progress = Math.round((displayStep / steps.length) * 100);
+  const minutesLeft = Math.max(1, Math.ceil(((steps.length - displayStep + 1) * 5) / steps.length));
   return (
     <div className="min-h-screen bg-cream">
       <div className="sticky top-0 z-30 border-b border-border bg-surface/90 backdrop-blur">
@@ -28,7 +30,7 @@ export function StudioShell({
             {copy.title}
           </Link>
           <p className="hidden text-sm text-muted sm:block">{copy.minutesLeft.replace("{minutes}", String(minutesLeft))} · {copy.autosaves}</p>
-          <p className="text-sm font-semibold text-muted sm:hidden">{copy.progress}: {currentStep}/{STUDIO_STEPS.length}</p>
+          <p className="text-sm font-semibold text-muted sm:hidden">{copy.progress}: {displayStep}/{steps.length}</p>
         </div>
         <div className="mx-auto max-w-4xl px-4 pb-4">
           <div
@@ -46,9 +48,9 @@ export function StudioShell({
               transition={{ type: "spring", stiffness: 120, damping: 22 }}
             />
           </div>
-          <p className="mt-3 text-sm font-semibold text-navy sm:hidden">{copy.steps[STUDIO_STEPS[currentStep - 1]?.key]}</p>
+          <p className="mt-3 text-sm font-semibold text-navy sm:hidden">{copy.steps[steps[displayStep - 1]?.key]}</p>
           <ol className="mt-3 hidden gap-2 overflow-x-auto pb-1 text-xs sm:flex">
-            {STUDIO_STEPS.map((step) => {
+            {steps.map((step, index) => {
               const isDone = step.step < currentStep;
               const isCurrent = step.step === currentStep;
               const pill = cn(
@@ -68,7 +70,7 @@ export function StudioShell({
                     </Link>
                   ) : (
                     <span className={pill} aria-current={isCurrent ? "step" : undefined}>
-                      {isCurrent ? null : <span className="opacity-60">{step.step}.</span>}
+                      {isCurrent ? null : <span className="opacity-60">{index + 1}.</span>}
                       {copy.steps[step.key]}
                     </span>
                   )}

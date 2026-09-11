@@ -10,12 +10,8 @@ import { getEnv } from "@/lib/env";
 import { getMessages } from "@/lib/i18n";
 
 export async function generateMetadata({ params }: { params: Promise<{ token: string }> }) {
-  const { token } = await params;
-  const order = await getOrderByShareToken(token);
-  return {
-    title: order?.currentVersion?.title || "Private listening page",
-    robots: { index: false, follow: false },
-  };
+  void params;
+  return { title: "Private listening page", robots: { index: false, follow: false } };
 }
 
 export default async function ListenPage({
@@ -33,7 +29,7 @@ export default async function ListenPage({
 
   if (order.privacyMode === "private") {
     const user = await getCurrentUser();
-    if (!user || (order.userId && user.id !== order.userId && user.role === "customer")) {
+    if (!user || user.id !== order.userId) {
       return (
         <div className="flex min-h-screen items-center justify-center px-4">
           <div className="surface-card max-w-md p-8 text-center">
@@ -82,7 +78,14 @@ export default async function ListenPage({
         </div>
       </header>
       <ListenExperience
-        order={order}
+        order={{
+          id: order.id, shareToken: order.shareToken, status: order.status, progress: order.progress,
+          estimatedDeliveryAt: order.estimatedDeliveryAt, updatedAt: order.updatedAt,
+          giftRevealEnabled: order.giftRevealEnabled, giftRevealMessage: order.giftRevealMessage, privacyMode: order.privacyMode,
+          project: order.project ? { occasion: order.project.occasion,
+            recipient: order.project.recipient ? { name: order.project.recipient.name, fromName: order.project.recipient.fromName } : null,
+            preferences: order.project.preferences ? { genre: order.project.preferences.genre, mood: order.project.preferences.mood } : null } : undefined,
+        }}
         version={order.currentVersion || null}
         canManage={canManage}
         videoEnabled={getEnv().VIDEO_FEATURE_ENABLED}

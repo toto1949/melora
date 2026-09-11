@@ -89,12 +89,12 @@
     "essential": "Essentiels uniquement"
   },
   "hero": {
-    "trustBadge": "Une musique personnalisée créée à partir de vos souvenirs",
-    "headline": "Transformez vos souvenirs en une chanson qu'ils garderont pour toujours.",
-    "supporting": "Racontez votre histoire, choisissez votre univers musical et laissez notre technologie créative transformer vos moments préférés en une chanson profondément personnelle.",
+    "trustBadge": "Créée à partir de vos souvenirs",
+    "headline": "Une chanson que vous seul pouviez offrir.",
+    "supporting": "Vos souvenirs, sa personnalité, un style qui lui plaît. Créez une chanson personnalisée par IA pour quelqu’un qui compte.",
     "create": "Créer votre chanson",
     "listen": "Écouter des exemples",
-    "assurance": "Généralement prête sous 48 heures · Révisions pensées pour votre satisfaction · Paiement sécurisé",
+    "assurance": "Sans abonnement. Aucun compte nécessaire pour commencer.",
     "imageAlt": "Une femme émue ferme les yeux en écoutant sa chanson personnalisée",
     "imageTitle": "Une chanson pour quelqu'un que vous aimez",
     "imageEyebrow": "Créée à partir de vos souvenirs",
@@ -245,16 +245,16 @@
     "viewAll": "Voir toutes les questions",
     "items": {
       "faq-1": { "question": "Comment fonctionne Memories to Melody ?", "answer": "Racontez-nous votre histoire dans un studio guidé de cinq minutes : à qui s'adresse la chanson, l'occasion, les souvenirs importants et le son que vous aimez. Nous en faisons des paroles sur mesure et une chanson entièrement produite, puis nous la livrons sur une page d'écoute privée à partager au bon moment." },
-      "faq-2": { "question": "Quand ma chanson sera-t-elle prête ?", "answer": "La plupart des chansons sont prêtes sous 48 heures, et beaucoup arrivent le jour même. La livraison prioritaire de la formule Premium vous place en tête de file. Suivez l'avancement depuis votre tableau de bord et recevez un e-mail dès que votre chanson est prête." },
+      "faq-2": { "question": "Quand ma chanson sera-t-elle prête ?", "answer": "Le statut de votre commande affiche la progression après confirmation du paiement. Prévoyez jusqu’à 48 heures. Nous vous enverrons un e-mail lorsque votre chanson sera prête ; vous pouvez aussi suivre la commande depuis le navigateur utilisé ou votre compte." },
       "faq-3": { "question": "Que dois-je préparer avant de commencer ?", "answer": "Quelques souvenirs suffisent. Le studio pose des questions simples : votre rencontre, une plaisanterie entre vous, un moment inoubliable. Deux ou trois détails sincères suffisent et vous n'avez rien à rédiger parfaitement. Plus le souvenir est précis, plus la chanson sera personnelle." },
       "faq-4": { "question": "Puis-je choisir le style musical et la voix ?", "answer": "Oui. Choisissez parmi plus de 16 genres — pop, acoustique, R&B, country, gospel, arabe, latin et bien d'autres — puis réglez l'ambiance et le type de voix. Nos choix guidés donnent aussi un très beau résultat." },
       "faq-5": { "question": "La chanson peut-elle être dans une autre langue ?", "answer": "Oui, les chansons peuvent être écrites et chantées en anglais, français, espagnol ou arabe. Écoutez les chansons multilingues de la page d'exemples pour découvrir leur rendu naturel." },
-      "faq-6": { "question": "Et si je souhaite modifier ma chanson ?", "answer": "Chaque formule inclut des crédits de révision. Depuis votre tableau de bord, demandez des changements de paroles, de prononciation, de tempo, d'ambiance ou de voix et nous produirons une nouvelle version. La plupart des révisions sont livrées sous 24 heures." },
+      "faq-6": { "question": "Et si je souhaite modifier ma chanson ?", "answer": "Si quelque chose nécessite une correction, contactez-nous depuis l’e-mail de votre commande. Nous examinerons votre demande avec vous. Un échec de génération ne nécessite pas un nouveau paiement." },
       "faq-7": { "question": "À qui appartient la chanson et puis-je la partager en ligne ?", "answer": "Vous recevez une licence personnelle à vie : écoutez, téléchargez, offrez et partagez la chanson avec vos proches ou sur vos réseaux personnels. L'utilisation commerciale exige une licence séparée ; contactez-nous simplement." },
       "faq-8": { "question": "Comment offrir la chanson ?", "answer": "Chaque commande comprend une page d'écoute privée avec pochette, paroles synchronisées et mode de révélation facultatif. Partagez le lien par message ou e-mail, ou lancez la chanson en personne pour voir leur réaction." },
       "faq-9": { "question": "Mon histoire reste-t-elle privée ?", "answer": "Absolument. Vos réponses et fichiers servent uniquement à créer votre chanson et sont conservés dans un stockage privé. Les pages d'écoute sont privées par défaut et vous contrôlez leur partage." },
-      "faq-10": { "question": "Que comprend chaque formule ?", "answer": "La formule Essentielle comprend des paroles personnalisées, une chanson produite, une page d'écoute privée et un téléchargement MP3. Les formules supérieures ajoutent des formats, une pochette et des révisions. Chaque formule est un paiement unique, sans abonnement." },
-      "faq-11": { "question": "Puis-je télécharger la chanson et la garder pour toujours ?", "answer": "Oui. Chaque formule comprend un téléchargement MP3 et votre page d'écoute n'expire pas. Les formules supérieures peuvent ajouter des fichiers WAV de qualité studio. La chanson est à vous pour toujours." },
+      "faq-10": { "question": "Que comprend chaque formule ?", "answer": "Pour 19,99 USD, vous recevez des paroles personnalisées, une chanson générée par IA, un lien d’écoute et un téléchargement MP3. Les taxes applicables sont calculées au paiement. Paiement unique, sans abonnement." },
+      "faq-11": { "question": "Puis-je télécharger la chanson et la garder pour toujours ?", "answer": "Oui. Téléchargez votre MP3 depuis la page d’écoute et conservez-en une copie. Vous pouvez le réécouter et partager votre lien avec les personnes de votre choix." },
       "faq-12": { "question": "Que se passe-t-il si le résultat ne me plaît pas ?", "answer": "Nous ferons le nécessaire. Utilisez d'abord vos crédits de révision : la plupart des problèmes se règlent par une modification des paroles ou de la voix. Si un problème de qualité vérifié ne peut être résolu, notre politique de remboursement s'applique dans les 14 jours suivant la livraison." }
     }
   },
@@ -283,7 +283,7 @@
     "shell": {
       "title": "Studio Memories to Melody",
       "minutesLeft": "Environ {minutes} min restantes",
-      "autosaves": "Enregistrement automatique",
+      "autosaves": "Votre progression est enregistrée en sélectionnant Continuer.",
       "progress": "Progression du studio",
       "steps": {
         "occasion": "Occasion", "recipient": "Destinataire", "story": "Histoire", "style": "Style musical",
@@ -448,5 +448,43 @@
     "order": { "revisionsLeft": "Révisions restantes", "listen": "Ouvrir la page d'écoute", "revision": "Demander une révision", "privacyTitle": "Confidentialité et révélation", "private": "Privé", "password": "Protégé par mot de passe", "unlisted": "Non répertorié", "public": "Public", "gift": "Activer le mode révélation", "sharePassword": "Mot de passe de partage (requis pour les liens protégés)", "passwordHint": "Définir ou modifier le mot de passe", "save": "Enregistrer la confidentialité", "saving": "Enregistrement…", "jobs": "Tâches de génération", "reviewTitle": "Votre avis", "reviewThanks": "Merci ! Votre avis est maintenant publié.", "sharedAs": "Partagé sous le nom", "reviewPrompt": "Comment s'est passée votre expérience ? Votre avis aide d'autres personnes.", "reviewWait": "Vous pourrez laisser un avis quand votre chanson sera prête.", "versions": "Versions", "current": "actuelle", "rating": "Note", "reviewName": "Nom affiché publiquement", "reviewBody": "Votre avis", "publish": "Publier l'avis", "publishing": "Publication…" },
     "revision": { "title": "Demande de révision", "credits": "Crédits restants : {count}. Les versions précédentes sont conservées.", "what": "Que devons-nous modifier ?", "timestamps": "Repères temporels (facultatif)", "notes": "Notes détaillées", "submit": "Envoyer la demande", "submitting": "Envoi…", "history": "Historique des révisions", "empty": "Aucune révision.", "categories": { "Lyrics": "Paroles", "Pronunciation": "Prononciation", "Genre": "Genre", "Vocal": "Voix", "Tempo": "Tempo", "Mood": "Ambiance", "Instrumentation": "Instrumentation", "Video": "Vidéo", "Other": "Autre" } }
   },
-  "genrePage": { "title": "Chansons {genre}", "body": "Créez une chanson {genre} personnalisée autour des prénoms, des souvenirs et de l'émotion que vous souhaitez transmettre.", "create": "Créer en {genre}", "empty": "Aucun exemple {genre} n'est encore disponible." }
+  "genrePage": { "title": "Chansons {genre}", "body": "Créez une chanson {genre} personnalisée autour des prénoms, des souvenirs et de l'émotion que vous souhaitez transmettre.", "create": "Créer en {genre}", "empty": "Aucun exemple {genre} n'est encore disponible." },
+  "v1": {
+    "headline": "Une chanson que vous seul pouviez offrir.",
+    "supporting": "Vos souvenirs, sa personnalité, un style qui lui plaît. Créez une chanson personnalisée par IA pour quelqu’un qui compte.",
+    "badge": "Créée à partir de vos souvenirs",
+    "priceNote": "Une chanson · 19,99 $ US + taxes applicables",
+    "assurance": "Sans abonnement. Aucun compte nécessaire pour commencer.",
+    "pricingTitle": "Un cadeau unique. Un prix simple.",
+    "pricingBody": "Tout pour transformer vos souvenirs en chanson. Payez une fois, puis écoutez, téléchargez et partagez.",
+    "oneTime": "Paiement unique",
+    "taxNote": "Les taxes applicables sont calculées par Stripe au paiement.",
+    "create": "Créer ma chanson",
+    "included": "Pour votre moment à vous",
+    "includedBody": "Des paroles personnalisées, votre style musical et un lien d’écoute à partager au bon moment.",
+    "trust": [
+      "Personnalisée avec l’IA",
+      "Paiement Stripe sécurisé",
+      "Téléchargement MP3",
+      "Livraison par e-mail"
+    ],
+    "steps": [
+      "Racontez votre histoire",
+      "Choisissez votre style",
+      "Vérifiez, puis payez"
+    ],
+    "entryPrice": "Votre chanson personnalisée : 19,99 $ US + taxes applicables.",
+    "saveNote": "Votre progression est enregistrée en sélectionnant Continuer.",
+    "checkoutLock": "Votre histoire est enregistrée et verrouillée au début du paiement. Vérifiez les détails avant de continuer.",
+    "trackHelp": "Utilisez le navigateur de votre commande ou connectez-vous au compte utilisé. Sinon, contactez-nous depuis l’adresse e-mail de votre commande.",
+    "signIn": "Me connecter pour voir mes commandes",
+    "support": "Contacter l’assistance",
+    "backHome": "Retour à l’accueil",
+    "savedOrder": "Votre commande enregistrée",
+    "legal": "Un service de ZEVYNTA LABS LLC.",
+    "privacyNote": "Votre histoire sert à créer votre chanson. Partagez uniquement ce que vous souhaitez y inclure.",
+    "exampleNote": "Un aperçu de l’expérience d’écoute.",
+    "beforeTax": "Total hors taxes",
+    "stripeTax": "Calculées au paiement"
+  }
 }

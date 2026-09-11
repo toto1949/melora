@@ -53,7 +53,7 @@ export function SiteFooter({ locale, messages }: { locale: Locale; messages: Mes
         </div>
       </div>
       <div className="border-t border-white/10 px-4 py-5 text-center text-xs text-cream/50 md:px-6">
-        © {new Date().getFullYear()} {BRAND.name}. {footer.rights}
+        © {new Date().getFullYear()} {BRAND.name}. {footer.rights} {messages.v1.legal}
       </div>
     </footer>
   );

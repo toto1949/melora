@@ -1,0 +1,12 @@
+import { beforeEach, expect, it, vi } from "vitest";
+const m = vi.hoisted(() => ({ order: vi.fn(), user: vi.fn(), guest: vi.fn(), jobs: vi.fn() }));
+vi.mock("@/lib/db/repository", () => ({ getOrder: m.order, listOrderJobs: m.jobs }));
+vi.mock("@/lib/auth/session", () => ({ getCurrentUser: m.user, getGuestToken: m.guest }));
+import { GET } from "@/app/api/orders/[orderId]/route";
+const oid = "11111111-1111-4111-8111-111111111111";
+const request = () => GET(new Request("http://localhost/api/orders/"+oid), { params: Promise.resolve({ orderId: oid }) });
+beforeEach(() => { vi.clearAllMocks(); m.order.mockResolvedValue({ id: oid, userId: "owner", paymentStatus: "paid", status: "completed", shareToken: "secret-song-link", projectId: "project", email: "private@example.test", creativeBrief: { story: "PRIVATE STORY" } }); m.user.mockResolvedValue({ id: "owner" }); m.guest.mockResolvedValue(null); m.jobs.mockResolvedValue([]); });
+it("returns authoritative status without customer or Stripe details", async () => { const response = await request(); const data=await response.json(); expect(response.status).toBe(200); expect(data.listenUrl).toBe("/listen/secret-song-link"); expect(data.email).toBeUndefined(); expect(data.creativeBrief).toBeUndefined(); expect(response.headers.get("cache-control")).toContain("no-store"); });
+it("rejects access to another customer's order", async () => { m.user.mockResolvedValue({ id: "attacker" }); expect((await request()).status).toBe(404); });
+it("rejects unauthenticated UUID access", async () => { m.user.mockResolvedValue(null); expect((await request()).status).toBe(404); });
+it("never returns an audio link for an unpaid order", async () => { m.order.mockResolvedValue({ id: oid, userId: "owner", paymentStatus: "pending", status: "awaiting_payment", shareToken: "secret" }); expect((await (await request()).json()).listenUrl).toBeNull(); });

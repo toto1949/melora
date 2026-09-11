@@ -1,5 +1,7 @@
 "use client";
 
+import { localizeReleaseFaqs } from "@/lib/release";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
@@ -18,40 +20,26 @@ import {
 } from "lucide-react";
 import { Accordion } from "@/components/ui/accordion";
 import { AudioPlayer } from "@/components/player/audio-player";
-import { CountUp, Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
+import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { OCCASIONS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { Modal } from "@/components/ui/modal";
-import type { FaqItem, Package, ReactionVideo, Review, SampleSong, SiteSettings } from "@/types";
+import type { FaqItem, Package, ReactionVideo, Review, SampleSong } from "@/types";
 
-export function TrustBar({ settings }: { settings: SiteSettings }) {
+export function TrustBar() {
   const { messages } = useLocale();
-  const copy = messages.trust;
-  const stats: Array<{ label: string; value: number; format: (n: number) => string }> = [
-    { label: copy.delivery, value: 48, format: (n: number) => `${Math.round(n)}h` },
-    {
-      label: copy.genres,
-      value: settings.genresSupported || 16,
-      format: (n: number) => `${Math.round(n)}+`,
-    },
-    { label: copy.languages, value: 4, format: (n: number) => `${Math.round(n)}` },
-    { label: copy.private, value: 100, format: (n: number) => `${Math.round(n)}%` },
-  ];
-  return (
-    <section className="border-y border-border bg-surface">
-      <RevealGroup className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4 md:px-6" stagger={0.1}>
-        {stats.map((stat) => (
-          <RevealItem key={stat.label} className="text-center" y={16}>
-            <p className="font-display text-3xl text-navy md:text-4xl">
-              <CountUp value={stat.value} format={stat.format} />
-            </p>
-            <p className="mt-1 text-sm text-muted">{stat.label}</p>
-          </RevealItem>
-        ))}
-      </RevealGroup>
-    </section>
-  );
+  const icons = [Music2, LockKeyhole, Download, Share2];
+  return <section className="border-y border-border bg-surface">
+    <div className="mx-auto grid max-w-6xl grid-cols-2 gap-5 px-4 py-6 md:grid-cols-4 md:px-6">
+      {messages.v1.trust.map((label, index) => {
+        const Icon = icons[index];
+        return <p key={label} className="flex items-center justify-center gap-2 text-center text-xs font-medium text-navy sm:text-sm">
+          <Icon className="h-4 w-4 shrink-0 text-gold" aria-hidden="true" />{label}
+        </p>;
+      })}
+    </div>
+  </section>;
 }
 
 export function ReactionGallery({ reactions }: { reactions: ReactionVideo[] }) {
@@ -336,9 +324,7 @@ export function ProductShowcase({ videoEnabled }: { videoEnabled: boolean }) {
     { icon: Download, ...copy.items.download },
     { icon: Share2, ...copy.items.share },
     { icon: ImageIcon, ...copy.items.cover },
-    videoEnabled
-      ? { icon: Sparkles, ...copy.items.video }
-      : { icon: Sparkles, ...copy.items.videoLater },
+    ...(videoEnabled ? [{ icon: Sparkles, ...copy.items.video }] : []),
     { icon: Star, ...copy.items.revisions },
   ];
   return (
@@ -401,6 +387,7 @@ export function ProductShowcase({ videoEnabled }: { videoEnabled: boolean }) {
                   {copy.privateBadge}
                 </span>
               </div>
+              <p className="mt-3 text-xs text-cream/70">{messages.v1.exampleNote}</p>
               <div className="mt-5 flex items-end justify-between gap-4">
                 <div>
                   <p className="font-display text-3xl sm:text-4xl">{copy.forAvery}</p>
@@ -525,77 +512,45 @@ export function Testimonials({ reviews, showEmptyState = false }: { reviews: Rev
   );
 }
 
-export function PricingSection({ packages, videoEnabled }: { packages: Package[]; videoEnabled: boolean }) {
+export function PricingSection({ packages }: { packages: Package[]; videoEnabled: boolean }) {
   const { locale, messages } = useLocale();
-  const copy = messages.pricing;
-  return (
-    <section id="pricing" className="section-pad">
-      <div className="mx-auto max-w-6xl">
-        <Reveal className="mb-8 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-rose">{copy.eyebrow}</p>
-          <h2 className="mt-2 font-display text-3xl text-navy md:text-5xl">
-            {copy.title}
-          </h2>
-          <p className="mt-3 prose-muted">
-            {videoEnabled
-              ? copy.bodyVideo
-              : copy.bodyNoVideo}
-          </p>
-        </Reveal>
-        <RevealGroup className="grid gap-5 lg:grid-cols-3" stagger={0.12}>
-          {packages.map((pkg, index) => {
-            const localized = copy.packages[pkg.slug as keyof typeof copy.packages];
-            const name = localized?.name ?? pkg.name;
-            const description = localized?.description ?? pkg.description;
-            const features = localized?.features ?? pkg.features;
-            return (
-            <RevealItem key={pkg.id} className="h-full">
-              <article
-                className={`surface-card card-hover relative flex h-full flex-col p-6 ${
-                  index === 1 ? "ring-2 ring-gold" : ""
-                }`}
-              >
-                {index === 1 ? (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold-fill px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-navy shadow-md">
-                    {copy.popular}
-                  </span>
-                ) : null}
-                <p className="text-sm font-semibold uppercase tracking-wider text-gold">{name}</p>
-                <p className="mt-3 font-display text-4xl text-navy">
-                  {formatCurrency(pkg.priceCents, pkg.currency, locale)}
-                </p>
-                <p className="mt-2 text-sm prose-muted">{description}</p>
-                <ul className="mt-6 flex-1 space-y-2 text-sm text-navy/85">
-                  {features.map((feature) => (
-                    <li key={feature} className="flex gap-2">
-                      <span className="text-gold">✓</span>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link href={`/studio?package=${pkg.slug}`} className="btn-primary mt-8">
-                  {copy.choose} {name}
-                </Link>
-              </article>
-            </RevealItem>
-          );})}
-        </RevealGroup>
+  const copy = messages.v1;
+  const pkg = packages[0];
+  if (!pkg) return null;
+  const product = messages.pricing.packages["essential-song"];
+  return <section id="pricing" className="section-pad">
+    <div className="mx-auto max-w-5xl">
+      <Reveal className="mx-auto mb-9 max-w-2xl text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-rose">{messages.pricing.eyebrow}</p>
+        <h2 className="mt-3 font-display text-3xl text-navy sm:text-4xl md:text-5xl">{copy.pricingTitle}</h2>
+        <p className="mt-4 prose-muted">{copy.pricingBody}</p>
+      </Reveal>
+      <div className="overflow-hidden rounded-[2rem] border border-border bg-surface shadow-[var(--shadow-soft)] md:grid md:grid-cols-[1.1fr_1fr]">
+        <div className="p-6 sm:p-9">
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-soft/40 text-gold"><Music2 aria-hidden="true" /></span>
+          <h3 className="mt-5 font-display text-2xl text-navy">{copy.included}</h3>
+          <p className="mt-3 max-w-md text-sm prose-muted">{copy.includedBody}</p>
+          <ul className="mt-6 space-y-3 text-sm text-navy">
+            {product.features.map(feature => <li key={feature} className="flex items-center gap-3"><Check aria-hidden="true" className="h-4 w-4 shrink-0 text-gold" />{feature}</li>)}
+          </ul>
+        </div>
+        <div className="flex flex-col justify-center bg-navy p-6 text-cream sm:p-9">
+          <p className="text-sm font-medium text-gold-soft">{product.name}</p>
+          <p className="mt-3 font-display text-6xl tracking-tight">{formatCurrency(pkg.priceCents, pkg.currency, locale)}</p>
+          <p className="mt-2 text-sm text-cream/70">{copy.oneTime} · USD</p>
+          <p className="mt-5 text-sm leading-relaxed text-cream/70">{copy.taxNote}</p>
+          <Link href={`/studio?package=${pkg.slug}`} className="btn-primary mt-7 w-full">{copy.create}<ArrowRight aria-hidden="true" className="directional-icon h-4 w-4" /></Link>
+          <p className="mt-4 text-center text-xs text-cream/70">{copy.assurance}</p>
+        </div>
       </div>
-    </section>
-  );
+    </div>
+  </section>;
 }
 
 export function FaqSection({ faqs, viewAllHref }: { faqs: FaqItem[]; viewAllHref?: string }) {
   const { messages } = useLocale();
   const copy = messages.faq;
-  const items = faqs.map((faq) => {
-    const localized = copy.items[faq.id as keyof typeof copy.items];
-    return {
-      id: faq.id,
-      question: localized?.question ?? faq.question,
-      answer: localized?.answer ?? faq.answer,
-    };
-  });
+  const items = localizeReleaseFaqs(faqs, messages);
   return (
     <section id="faq" className="section-pad bg-surface">
       <div className="mx-auto max-w-3xl">

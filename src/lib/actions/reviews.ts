@@ -11,7 +11,7 @@ const REVIEWABLE_STATUSES = new Set(["ready", "completed"]);
 export async function submitReviewAction(orderId: string, formData: FormData) {
   const user = await getCurrentUser();
   const order = await getOrder(orderId);
-  if (!order || !user || (order.userId && order.userId !== user.id && user.role === "customer")) {
+  if (!order || !user || (order.userId !== user.id && user.role === "customer")) {
     redirect("/dashboard/orders");
   }
 

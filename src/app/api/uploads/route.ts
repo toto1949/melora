@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser, getGuestToken } from "@/lib/auth/session";
+import { ownsProject } from "@/lib/security/ownership";
 import { getProject } from "@/lib/db/repository";
 import { logEvent } from "@/lib/observability/logger";
 import { processMediaUpload } from "@/lib/uploads/process-upload";
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
   const guestToken = await getGuestToken();
   const user = await getCurrentUser();
   const project = await getProject(projectId, guestToken);
-  if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  if (!project || !ownsProject(project, user, guestToken) || project.status !== "draft") return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
   let media;
   try {

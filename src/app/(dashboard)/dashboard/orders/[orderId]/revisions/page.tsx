@@ -10,7 +10,7 @@ export default async function RevisionsPage({ params }: { params: Promise<{ orde
   const { orderId } = await params;
   const user = await getCurrentUser();
   const order = await getOrder(orderId);
-  if (!order || !user || (order.userId && order.userId !== user.id && user.role === "customer")) notFound();
+  if (!order || !user || (order.userId !== user.id && user.role === "customer")) notFound();
   const [revisions, messages] = await Promise.all([listRevisions(orderId), getMessages()]);
   const copy = messages.dashboard.revision;
   return (

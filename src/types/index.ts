@@ -207,6 +207,11 @@ export interface Project {
 }
 
 export interface Order {
+  paymentStatus?: "pending" | "paid" | "failed" | "refunded" | "partially_refunded" | "disputed";
+  stripePaymentIntentId?: string | null;
+  stripePriceId?: string | null;
+  checkoutAttempt?: number;
+  checkoutExpiresAt?: string;
   id: string;
   orderNumber: string;
   userId: string | null;

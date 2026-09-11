@@ -8,7 +8,7 @@ on conflict (key) do update set value = excluded.value;
 
 insert into public.packages (id, slug, name, description, price_cents, features, revision_credits, includes_video, includes_wav, includes_lyric_video, song_variations, delivery_hours, sort_order)
 values
-  ('11111111-1111-1111-1111-111111111111', 'essential-song', 'Essential Song', 'Personalized lyrics, song, listening page, MP3.', 3900, '["Personalized lyrics","One generated song","Private listening page","MP3 download","Standard delivery"]', 1, false, false, false, 1, 48, 1),
+  ('11111111-1111-1111-1111-111111111111', 'essential-song', 'Essential Song', 'Personalized lyrics, song, listening page, MP3.', 1999, '["Personalized lyrics","One generated song","Private listening page","MP3 download","Standard delivery"]', 1, false, false, false, 1, 48, 1),
   ('22222222-2222-2222-2222-222222222222', 'premium-story', 'Premium Story', 'Custom artwork, priority delivery, and extra revision support.', 7900, '["Everything in Essential","Custom cover artwork","Priority 24-hour delivery","Three guided revision credits","Recipient gift email delivery"]', 3, false, false, false, 1, 24, 2),
   ('33333333-3333-3333-3333-333333333333', 'cinematic-memory', 'Cinematic Memory', 'Full keepsake with photo music video.', 14900, '["Everything in Premium","Photo-based music video","Multiple visual styles","Full HD download","Extended song duration","Priority processing"]', 5, true, true, true, 3, 18, 3)
 on conflict (slug) do nothing;
@@ -33,7 +33,7 @@ on conflict (code) do nothing;
 
 insert into public.faq_items (question, answer, category, sort_order) values
   ('How are Memories to Melody songs generated?', 'You share your story and preferences. We build a creative brief, draft lyrics, then generate audio through configured providers.', 'product', 1),
-  ('How long does delivery take?', 'Essential songs typically arrive within 48 hours. Priority packages are faster.', 'delivery', 2),
+  ('How long does delivery take?', 'Most songs are ready within 48 hours. We will email you as soon as yours is complete.', 'delivery', 2),
   ('Who owns the music?', 'You receive a personal-use license. Commercial use requires a separate license.', 'licensing', 3);
 
 insert into public.reviews (customer_name, occasion, rating, body, is_verified_purchase, is_demo, is_published, reviewed_at)

@@ -4,6 +4,9 @@ import { redirect } from "next/navigation";
 import { getOrderByNumber } from "@/lib/db/repository";
 import { trackOrderSchema } from "@/lib/validation/studio";
 import { createRevision, getOrder } from "@/lib/db/repository";
+import { getGuestToken } from "@/lib/auth/session";
+import { ownsOrder } from "@/lib/security/ownership";
+import { rateLimit } from "@/lib/security/rate-limit";
 import { getCurrentUser } from "@/lib/auth/session";
 import { revisionSchema } from "@/lib/validation/studio";
 import { sendEmail } from "@/lib/email/send";
@@ -16,8 +19,9 @@ export async function trackOrderAction(formData: FormData) {
   });
   if (!result.success) redirect("/track-order?error=invalid");
   const parsed = result.data;
+  if (!(await rateLimit(`track:${parsed.orderNumber}`, 5, 60_000)).success) redirect("/track-order?error=not_found");
   const order = await getOrderByNumber(parsed.orderNumber, parsed.email);
-  if (!order) {
+  if (!order || !ownsOrder(order, await getCurrentUser(), await getGuestToken())) {
     redirect("/track-order?error=not_found");
   }
   redirect(`/listen/${order.shareToken}`);
@@ -27,7 +31,7 @@ export async function requestRevisionAction(orderId: string, formData: FormData)
   const user = await getCurrentUser();
   const order = await getOrder(orderId);
   if (!order) throw new Error("Order not found");
-  if (user && order.userId && user.id !== order.userId && user.role === "customer") {
+  if (!ownsOrder(order, user, await getGuestToken()) || order.paymentStatus !== "paid") {
     throw new Error("Forbidden");
   }
 
