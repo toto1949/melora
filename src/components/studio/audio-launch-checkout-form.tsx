@@ -5,7 +5,7 @@ import Link from "next/link";
 import { checkoutAction, type CheckoutState } from "@/lib/actions/studio";
 import { formatCurrency } from "@/lib/utils";
 import { useLocale } from "@/components/i18n/locale-provider";
-import { trackMetaEvent } from "@/components/analytics/meta-pixel";
+import { trackCheckoutInitiated } from "@/lib/analytics/client";
 
 interface AudioLaunchCheckoutFormProps {
   projectId: string;
@@ -41,13 +41,11 @@ export function AudioLaunchCheckoutForm({
   const [createAccount, setCreateAccount] = useState(false);
 
   const trackCheckoutStart = () => {
-    trackMetaEvent("InitiateCheckout", {
+    trackCheckoutInitiated({
+      projectId,
       value: pkg.priceCents / 100,
       currency: pkg.currency.toUpperCase(),
-      content_name: pkg.name,
-      content_type: "product",
-      content_ids: ["personalized-audio-song"],
-      num_items: 1,
+      itemName: pkg.name,
     });
   };
 

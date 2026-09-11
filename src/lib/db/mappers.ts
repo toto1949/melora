@@ -72,6 +72,11 @@ export function mapProject(row: Record<string, unknown>): Project {
     claimedAt: (row.claimed_at as string) ?? null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+    analyticsVisitorId: (row.analytics_visitor_id as string) ?? null,
+    analyticsSessionId: (row.analytics_session_id as string) ?? null,
+    firstTouch: (row.first_touch as Project["firstTouch"]) ?? null,
+    lastTouch: (row.last_touch as Project["lastTouch"]) ?? null,
+    analyticsInternal: Boolean(row.analytics_internal),
   };
 }
 
@@ -164,6 +169,12 @@ export function mapOrder(row: Record<string, unknown>): Order {
     completedAt: (row.completed_at as string) ?? null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+    analyticsVisitorId: (row.analytics_visitor_id as string) ?? null,
+    analyticsSessionId: (row.analytics_session_id as string) ?? null,
+    firstTouch: (row.first_touch as Order["firstTouch"]) ?? null,
+    lastTouch: (row.last_touch as Order["lastTouch"]) ?? null,
+    analyticsInternal: Boolean(row.analytics_internal),
+    paidAt: (row.paid_at as string) ?? null,
   };
 }
 

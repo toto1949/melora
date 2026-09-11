@@ -4,7 +4,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth/session";
-import { createTicket, trackEvent } from "@/lib/db/repository";
+import { createTicket } from "@/lib/db/repository";
+import { safeTrackEvent } from "@/lib/analytics/server";
 import { rateLimit } from "@/lib/security/rate-limit";
 
 const feedbackSchema = z.object({
@@ -46,6 +47,6 @@ export async function submitBetaFeedbackAction(formData: FormData) {
     subject: `[Beta feedback] ${topic} · ${rating}/5`,
     body: `Tester: ${name}\nArea: ${topic}\nRating: ${rating}/5\n\n${body}`,
   });
-  await trackEvent("beta_feedback_submitted", { topic, rating }, { userId: user?.id });
+  await safeTrackEvent("beta_feedback_submitted", { topic, rating }, { userId: user?.id });
   redirect("/feedback?sent=1");
 }

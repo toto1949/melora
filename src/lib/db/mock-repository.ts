@@ -1,5 +1,7 @@
 import { nanoid } from "nanoid";
 import type {
+  AnalyticsContext,
+  AnalyticsDashboard,
   AnalyticsEvent,
   GenerationJob,
   JobType,
@@ -21,6 +23,7 @@ import type {
 import { orderNumber } from "@/lib/utils";
 import { calculateOrderProgress } from "@/lib/generation-progress";
 import { SONG_PRICE_CENTS } from "@/lib/pricing";
+import { analyticsSince, buildAnalyticsDashboard, type AnalyticsRange } from "@/lib/analytics/dashboard";
 import { getStore, id, mutateStore, nowIso, saveStore } from "./store";
 
 function attachProject(store: Awaited<ReturnType<typeof getStore>>, project: Project): Project {
@@ -213,7 +216,7 @@ export async function findCoupon(code: string) {
   return coupon;
 }
 
-export async function createGuestProject(locale = "en") {
+export async function createGuestProject(locale = "en", analytics: AnalyticsContext = {}) {
   return mutateStore((store) => {
     const project: Project = {
       id: id(),
@@ -229,6 +232,11 @@ export async function createGuestProject(locale = "en") {
       claimedAt: null,
       createdAt: nowIso(),
       updatedAt: nowIso(),
+      analyticsVisitorId: analytics.visitorId ?? null,
+      analyticsSessionId: analytics.sessionId ?? null,
+      firstTouch: analytics.firstTouch ?? null,
+      lastTouch: analytics.lastTouch ?? null,
+      analyticsInternal: analytics.isInternal ?? false,
     };
     store.projects.push(project);
     return attachProject(store, project);
@@ -470,6 +478,7 @@ export async function createOrder(input: {
     const total = subtotal - discount + tax;
     const isRush = addOns.some((addOn) => addOn.slug === "rush-delivery");
     const deliveryHours = isRush ? Math.max(6, Math.floor(pkg.deliveryHours / 2)) : pkg.deliveryHours;
+    const project = store.projects.find((item) => item.id === input.projectId);
 
     const order: Order = {
       id: id(),
@@ -501,11 +510,16 @@ export async function createOrder(input: {
       updatedAt: nowIso(),
       idempotencyKey: input.idempotencyKey,
       failedReason: null,
+      analyticsVisitorId: project?.analyticsVisitorId ?? null,
+      analyticsSessionId: project?.analyticsSessionId ?? null,
+      firstTouch: project?.firstTouch ?? null,
+      lastTouch: project?.lastTouch ?? null,
+      analyticsInternal: project?.analyticsInternal === true || /@example\.test$|\+test@/i.test(input.email),
+      paidAt: null,
     };
 
     store.orders.push(order);
 
-    const project = store.projects.find((p) => p.id === input.projectId);
     if (project) {
       project.status = "awaiting_payment";
       project.packageId = input.packageId;
@@ -563,6 +577,7 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus, pa
     if (!order) return null;
     order.status = status;
     Object.assign(order, patch, { updatedAt: nowIso() });
+    if (patch.paymentStatus === "paid" && !order.paidAt) order.paidAt = nowIso();
     if (status === "ready") order.readyAt = nowIso();
     if (status === "completed") order.completedAt = nowIso();
     return attachOrder(store, order);
@@ -783,9 +798,12 @@ export async function listTickets() {
 export async function trackEvent(
   eventName: string,
   properties: Record<string, unknown> = {},
-  ids: Partial<Pick<AnalyticsEvent, "sessionId" | "userId" | "projectId" | "orderId">> = {},
+  ids: Partial<Pick<AnalyticsEvent, "sessionId" | "userId" | "projectId" | "orderId">> & AnalyticsContext = {},
 ) {
+  if (ids.isInternal) return null;
   return mutateStore((store) => {
+    if (ids.dedupeKey && store.events.some((event) => event.dedupeKey === ids.dedupeKey)) return null;
+    const touch = ids.lastTouch || ids.firstTouch;
     const event: AnalyticsEvent = {
       id: id(),
       eventName,
@@ -793,6 +811,14 @@ export async function trackEvent(
       userId: ids.userId ?? null,
       projectId: ids.projectId ?? null,
       orderId: ids.orderId ?? null,
+      visitorId: ids.visitorId ?? null,
+      pagePath: ids.pagePath ?? null,
+      source: touch?.source ?? "direct",
+      medium: touch?.utm_medium ?? null,
+      campaign: touch?.utm_campaign ?? null,
+      content: touch?.utm_content ?? null,
+      isInternal: false,
+      dedupeKey: ids.dedupeKey ?? null,
       properties,
       createdAt: nowIso(),
     };
@@ -801,47 +827,25 @@ export async function trackEvent(
   });
 }
 
-export async function getAnalyticsSummary() {
+export async function getAnalyticsSummary(range: AnalyticsRange = "30d"): Promise<AnalyticsDashboard> {
   const store = await getStore();
-  const revenue = store.orders
-    .filter((o) => !["awaiting_payment", "draft", "refunded", "failed"].includes(o.status))
-    .reduce((sum, o) => sum + o.totalCents, 0);
-
-  const counts = store.events.reduce<Record<string, number>>((acc, e) => {
-    acc[e.eventName] = (acc[e.eventName] ?? 0) + 1;
-    return acc;
-  }, {});
-
-  return {
-    revenueCents: revenue,
-    orderCount: store.orders.length,
-    activeJobs: store.jobs.filter((j) => j.status === "queued" || j.status === "running").length,
-    failedJobs: store.jobs.filter((j) => j.status === "failed" || j.status === "dead_letter").length,
-    openTickets: store.tickets.filter((t) => t.status === "open").length,
-    revisionQueue: store.revisions.filter((r) => r.status === "requested").length,
-    funnel: {
-      heroCta: counts["hero_cta_clicked"] ?? 0,
-      studioStarted: counts["studio_started"] ?? 0,
-      checkoutStarted: counts["checkout_started"] ?? 0,
-      purchaseCompleted: counts["purchase_completed"] ?? 0,
-    },
-    popularOccasions: Object.entries(
-      store.projects.reduce<Record<string, number>>((acc, p) => {
-        if (p.occasion) acc[p.occasion] = (acc[p.occasion] ?? 0) + 1;
-        return acc;
-      }, {}),
-    )
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5),
-    popularGenres: Object.entries(
-      store.preferences.reduce<Record<string, number>>((acc, p) => {
-        if (p.genre) acc[p.genre] = (acc[p.genre] ?? 0) + 1;
-        return acc;
-      }, {}),
-    )
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5),
-  };
+  const since = analyticsSince(range);
+  return buildAnalyticsDashboard(
+    range,
+    since,
+    store.events.filter((event) => event.createdAt >= since),
+    store.orders.map((order) => ({
+      id: order.id,
+      paidAt: order.paidAt ?? (order.paymentStatus === "paid" ? order.updatedAt : null),
+      paymentStatus: order.paymentStatus ?? "pending",
+      totalCents: order.totalCents,
+      refundedCents: order.paymentStatus === "refunded" ? order.totalCents : 0,
+      visitorId: order.analyticsVisitorId ?? null,
+      firstTouch: order.firstTouch ?? null,
+      lastTouch: order.lastTouch ?? null,
+      isInternal: order.analyticsInternal ?? false,
+    })),
+  );
 }
 
 export async function ensureDemoAdmin() {

@@ -26,8 +26,9 @@ async function webhook(type = "checkout.session.completed", object = { object: "
 beforeEach(() => { vi.clearAllMocks(); mocks.getOrder.mockResolvedValue(order); mocks.rpc.mockResolvedValue({ data: true, error: null }); mocks.retrieve.mockResolvedValue(session()); mocks.price.mockResolvedValue({ id: "price_song", active: true, unit_amount: 1999, currency: "usd", type: "one_time", tax_behavior: "exclusive" }); mocks.create.mockResolvedValue({ id: "cs_song", url: "https://checkout.stripe.com/test" }); });
 describe("Stripe payment boundary", () => {
   it("creates Checkout with the existing price, automatic tax and identifier-only metadata", async () => {
-    await createCheckoutSession({ ...order, stripeCheckoutSessionId: null }, "http://localhost/payment-success", "http://localhost/payment-cancelled");
-    expect(mocks.create).toHaveBeenCalledWith(expect.objectContaining({ line_items: [{ price: "price_song", quantity: 1 }], automatic_tax: { enabled: true }, metadata: { order_id: oid } }), { idempotencyKey: `checkout:${oid}:1` });
+    await createCheckoutSession({ ...order, stripeCheckoutSessionId: null, firstTouch: { source: "instagram" }, lastTouch: { source: "tiktok", utm_medium: "paid_social", utm_campaign: "launch", utm_content: "video-a", ttclid: "private-click-id" } }, "http://localhost/payment-success", "http://localhost/payment-cancelled");
+    expect(mocks.create).toHaveBeenCalledWith(expect.objectContaining({ line_items: [{ price: "price_song", quantity: 1 }], automatic_tax: { enabled: true }, metadata: { order_id: oid, first_source: "instagram", last_source: "tiktok", utm_medium: "paid_social", utm_campaign: "launch", utm_content: "video-a" } }), { idempotencyKey: `checkout:${oid}:1` });
+    expect(JSON.stringify(mocks.create.mock.calls[0])).not.toContain("private-click-id");
     expect(mocks.rpc).toHaveBeenCalledWith("bind_checkout", expect.objectContaining({ p_order: oid }));
   });
   it("reuses an open Session instead of creating another charge opportunity", async () => {

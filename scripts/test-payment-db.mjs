@@ -4,7 +4,7 @@ import { execFile, execFileSync } from 'node:child_process';
 const db = process.env.PAYMENT_TEST_DATABASE_URL;
 if (!db || !new URL(db).pathname.startsWith('/mtm_test_')) throw new Error('Set PAYMENT_TEST_DATABASE_URL to an isolated empty database named mtm_test_*');
 const run = (args) => execFileSync('psql', [db, '-X', '-v', 'ON_ERROR_STOP=1', ...args], { stdio: 'inherit' });
-for (const file of ['tests/sql/bootstrap.sql','supabase/migrations/001_initial_schema.sql','supabase/migrations/006_release_gift_delivery.sql','supabase/migrations/007_payment_integrity.sql','supabase/migrations/008_delivery_outbox.sql','supabase/migrations/009_payment_guardrails.sql','supabase/migrations/010_v1_price_1999.sql','tests/sql/payment-lifecycle.sql']) run(['-f',file]);
+for (const file of ['tests/sql/bootstrap.sql','supabase/migrations/001_initial_schema.sql','supabase/migrations/006_release_gift_delivery.sql','supabase/migrations/007_payment_integrity.sql','supabase/migrations/008_delivery_outbox.sql','supabase/migrations/009_payment_guardrails.sql','supabase/migrations/010_v1_price_1999.sql','supabase/migrations/012_attribution_analytics.sql','tests/sql/payment-lifecycle.sql']) run(['-f',file]);
 run(['-f', 'tests/sql/concurrency-fixture.sql']);
 const query = async (sql) => (await promisify(execFile)('psql', [db, '-X', '-v', 'ON_ERROR_STOP=1', '-Atc', sql])).stdout.trim();
 const create = "select create_paid_order('33333333-3333-4333-8333-333333333333','22222222-2222-4222-8222-222222222222','owner@example.test',null,null)";

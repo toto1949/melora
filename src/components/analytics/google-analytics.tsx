@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 import type { CookieConsentValue } from "@/lib/cookie-consent";
+import { isExternalAnalyticsPath, isPublicAnalyticsPage, safePagePath } from "@/lib/analytics/attribution";
 
 declare global {
   interface Window {
@@ -20,16 +21,32 @@ export function GoogleAnalytics({
   initialConsent: CookieConsentValue | null;
 }) {
   const pathname = usePathname();
+  const enabled = Boolean(measurementId) && isExternalAnalyticsPath(pathname);
 
   useEffect(() => {
-    if (!measurementId || initialConsent !== "all" || !window.gtag) return;
-    window.gtag("config", measurementId, {
-      page_path: pathname,
-      anonymize_ip: true,
-    });
-  }, [initialConsent, measurementId, pathname]);
+    if (!enabled || !isPublicAnalyticsPage(pathname) || initialConsent !== "all") return;
+    let attempts = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const sendPageView = () => {
+      if (window.gtag) {
+        const pagePath = safePagePath(pathname) || "/";
+        window.gtag("event", "page_view", {
+          page_path: pagePath,
+          page_location: `${location.origin}${pagePath}`,
+          page_title: document.title,
+        });
+        return;
+      }
+      attempts += 1;
+      if (attempts < 20) timer = setTimeout(sendPageView, 250);
+    };
+    sendPageView();
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [enabled, initialConsent, measurementId, pathname]);
 
-  if (!measurementId) return null;
+  if (!enabled) return null;
 
   const analyticsStorage = initialConsent === "all" ? "granted" : "denied";
 

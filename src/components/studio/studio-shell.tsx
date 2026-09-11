@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import { STUDIO_STEPS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/i18n/locale-provider";
+import { StudioProgressTracker } from "@/components/analytics/funnel-event";
 
 export function StudioShell({
   projectId,
@@ -24,6 +25,7 @@ export function StudioShell({
   const minutesLeft = Math.max(1, Math.ceil(((steps.length - displayStep + 1) * 5) / steps.length));
   return (
     <div className="min-h-screen bg-cream">
+      <StudioProgressTracker projectId={projectId} step={currentStep} />
       <div className="sticky top-0 z-30 border-b border-border bg-surface/90 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4">
           <Link href="/" className="font-display text-xl text-navy">

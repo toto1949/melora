@@ -1,5 +1,7 @@
 import { nanoid } from "nanoid";
 import type {
+  AnalyticsContext,
+  AnalyticsDashboard,
   AnalyticsEvent,
   GenerationJob,
   JobType,
@@ -37,6 +39,7 @@ import {
 import { archiveProviderAsset } from "@/lib/storage/archive";
 import { getSignedAssetUrl } from "@/lib/storage/assets";
 import { calculateOrderProgress } from "@/lib/generation-progress";
+import { analyticsSince, buildAnalyticsDashboard, type AnalyticsRange } from "@/lib/analytics/dashboard";
 
 async function attachProject(project: Project): Promise<Project> {
   const sb = getSupabaseAdmin();
@@ -377,7 +380,7 @@ export async function findCoupon(code: string) {
   };
 }
 
-export async function createGuestProject(locale = "en") {
+export async function createGuestProject(locale = "en", analytics: AnalyticsContext = {}) {
   const sb = getSupabaseAdmin();
   const guestToken = nanoid(32);
   const { data, error } = await sb
@@ -387,6 +390,11 @@ export async function createGuestProject(locale = "en") {
       status: "draft",
       current_step: 1,
       locale,
+      analytics_visitor_id: analytics.visitorId ?? null,
+      analytics_session_id: analytics.sessionId ?? null,
+      first_touch: analytics.firstTouch ?? {},
+      last_touch: analytics.lastTouch ?? {},
+      analytics_internal: analytics.isInternal ?? false,
     })
     .select()
     .single();
@@ -1080,21 +1088,31 @@ export async function listTickets() {
 export async function trackEvent(
   eventName: string,
   properties: Record<string, unknown> = {},
-  ids: Partial<Pick<AnalyticsEvent, "sessionId" | "userId" | "projectId" | "orderId">> = {},
+  ids: Partial<Pick<AnalyticsEvent, "sessionId" | "userId" | "projectId" | "orderId">> & AnalyticsContext = {},
 ) {
+  if (ids.isInternal) return null;
   const sb = getSupabaseAdmin();
-  const { data, error } = await sb
-    .from("analytics_events")
-    .insert({
-      event_name: eventName,
-      session_id: ids.sessionId,
-      user_id: ids.userId,
-      project_id: ids.projectId,
-      order_id: ids.orderId,
-      properties,
-    })
-    .select()
-    .single();
+  const touch = ids.lastTouch || ids.firstTouch;
+  const row = {
+    event_name: eventName,
+    session_id: ids.sessionId,
+    user_id: ids.userId,
+    project_id: ids.projectId,
+    order_id: ids.orderId,
+    visitor_id: ids.visitorId,
+    page_path: ids.pagePath,
+    source: touch?.source ?? "direct",
+    medium: touch?.utm_medium ?? null,
+    campaign: touch?.utm_campaign ?? null,
+    content: touch?.utm_content ?? null,
+    is_internal: false,
+    dedupe_key: ids.dedupeKey,
+    properties,
+  };
+  const query = ids.dedupeKey
+    ? sb.from("analytics_events").upsert(row, { onConflict: "dedupe_key", ignoreDuplicates: true })
+    : sb.from("analytics_events").insert(row);
+  const { data, error } = await query.select().maybeSingle();
   if (error || !data) return null;
   return {
     id: data.id,
@@ -1103,46 +1121,74 @@ export async function trackEvent(
     userId: data.user_id,
     projectId: data.project_id,
     orderId: data.order_id,
+    visitorId: data.visitor_id,
+    pagePath: data.page_path,
+    source: data.source,
+    medium: data.medium,
+    campaign: data.campaign,
+    content: data.content,
+    isInternal: Boolean(data.is_internal),
+    dedupeKey: data.dedupe_key,
     properties: data.properties,
     createdAt: data.created_at,
   };
 }
 
-export async function getAnalyticsSummary() {
+export async function getAnalyticsSummary(range: AnalyticsRange = "30d"): Promise<AnalyticsDashboard> {
   const sb = getSupabaseAdmin();
-  const [orders, jobs, tickets, revisions, events] = await Promise.all([
-    sb.from("orders").select("total_cents, status"),
-    sb.from("generation_jobs").select("status"),
-    sb.from("support_tickets").select("status"),
-    sb.from("revision_requests").select("status"),
-    sb.from("analytics_events").select("event_name"),
-  ]);
+  const since = analyticsSince(range);
+  const { data: orders, error: orderError } = await sb
+    .from("orders")
+    .select("id,payment_status,total_cents,paid_at,analytics_visitor_id,first_touch,last_touch,analytics_internal,payments(refunded_cents)")
+    .gte("paid_at", since)
+    .is("deleted_at", null);
+  if (orderError) throw new Error("Unable to load order analytics");
 
-  const revenue = (orders.data ?? [])
-    .filter((o) => !["awaiting_payment", "draft", "refunded", "failed"].includes(o.status))
-    .reduce((sum, o) => sum + o.total_cents, 0);
+  const eventRows: Record<string, unknown>[] = [];
+  const pageSize = 1000;
+  for (let from = 0; from < 100_000; from += pageSize) {
+    const { data, error } = await sb
+      .from("analytics_events")
+      .select("id,event_name,session_id,visitor_id,user_id,project_id,order_id,page_path,source,medium,campaign,content,is_internal,dedupe_key,properties,created_at")
+      .gte("created_at", since)
+      .eq("is_internal", false)
+      .order("created_at", { ascending: true })
+      .range(from, from + pageSize - 1);
+    if (error) throw new Error("Unable to load funnel analytics");
+    eventRows.push(...(data ?? []));
+    if (!data || data.length < pageSize) break;
+  }
 
-  const counts = (events.data ?? []).reduce<Record<string, number>>((acc, e) => {
-    acc[e.event_name] = (acc[e.event_name] ?? 0) + 1;
-    return acc;
-  }, {});
+  const events: AnalyticsEvent[] = eventRows.map((row) => ({
+    id: row.id as string,
+    eventName: row.event_name as string,
+    sessionId: (row.session_id as string) ?? null,
+    visitorId: (row.visitor_id as string) ?? null,
+    userId: (row.user_id as string) ?? null,
+    projectId: (row.project_id as string) ?? null,
+    orderId: (row.order_id as string) ?? null,
+    pagePath: (row.page_path as string) ?? null,
+    source: (row.source as string) ?? null,
+    medium: (row.medium as string) ?? null,
+    campaign: (row.campaign as string) ?? null,
+    content: (row.content as string) ?? null,
+    isInternal: Boolean(row.is_internal),
+    dedupeKey: (row.dedupe_key as string) ?? null,
+    properties: (row.properties as Record<string, unknown>) ?? {},
+    createdAt: row.created_at as string,
+  }));
 
-  return {
-    revenueCents: revenue,
-    orderCount: orders.data?.length ?? 0,
-    activeJobs: (jobs.data ?? []).filter((j) => j.status === "queued" || j.status === "running").length,
-    failedJobs: (jobs.data ?? []).filter((j) => j.status === "failed" || j.status === "dead_letter").length,
-    openTickets: (tickets.data ?? []).filter((t) => t.status === "open").length,
-    revisionQueue: (revisions.data ?? []).filter((r) => r.status === "requested").length,
-    funnel: {
-      heroCta: counts["hero_cta_clicked"] ?? 0,
-      studioStarted: counts["studio_started"] ?? 0,
-      checkoutStarted: counts["checkout_started"] ?? 0,
-      purchaseCompleted: counts["purchase_completed"] ?? 0,
-    },
-    popularOccasions: [],
-    popularGenres: [],
-  };
+  return buildAnalyticsDashboard(range, since, events, (orders ?? []).map((order) => ({
+    id: order.id,
+    paidAt: order.paid_at,
+    paymentStatus: order.payment_status,
+    totalCents: order.total_cents,
+    refundedCents: Math.max(0, ...(order.payments ?? []).map((payment: { refunded_cents: number }) => payment.refunded_cents || 0)),
+    visitorId: order.analytics_visitor_id,
+    firstTouch: order.first_touch,
+    lastTouch: order.last_touch,
+    isInternal: Boolean(order.analytics_internal),
+  })));
 }
 
 export async function ensureDemoAdmin() {

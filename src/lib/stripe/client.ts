@@ -15,6 +15,22 @@ export function getStripe() {
   return new Stripe(env.STRIPE_SECRET_KEY);
 }
 
+function checkoutMetadata(order: Order) {
+  const first = order.firstTouch;
+  const last = order.lastTouch || first;
+  const values: Record<string, string> = { order_id: order.id };
+  const add = (key: string, value: string | undefined) => {
+    const cleaned = value?.trim().replace(/[\u0000-\u001f\u007f]/g, "").slice(0, 200);
+    if (cleaned) values[key] = cleaned;
+  };
+  add("first_source", first?.source);
+  add("last_source", last?.source);
+  add("utm_medium", last?.utm_medium);
+  add("utm_campaign", last?.utm_campaign);
+  add("utm_content", last?.utm_content);
+  return values;
+}
+
 export async function createCheckoutSession(order: Order, successUrl: string, cancelUrl: string) {
   const env = getEnv();
   if (isMockMode() && process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
@@ -42,6 +58,7 @@ export async function createCheckoutSession(order: Order, successUrl: string, ca
   const expiresAt = Math.floor(new Date(order.checkoutExpiresAt!).getTime() / 1000);
   // Parameters remain identical across retries. Never resubmit an uncertain old request after Stripe's retention window.
   if (!Number.isFinite(expiresAt) || expiresAt <= Date.now() / 1000) throw new Error("Checkout creation requires support reconciliation");
+  const metadata = checkoutMetadata(order);
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     success_url: successUrl,
@@ -51,8 +68,8 @@ export async function createCheckoutSession(order: Order, successUrl: string, ca
     name_collection: { individual: { enabled: true } },
     automatic_tax: { enabled: true },
     client_reference_id: order.id,
-    metadata: { order_id: order.id },
-    payment_intent_data: { metadata: { order_id: order.id } },
+    metadata,
+    payment_intent_data: { metadata },
     line_items: [{ price: price.id, quantity: 1 }],
     expires_at: expiresAt,
   }, { idempotencyKey: `checkout:${order.id}:${order.checkoutAttempt}` });
