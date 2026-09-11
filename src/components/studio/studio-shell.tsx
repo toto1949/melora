@@ -18,7 +18,7 @@ export function StudioShell({
 }) {
   const { messages } = useLocale();
   const copy = messages.studio.shell;
-  const steps = STUDIO_STEPS.filter(step => step.key !== "media");
+  const steps = STUDIO_STEPS;
   const displayStep = Math.max(1, steps.findIndex(step => step.step === currentStep) + 1);
   const progress = Math.round((displayStep / steps.length) * 100);
   const minutesLeft = Math.max(1, Math.ceil(((steps.length - displayStep + 1) * 5) / steps.length));

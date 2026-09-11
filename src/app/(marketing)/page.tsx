@@ -1,17 +1,16 @@
-import { getMessages } from "@/lib/i18n";
-import { localizeReleaseFaqs, v1Packages } from "@/lib/release";
 import { Hero } from "@/components/marketing/hero";
+import { getMessages } from "@/lib/i18n";
+import { localizeReleaseFaqs } from "@/lib/release";
+import { AudioLaunchOffer } from "@/components/marketing/audio-launch-offer";
+import { AudioLaunchFinalCta } from "@/components/marketing/audio-launch-final-cta";
+import { AudioLaunchTrustBar } from "@/components/marketing/audio-launch-trust-bar";
 import {
   FaqSection,
-  FinalCta,
   HowItWorks,
   OccasionsSection,
-  PricingSection,
-  ProductShowcase,
   ReactionGallery,
   SampleSongsSection,
   Testimonials,
-  TrustBar,
 } from "@/components/marketing/sections";
 import {
   getSettings,
@@ -22,7 +21,7 @@ import {
   listSamples,
 } from "@/lib/db/repository";
 import { getEnv } from "@/lib/env";
-import { filterFaqsForRelease } from "@/lib/features";
+import { filterFaqsForRelease, filterPackagesForRelease } from "@/lib/features";
 
 export const metadata = { alternates: { canonical: "/" } };
 
@@ -36,7 +35,11 @@ export default async function HomePage() {
     listReviews(8),
     listFaqs(),
   ]);
-  const releaseFaqs = localizeReleaseFaqs(filterFaqsForRelease(faqs, videoEnabled), await getMessages());
+  const releaseFaqs = localizeReleaseFaqs(
+    filterFaqsForRelease(faqs, videoEnabled),
+    await getMessages(),
+  );
+  const launchPackage = filterPackagesForRelease(packages, videoEnabled)[0];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -44,7 +47,7 @@ export default async function HomePage() {
       {
         "@type": "Organization",
         "@id": `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/#organization`,
-        name: "Memories to Melody",
+        name: settings.brandName,
         description: settings.heroSupporting,
         url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
         email: "hello@memoriestomelody.com",
@@ -52,7 +55,7 @@ export default async function HomePage() {
       {
         "@type": "WebSite",
         "@id": `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/#website`,
-        name: "Memories to Melody",
+        name: settings.brandName,
         url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
         publisher: {
           "@id": `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/#organization`,
@@ -64,7 +67,7 @@ export default async function HomePage() {
   const faqLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: releaseFaqs.slice(0, 6).map((f) => ({
+    mainEntity: releaseFaqs.map((f) => ({
       "@type": "Question",
       name: f.question,
       acceptedAnswer: { "@type": "Answer", text: f.answer },
@@ -76,16 +79,15 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd).replace(/</g, "\\u003c") }} />
       <Hero settings={settings} sample={samples[0]} />
-      <TrustBar />
+      <AudioLaunchTrustBar settings={settings} />
       <ReactionGallery reactions={reactions} />
       <HowItWorks />
       <SampleSongsSection samples={samples} />
       <OccasionsSection />
-      <ProductShowcase videoEnabled={videoEnabled} />
       <Testimonials reviews={reviews.items} />
-      <PricingSection packages={v1Packages(packages)} videoEnabled={videoEnabled} />
+      <AudioLaunchOffer pkg={launchPackage} />
       <FaqSection faqs={releaseFaqs.slice(0, 6)} viewAllHref="/faq" />
-      <FinalCta />
+      <AudioLaunchFinalCta />
     </>
   );
 }

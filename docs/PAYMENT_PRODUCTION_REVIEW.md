@@ -4,7 +4,7 @@ ZEVYNTA LABS LLC · https://memoriestomelody.com · 2026-09-08
 
 ## Release status
 
-The v1 payment and fulfillment implementation is deployed to Production. Production migrations 005–010 are applied, the public site and Stripe catalog use USD $19.99 for new orders, and the live webhook destination is active with all seven required events. Production health reports every required dependency configured and reachable.
+The v1 payment and fulfillment implementation is deployed to Production. Production migrations 005–011 are applied, the public site and Stripe catalog use USD $19.99 for new orders, and the live webhook destination is active with all seven required events. Production health reports every required dependency configured and reachable.
 
 The first historical live $19.00 order exposed two legacy issues: its older Checkout used camelCase metadata and predated the payment ledger, while Kunavo had returned a terminal upstream error. The payment was reconciled only after its exact live Checkout Session, PaymentIntent, charge, amount, currency, customer, and order metadata were verified in Stripe. The same paid order was retried without another charge. A fresh provider task completed, all eight pipeline stages succeeded, private audio and cover assets were archived, the 2:51 audio played from the private listening page, and song-ready delivery receipts were stored.
 
@@ -22,7 +22,7 @@ Preview has isolated Supabase, Upstash, Stripe sandbox Price, provider, malware-
 | Database | Supabase PostgreSQL via service-role repository; existing `projects`, customization tables, `orders`, `order_items`, `payments`, `generation_jobs`, `song_versions`, `generated_assets` |
 | Auth | Supabase Auth and SSR cookies; guest projects have a random token in an HttpOnly SameSite=Lax cookie; filesystem mock repository for local development |
 | Generation | Existing ordered durable stages: creative brief → lyrics → music → cover → optional videos → QA → notify; atomic job claim RPC, bounded retries |
-| Providers | OpenAI-compatible lyrics; Kunavo async Suno V5.5 music adapter; optional generic HTTP music adapter; built-in/provider cover art; disabled video release |
+| Providers | OpenAI-compatible lyrics; Kunavo async Suno v5 music adapter; optional generic HTTP music adapter; built-in/provider cover art; disabled video release |
 | Storage | Existing private Supabase `melora-media` bucket and signed URLs; generated provider URLs were previously retained directly |
 | Email | Resend 6.18.1 and existing templates; gift email opt-in already supported |
 | Deployment | `vercel.json` daily fallback cron; migrations 003/005 configure a one-minute Supabase Cron → pg_net → worker endpoint using Vault secrets |
@@ -58,12 +58,13 @@ Checkout creates identifier-only `metadata.order_id` on both Session and Payment
 
 ## 4. Database migrations
 
-Apply **007 → 008 → 009 → 010**, after confirming the existing 001–006 deployment state:
+Apply **007 → 008 → 009 → 010 → 011**, after confirming the existing 001–006 deployment state:
 
 - `007_payment_integrity.sql`: adds explicit order payment state, Stripe price/intent/session bindings, checkout attempts/expiry and customer name; unique payment identifiers; identifier-only Stripe event ledger; transactional create/bind/rotate/fulfillment RPCs; paid/prerequisite-gated atomic job claims; restricts profile update and direct upload/project mutation privileges.
 - `008_delivery_outbox.sql`: durable email ledger, confirmation trigger within the payment transaction, email claim lease, delivery receipt, retry ceiling, and an explicit review state beyond safe provider retention.
 - `009_payment_guardrails.sql`: prevents unpaid generation enqueue and stale workers overwriting refunded state; freezes customization tables at checkout; fixes recursive staff checks; aligns only the Essential package's price to 799 USD.
 - `010_v1_price_1999.sql`: preserves historical orders while aligning new v1 orders, items, payment validation, and the Essential catalog entry with the replacement $19.99 Price.
+- `011_single_audio_launch.sql`: keeps one focused audio-song offer active at $19.99 and disables unreleased packages, add-ons, and coupons without deleting historical records.
 
 These migrations were executed against isolated PostgreSQL 16, including real transactions and parallel connections. Tests use small Supabase auth/storage stubs; they do **not** certify the live Supabase RLS/Vault/pg_net configuration.
 
@@ -225,6 +226,8 @@ The following inventory lists files created/modified by this change; no existing
 - `supabase/migrations/007_payment_integrity.sql`
 - `supabase/migrations/008_delivery_outbox.sql`
 - `supabase/migrations/009_payment_guardrails.sql`
+- `supabase/migrations/010_v1_price_1999.sql`
+- `supabase/migrations/011_single_audio_launch.sql`
 - `tests/generation-payment.test.ts`
 - `tests/order-status.test.ts`
 - `tests/payment-lifecycle.test.ts`

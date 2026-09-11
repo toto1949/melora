@@ -19,7 +19,7 @@ function rise(delay: number) {
 
 export function Hero({ sample }: { settings: SiteSettings; sample?: SampleSong }) {
   const reduced = useReducedMotion();
-  const { messages } = useLocale();
+  const { locale, messages } = useLocale();
   const copy = messages.hero;
   return (
     <section className="atmosphere grain relative overflow-hidden">
@@ -62,7 +62,9 @@ export function Hero({ sample }: { settings: SiteSettings; sample?: SampleSong }
             </Link>
           </motion.div>
           <motion.p {...rise(0.32)} className="mt-5 text-sm text-muted">
-            {copy.assurance}
+            {locale === "en"
+              ? "Usually ready within a few minutes · One guided revision · Secure checkout"
+              : copy.assurance}
           </motion.p>
         </div>
 

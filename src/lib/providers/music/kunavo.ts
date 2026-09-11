@@ -4,7 +4,7 @@ import type { MusicProvider, MusicResult } from "../types";
 
 const KUNAVO_JOBS_URL = "https://api.kunavo.com/v1/audio/music/jobs";
 
-// Suno V5.5 custom-mode limits (see kunavo.com/docs/music).
+// Suno V5 custom-mode limits (see kunavo.com/docs/music).
 const MAX_LYRICS_CHARS = 5000;
 const MAX_STYLE_CHARS = 900;
 const MAX_TITLE_CHARS = 80;
@@ -65,7 +65,7 @@ export class KunavoMusicProvider implements MusicProvider {
       method: "POST",
       headers,
       body: JSON.stringify({
-        model: "suno-v5-5",
+        model: "suno-v5",
         customMode: true,
         prompt: input.lyrics.slice(0, MAX_LYRICS_CHARS),
         style,

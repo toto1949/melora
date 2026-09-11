@@ -6,7 +6,7 @@ import type { Package } from "@/types";
 function pkg(overrides: Partial<Package>): Package {
   return {
     id: "pkg",
-    slug: "essential",
+    slug: "essential-song",
     name: "Essential",
     description: "Song",
     priceCents: 3900,
@@ -25,46 +25,42 @@ function pkg(overrides: Partial<Package>): Package {
   };
 }
 
-describe("video release gating", () => {
-  it("keeps video packages unavailable while the feature is disabled", () => {
-    expect(packageAvailableForRelease(pkg({ includesVideo: true }), false)).toBe(false);
-    expect(packageAvailableForRelease(pkg({ includesLyricVideo: true }), false)).toBe(false);
-    expect(packageAvailableForRelease(pkg({}), false)).toBe(true);
+describe("single audio launch gating", () => {
+  it("allows only the Essential audio package during launch", () => {
+    expect(packageAvailableForRelease(pkg({ slug: "essential-song" }), false)).toBe(true);
+    expect(packageAvailableForRelease(pkg({ slug: "premium-story" }), false)).toBe(false);
+    expect(packageAvailableForRelease(pkg({ slug: "cinematic-memory", includesVideo: true }), false)).toBe(false);
   });
 
-  it("sells Essential and audio Premium while video remains gated", () => {
+  it("keeps the single launch package even if video configuration changes", () => {
     const packages = [
       pkg({ id: "essential", slug: "essential-song" }),
-      pkg({ id: "premium", slug: "premium-story", includesWav: true }),
+      pkg({ id: "premium", slug: "premium-story" }),
       pkg({ id: "cinematic", slug: "cinematic-memory", includesVideo: true, includesLyricVideo: true }),
     ];
-    expect(filterPackagesForRelease(packages, false).map((item) => item.id)).toEqual([
-      "essential",
-      "premium",
-    ]);
+    expect(filterPackagesForRelease(packages, false).map((item) => item.id)).toEqual(["essential"]);
+    expect(filterPackagesForRelease(packages, true).map((item) => item.id)).toEqual(["essential"]);
   });
 
-  it("restores all packages when the video release is enabled", () => {
-    const packages = [pkg({ id: "audio" }), pkg({ id: "video", includesVideo: true })];
-    expect(filterPackagesForRelease(packages, true)).toHaveLength(2);
-    expect(filterPackagesForRelease(packages, false).map((item) => item.id)).toEqual(["audio"]);
-  });
-
-  it("does not advertise unreleased video FAQs", () => {
+  it("does not advertise unreleased video or higher-package FAQs", () => {
     const faqs = [
       { id: "song", question: "How is my song made?", answer: "From your story.", category: "product", sortOrder: 1 },
       { id: "video", question: "How are videos made?", answer: "From photos.", category: "product", sortOrder: 2 },
+      { id: "premium", question: "What do higher packages include?", answer: "Priority delivery.", category: "product", sortOrder: 3 },
     ];
     expect(filterFaqsForRelease(faqs, false).map((faq) => faq.id)).toEqual(["song"]);
-    expect(filterFaqsForRelease(faqs, true)).toHaveLength(2);
   });
 
-  it("exposes only audio packages from the current seed catalog", () => {
-    expect(filterPackagesForRelease(seedPackages, false).map((item) => item.slug)).toEqual([
-      "essential-song",
-      "premium-story",
-    ]);
-    expect(seedPackages.find((item) => item.slug === "premium-story")?.includesLyricVideo).toBe(false);
-    expect(seedPackages.find((item) => item.slug === "cinematic-memory")?.isActive).toBe(false);
+  it("selects only Essential from the current seed catalog", () => {
+    const packages = filterPackagesForRelease(seedPackages, false);
+    expect(packages.map((item) => item.slug)).toEqual(["essential-song"]);
+    expect(packages[0]?.priceCents).toBe(1999);
+  });
+
+  it("advertises the exact v1 price in release FAQ copy", () => {
+    const [faq] = filterFaqsForRelease([
+      { id: "price", question: "What is included in each package?", answer: "Old copy", category: "product", sortOrder: 1 },
+    ], false);
+    expect(`${faq.question} ${faq.answer}`).toContain("$19.99");
   });
 });
