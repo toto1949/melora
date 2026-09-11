@@ -28,7 +28,7 @@ export const seedPackages: Package[] = [
     slug: "essential-song",
     name: "Essential Song",
     description: "A beautifully personalized song with private listening and download.",
-    priceCents: 3900,
+    priceCents: 1999,
     currency: "usd",
     features: [
       "Personalized lyrics",
@@ -104,7 +104,7 @@ export const seedAddOns: AddOn[] = [
     slug: "rush-delivery",
     name: "Rush delivery",
     description: "Move to the front of the creative queue.",
-    priceCents: 1900,
+    priceCents: 1999,
     currency: "usd",
     isActive: true,
     sortOrder: 1,

@@ -1,4 +1,5 @@
 export type MarketingPlatform = "instagram" | "facebook" | "tiktok";
+export type MarketingVideoDuration = 10 | 20 | 30 | 40;
 
 export type MarketingReviewAction = "approve" | "reject" | "regenerate";
 
@@ -19,6 +20,7 @@ export interface MarketingGenerationRequest {
   facebookPost: string;
   tiktokCaption: string;
   platforms: MarketingPlatform[];
+  durationSeconds: MarketingVideoDuration;
 }
 
 export interface MarketingGenerationPayload {
@@ -33,6 +35,8 @@ export interface MarketingGenerationPayload {
   youtubeTitle?: string;
   youtubeDescription?: string;
   campaign?: string;
+  durationSeconds?: MarketingVideoDuration;
+  platforms?: MarketingPlatform[];
   [key: string]: unknown;
 }
 
@@ -46,6 +50,7 @@ export interface MarketingPublishPayload {
   facebookPost?: string;
   tiktokCaption?: string;
   aiGenerated?: boolean;
+  durationSeconds?: MarketingVideoDuration;
   [key: string]: unknown;
 }
 
@@ -60,6 +65,7 @@ export interface MarketingGenerationResult {
   profile?: string;
   angle?: string;
   hook?: string;
+  durationSeconds?: MarketingVideoDuration;
   generationPayload: MarketingGenerationPayload;
   publishPayload: MarketingPublishPayload;
   reviewEndpoint?: string;
@@ -83,6 +89,7 @@ export interface MarketingHistoryItem {
   status: string;
   mediaUrl?: string;
   platforms: MarketingPlatform[];
+  durationSeconds?: MarketingVideoDuration;
   createdAt: string;
   generationPayload: MarketingGenerationPayload;
   publishPayload: MarketingPublishPayload;

@@ -10,7 +10,7 @@ import { getMessages } from "@/lib/i18n";
 
 export default async function CheckoutStep({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  await loadStudioProject(projectId);
+  await loadStudioProject(projectId, true);
   const [allPackages, user, messages] = await Promise.all([listPackages(), getCurrentUser(), getMessages()]);
   const pkg = filterPackagesForRelease(allPackages, getEnv().VIDEO_FEATURE_ENABLED)[0];
   const idempotencyKey = nanoid(24);

@@ -37,7 +37,7 @@ export function getProductionReadiness(env: AppEnv): ReadinessCheck[] {
       configured: Boolean(
         env.STRIPE_SECRET_KEY &&
           env.STRIPE_WEBHOOK_SECRET &&
-          env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+          env.STRIPE_PRICE_ID,
       ),
       required: true,
       detail: "Checkout and signed webhooks",

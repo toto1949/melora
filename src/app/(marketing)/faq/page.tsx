@@ -1,3 +1,5 @@
+import { getMessages } from "@/lib/i18n";
+import { localizeReleaseFaqs } from "@/lib/release";
 import { FaqSection } from "@/components/marketing/sections";
 import { listFaqs } from "@/lib/db/repository";
 import { getEnv } from "@/lib/env";
@@ -11,10 +13,10 @@ export const metadata = {
 };
 
 export default async function FaqPage() {
-  const faqs = filterFaqsForRelease(
+  const faqs = localizeReleaseFaqs(filterFaqsForRelease(
     await listFaqs(),
     getEnv().VIDEO_FEATURE_ENABLED,
-  );
+  ), await getMessages());
   const faqLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -26,7 +28,7 @@ export default async function FaqPage() {
   };
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd).replace(/</g, "\\u003c") }} />
       <FaqSection faqs={faqs} />
     </>
   );

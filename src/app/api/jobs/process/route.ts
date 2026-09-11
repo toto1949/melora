@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEnv } from "@/lib/env";
+import { processEmailOutbox } from "@/lib/email/outbox";
 import { processQueuedJobs } from "@/lib/jobs/pipeline";
 import { logEvent } from "@/lib/observability/logger";
 import { timingSafeEqual } from "crypto";
@@ -28,6 +29,7 @@ function safeEqual(left: string, right: string) {
 async function runWorker(orderId?: string) {
   const startedAt = Date.now();
   logEvent("info", "generation_worker_started", { orderId: orderId ?? null });
+  await processEmailOutbox();
   const results = await processQueuedJobs(orderId);
   const failures = results.filter((result) => "error" in result);
   logEvent(failures.length ? "warn" : "info", "generation_worker_completed", {

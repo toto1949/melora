@@ -16,6 +16,7 @@ const envSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_PRICE_ID: z.string().optional(),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Memories to Melody <hello@memoriestomelody.com>"),
@@ -35,6 +36,7 @@ const envSchema = z.object({
   JOB_WORKER_SECRET: z.string().default("dev-worker-secret"),
   CRON_SECRET: z.string().optional(),
   LISTEN_TOKEN_SECRET: z.string().optional(),
+  ASSET_DOWNLOAD_HOSTS: z.string().default("files.kunavo.com"),
   STORAGE_BUCKET: z.string().default("melora-media"),
   UPSTASH_REDIS_REST_URL: z.string().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
@@ -62,6 +64,7 @@ export function getEnv(): AppEnv {
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     EMAIL_FROM: process.env.EMAIL_FROM,
@@ -81,6 +84,7 @@ export function getEnv(): AppEnv {
     JOB_WORKER_SECRET: process.env.JOB_WORKER_SECRET,
     CRON_SECRET: process.env.CRON_SECRET,
     LISTEN_TOKEN_SECRET: process.env.LISTEN_TOKEN_SECRET,
+    ASSET_DOWNLOAD_HOSTS: process.env.ASSET_DOWNLOAD_HOSTS,
     STORAGE_BUCKET: process.env.STORAGE_BUCKET,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
@@ -97,6 +101,7 @@ export function getEnv(): AppEnv {
     throw new Error("Invalid environment variables");
   }
 
+  if (process.env.VERCEL && (parsed.data.USE_MOCK_PROVIDERS || !parsed.data.SUPABASE_SERVICE_ROLE_KEY)) throw new Error("Deployed environments require real auth and database configuration");
   cached = parsed.data;
   return cached;
 }

@@ -133,6 +133,7 @@ export async function createOrder(input: Parameters<typeof supabase.createOrder>
 }
 
 export const getOrder = db.getOrder;
+export const getProjectOrder = db.getProjectOrder;
 export const getOrderByNumber = db.getOrderByNumber;
 export const getOrderByShareToken = db.getOrderByShareToken;
 export const listUserOrders = db.listUserOrders;

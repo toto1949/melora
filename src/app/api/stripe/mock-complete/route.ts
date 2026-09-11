@@ -4,7 +4,7 @@ import { getOrder } from "@/lib/db/repository";
 import { getEnv, isMockMode } from "@/lib/env";
 
 export async function GET(req: NextRequest) {
-  if (!isMockMode()) {
+  if (!isMockMode() || process.env.NODE_ENV === "production" || process.env.VERCEL) {
     return NextResponse.json(
       { error: "Mock checkout is disabled in production" },
       { status: 403 },

@@ -17,7 +17,7 @@ function rise(delay: number) {
   };
 }
 
-export function Hero({ settings, sample }: { settings: SiteSettings; sample?: SampleSong }) {
+export function Hero({ sample }: { settings: SiteSettings; sample?: SampleSong }) {
   const reduced = useReducedMotion();
   const { locale, messages } = useLocale();
   const copy = messages.hero;
@@ -34,25 +34,25 @@ export function Hero({ settings, sample }: { settings: SiteSettings; sample?: Sa
         </div>
       ) : null}
 
-      <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-12 md:grid-cols-2 md:px-6 md:pb-24 md:pt-16">
-        <div>
+      <div className="relative z-10 mx-auto grid grid-cols-1 max-w-6xl items-center gap-10 px-4 pb-16 pt-12 md:grid-cols-2 md:px-6 md:pb-24 md:pt-16">
+        <div className="min-w-0">
           <motion.p
             {...rise(0)}
             className="mb-4 inline-flex rounded-full border border-border bg-surface/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-navy/70"
           >
-            {locale === "en" ? settings.trustBadge : copy.trustBadge}
+            {copy.trustBadge}
           </motion.p>
           <motion.h1
             {...rise(0.08)}
             className="font-display text-4xl leading-[1.05] text-navy sm:text-5xl md:text-6xl"
           >
-            <span className="block text-gold">{settings.brandName}</span>
-            <span className="mt-3 block">{locale === "en" ? settings.heroHeadline : copy.headline}</span>
+            {copy.headline}
           </motion.h1>
           <motion.p {...rise(0.16)} className="mt-5 max-w-xl text-base prose-muted md:text-lg">
-            {locale === "en" ? settings.heroSupporting : copy.supporting}
+            {copy.supporting}
           </motion.p>
-          <motion.div {...rise(0.24)} className="mt-8 flex flex-wrap gap-3">
+          <p className="mt-6 text-sm font-semibold text-navy">{messages.v1.priceNote}</p>
+          <motion.div {...rise(0.24)} className="mt-4 flex flex-wrap gap-3">
             <Link href="/studio" className="btn-primary group">
               {copy.create}
               <ArrowRight className="directional-icon h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -72,7 +72,7 @@ export function Hero({ settings, sample }: { settings: SiteSettings; sample?: Sa
           initial={reduced ? false : { opacity: 0, scale: 0.96, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 0.2, ease: EASE }}
-          className="space-y-4"
+          className="min-w-0 space-y-4"
         >
           <div className="group relative overflow-hidden rounded-[2rem] border border-border bg-navy p-2 shadow-[var(--shadow-lift)]">
             <div className="relative overflow-hidden rounded-[1.6rem]">

@@ -1,11 +1,22 @@
 "use client";
 
-import type { MarketingGenerationRequest, MarketingPlatform } from "@/types/marketing";
+import type {
+  MarketingGenerationRequest,
+  MarketingPlatform,
+  MarketingVideoDuration,
+} from "@/types/marketing";
 
 const platformOptions: { value: MarketingPlatform; label: string }[] = [
   { value: "instagram", label: "Instagram" },
   { value: "facebook", label: "Facebook" },
   { value: "tiktok", label: "TikTok" },
+];
+
+const durationOptions: { value: MarketingVideoDuration; label: string; detail: string }[] = [
+  { value: 10, label: "10s", detail: "Fast performance ad" },
+  { value: 20, label: "20s", detail: "Short emotional story" },
+  { value: 30, label: "30s", detail: "Full storyline" },
+  { value: 40, label: "40s", detail: "Extended short film" },
 ];
 
 const angleOptions = [
@@ -80,6 +91,36 @@ export function CampaignForm({
         </label>
       </div>
 
+      <fieldset>
+        <legend className="text-sm font-medium">Storyline duration</legend>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {durationOptions.map((option) => {
+            const checked = value.durationSeconds === option.value;
+            return (
+              <label
+                key={option.value}
+                className={`cursor-pointer rounded-2xl border p-3 transition ${
+                  checked ? "border-navy bg-navy text-cream" : "border-border bg-white text-navy"
+                }`}
+              >
+                <input
+                  type="radio"
+                  className="sr-only"
+                  name="durationSeconds"
+                  checked={checked}
+                  onChange={() => patch({ durationSeconds: option.value })}
+                />
+                <span className="block text-base font-semibold">{option.label}</span>
+                <span className={`mt-1 block text-xs ${checked ? "text-cream/70" : "text-muted"}`}>{option.detail}</span>
+              </label>
+            );
+          })}
+        </div>
+        <p className="mt-2 text-xs text-muted">
+          20–40 second videos are generated as one continuous Gemini story using 10-second continuation turns with character and style continuity locked between segments.
+        </p>
+      </fieldset>
+
       <label className="block space-y-1.5 text-sm font-medium">
         Hook
         <textarea
@@ -91,15 +132,15 @@ export function CampaignForm({
       </label>
 
       <label className="block space-y-1.5 text-sm font-medium">
-        Strict Gemini video prompt
+        Strict Gemini storyline prompt
         <textarea
-          className={`${field} min-h-44 resize-y font-mono text-xs leading-5`}
+          className={`${field} min-h-56 resize-y font-mono text-xs leading-5`}
           value={value.strictVideoPrompt}
           onChange={(event) => patch({ strictVideoPrompt: event.target.value })}
-          placeholder="0-2s: ... 2-5s: ... 5-8s: ... 8-10s: ..."
+          placeholder="Describe the full storyline from opening hook through memories, transformation, emotional payoff, and brand ending."
         />
         <span className="block text-xs font-normal text-muted">
-          This overrides the automatic shot scenario while keeping the global brand and safety rules.
+          Describe the complete story. For 20–40 seconds, the workflow automatically splits this into coherent continuation turns while preserving the same characters, visual language, and music motif.
         </span>
       </label>
 
@@ -160,7 +201,7 @@ export function CampaignForm({
         disabled={loading || !value.strictVideoPrompt.trim() || value.platforms.length === 0}
         className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {loading ? "Generating video…" : "Generate video"}
+        {loading ? `Generating ${value.durationSeconds}s storyline…` : `Generate ${value.durationSeconds}s storyline`}
       </button>
     </form>
   );

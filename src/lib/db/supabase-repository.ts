@@ -16,7 +16,6 @@ import type {
   SupportTicket,
   UserRole,
 } from "@/types";
-import { orderNumber } from "@/lib/utils";
 import { getSupabaseAdmin } from "./client";
 import {
   mapFaq,
@@ -35,6 +34,7 @@ import {
   mapStory,
   mapTicket,
 } from "./mappers";
+import { archiveProviderAsset } from "@/lib/storage/archive";
 import { getSignedAssetUrl } from "@/lib/storage/assets";
 import { calculateOrderProgress } from "@/lib/generation-progress";
 
@@ -665,101 +665,28 @@ export async function createOrder(input: {
   idempotencyKey: string;
 }) {
   const sb = getSupabaseAdmin();
-  const { data: existing } = await sb
-    .from("orders")
-    .select("*")
-    .eq("idempotency_key", input.idempotencyKey)
-    .maybeSingle();
-  if (existing) return attachOrder(mapOrder(existing));
-
-  const pkg = await getPackage(input.packageId);
-  if (!pkg) throw new Error("Package not found");
-  const addOns = await listAddOns();
-  const selected = addOns.filter((a) => input.addOnIds?.includes(a.id));
-  const subtotal = pkg.priceCents + selected.reduce((s, a) => s + a.priceCents, 0);
-
-  let discount = 0;
-  let couponId: string | null = null;
-  if (input.couponCode) {
-    const coupon = await findCoupon(input.couponCode);
-    if (!coupon) throw new Error("Coupon is invalid or expired");
-    couponId = coupon.id;
-    if (coupon.percentOff) discount = Math.round((subtotal * coupon.percentOff) / 100);
-    if (coupon.amountOffCents) discount = Math.min(subtotal, coupon.amountOffCents);
-    await sb
-      .from("coupons")
-      .update({ redemption_count: coupon.redemptionCount + 1 })
-      .eq("id", coupon.id);
-  }
-
-  const tax = Math.round((subtotal - discount) * 0.08);
-  const total = subtotal - discount + tax;
-  const isRush = selected.some((addOn) => addOn.slug === "rush-delivery");
-  const deliveryHours = isRush ? Math.max(6, Math.floor(pkg.deliveryHours / 2)) : pkg.deliveryHours;
-
-  const { data, error } = await sb
-    .from("orders")
-    .insert({
-      order_number: orderNumber(),
-      user_id: input.userId,
-      project_id: input.projectId,
-      package_id: input.packageId,
-      coupon_id: couponId,
-      status: "awaiting_payment",
-      subtotal_cents: subtotal,
-      discount_cents: discount,
-      tax_cents: tax,
-      total_cents: total,
-      currency: pkg.currency,
-      delivery_speed: isRush ? "rush" : "standard",
-      estimated_delivery_at: new Date(Date.now() + deliveryHours * 3600 * 1000).toISOString(),
-      email: input.email,
-      phone: input.phone,
-      revision_credits_remaining: pkg.revisionCredits,
-      share_token: nanoid(32),
-      idempotency_key: input.idempotencyKey,
-    })
-    .select()
-    .single();
-  if (error || !data) throw new Error(error?.message ?? "Failed to create order");
-
-  const orderItems = [
-    {
-      order_id: data.id,
-      item_type: "package",
-      reference_id: pkg.id,
-      name: pkg.name,
-      quantity: 1,
-      unit_price_cents: pkg.priceCents,
-      total_cents: pkg.priceCents,
-      metadata: { slug: pkg.slug },
-    },
-    ...selected.map((addOn) => ({
-      order_id: data.id,
-      item_type: "add_on",
-      reference_id: addOn.id,
-      name: addOn.name,
-      quantity: 1,
-      unit_price_cents: addOn.priceCents,
-      total_cents: addOn.priceCents,
-      metadata: { slug: addOn.slug },
-    })),
-  ];
-  const { error: itemError } = await sb.from("order_items").insert(orderItems);
-  if (itemError) throw new Error(`Failed to save order items: ${itemError.message}`);
-
-  await sb
-    .from("projects")
-    .update({ status: "awaiting_payment", package_id: input.packageId })
-    .eq("id", input.projectId);
-
-  return attachOrder(mapOrder(data));
+  if (input.addOnIds?.length || input.couponCode) throw new Error("This checkout supports the personalized song price only");
+  const { data, error } = await sb.rpc("create_paid_order", {
+    p_project: input.projectId, p_package: input.packageId,
+    p_email: input.email, p_phone: input.phone ?? null, p_user: input.userId ?? null,
+  });
+  if (error || !data) throw new Error("Unable to create order");
+  const order = await getOrder(data as string);
+  if (!order) throw new Error("Order not found");
+  return order;
 }
 
 export async function getOrder(orderId: string) {
   const sb = getSupabaseAdmin();
   const { data } = await sb.from("orders").select("*").eq("id", orderId).maybeSingle();
   return data ? attachOrder(mapOrder(data)) : null;
+}
+
+export async function getProjectOrder(projectId: string) {
+  const { data, error } = await getSupabaseAdmin().from("orders").select("id").eq("project_id", projectId)
+    .is("deleted_at", null).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (error) throw new Error("Unable to load saved order");
+  return data?.id ? getOrder(data.id) : null;
 }
 
 export async function getOrderByNumber(orderNumberValue: string, email: string) {
@@ -805,7 +732,7 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus, pa
   if (status === "ready") row.ready_at = new Date().toISOString();
   if (status === "completed") row.completed_at = new Date().toISOString();
   const { data, error } = await sb.from("orders").update(row).eq("id", orderId).select().single();
-  if (error || !data) return null;
+  if (error || !data) throw new Error("Failed to update order status");
   return attachOrder(mapOrder(data));
 }
 
@@ -832,7 +759,7 @@ export async function enqueueJob(orderId: string, jobType: JobType, input: Recor
     .select("*")
     .eq("idempotency_key", idempotencyKey)
     .maybeSingle();
-  if (existing && existing.status !== "dead_letter" && existing.status !== "failed") {
+  if (existing) {
     return mapJob(existing);
   }
   const { data, error } = await sb
@@ -841,7 +768,7 @@ export async function enqueueJob(orderId: string, jobType: JobType, input: Recor
       order_id: orderId,
       job_type: jobType,
       status: "queued",
-      idempotency_key: existing ? `${idempotencyKey}:${Date.now()}` : idempotencyKey,
+      idempotency_key: idempotencyKey,
       input,
     })
     .select()
@@ -869,7 +796,7 @@ export async function listRunnableJobs(limit = 500) {
   const { data, error } = await sb
     .from("generation_jobs")
     .select("*")
-    .in("status", ["queued", "failed", "running", "dead_letter", "cancelled"])
+    .in("status", ["queued", "failed", "running"])
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error) throw new Error(`Failed to list runnable jobs: ${error.message}`);
@@ -892,6 +819,7 @@ export async function updateJob(jobId: string, patch: Partial<GenerationJob>) {
   if (patch.status != null) row.status = patch.status;
   if (patch.progress != null) row.progress = patch.progress;
   if (patch.attempt != null) row.attempt = patch.attempt;
+  if (patch.idempotencyKey != null) row.idempotency_key = patch.idempotencyKey;
   if (patch.error !== undefined) row.error = patch.error;
   if (patch.provider != null) row.provider = patch.provider;
   if (patch.providerJobId !== undefined) row.provider_job_id = patch.providerJobId;
@@ -966,7 +894,7 @@ export async function saveSongVersion(version: Omit<SongVersion, "id" | "created
       order_id: version.orderId,
       song_version_id: versionId,
       kind,
-      storage_path: url,
+      storage_path: await archiveProviderAsset(url, `orders/${version.orderId}/${versionId}/${kind}`, mimeType),
       mime_type: mimeType,
       size_bytes: 0,
       metadata: {},

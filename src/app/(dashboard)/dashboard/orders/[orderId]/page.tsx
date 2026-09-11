@@ -20,7 +20,7 @@ export default async function OrderDetailPage({
   const { reviewed, reviewError } = await searchParams;
   const user = await getCurrentUser();
   const order = await getOrder(orderId);
-  if (!order || !user || (order.userId && order.userId !== user.id && user.role === "customer")) notFound();
+  if (!order || !user || (order.userId !== user.id && user.role === "customer")) notFound();
   const [jobs, versions, review, messages, locale] = await Promise.all([
     listOrderJobs(orderId),
     listSongVersions(orderId),

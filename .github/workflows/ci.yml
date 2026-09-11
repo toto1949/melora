@@ -9,6 +9,15 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test-only-password
+          POSTGRES_DB: mtm_test_payments
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       USE_MOCK_PROVIDERS: "true"
       VIDEO_FEATURE_ENABLED: "false"
@@ -24,5 +33,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm test:payments:db
+        env:
+          PAYMENT_TEST_DATABASE_URL: postgresql://postgres:test-only-password@localhost:5432/mtm_test_payments
       - run: pnpm build

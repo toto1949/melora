@@ -33,6 +33,8 @@ function productionEnv(overrides: Partial<AppEnv> = {}): AppEnv {
     CRON_SECRET: "cron",
     LISTEN_TOKEN_SECRET: "listen",
     STORAGE_BUCKET: "melora-media",
+    ASSET_DOWNLOAD_HOSTS: "files.kunavo.com",
+    STRIPE_PRICE_ID: "price_test_song",
     UPSTASH_REDIS_REST_URL: "https://redis.upstash.io",
     UPSTASH_REDIS_REST_TOKEN: "redis",
     MALWARE_SCAN_REQUIRED: true,

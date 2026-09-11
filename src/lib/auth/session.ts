@@ -24,7 +24,8 @@ export async function getCurrentUser(): Promise<Profile | null> {
       } = await sb.auth.getUser();
       if (!user?.email) return null;
       const profile = await getProfile(user.id);
-      if (profile && !profile.deletedAt) return profile;
+      if (profile && !profile.deletedAt && !profile.suspendedAt) return profile;
+      if (profile) return null;
       return createOrGetProfile({
         id: user.id,
         email: user.email,

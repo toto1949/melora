@@ -34,6 +34,8 @@ interface CheckoutFormProps {
   addOns: AddOnOption[];
   userEmail: string | null;
   isLoggedIn: boolean;
+  allowCoupons?: boolean;
+  locked?: boolean;
 }
 
 type AppliedCoupon = {
@@ -44,7 +46,7 @@ type AppliedCoupon = {
 
 const field = "w-full rounded-2xl border border-border bg-surface px-4 py-3";
 
-export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, userEmail, isLoggedIn }: CheckoutFormProps) {
+export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, userEmail, isLoggedIn, allowCoupons = false, locked = false }: CheckoutFormProps) {
   const { locale, messages } = useLocale();
   const copy = messages.studio.checkout;
   const initialPackage = packages.find((pkg) => pkg.defaultChecked) ?? packages[0];
@@ -68,7 +70,7 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
     const percentDiscount = coupon?.percentOff ? Math.round((subtotal * coupon.percentOff) / 100) : 0;
     const fixedDiscount = coupon?.amountOffCents ? Math.min(subtotal, coupon.amountOffCents) : 0;
     const discount = Math.max(percentDiscount, fixedDiscount);
-    const tax = Math.round((subtotal - discount) * 0.08);
+    const tax = 0;
     return { subtotal, discount, tax, total: subtotal - discount + tax };
   }, [coupon, selectedOptions, selectedPackage]);
 
@@ -98,6 +100,7 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
 
   return (
     <form action={formAction} className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+      {locked && <p role="status" className="rounded-2xl border border-border bg-cream-deep p-4 text-sm text-navy lg:col-span-2">{messages.v1.checkoutLock}</p>}
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
       <input type="hidden" name="deliverySpeed" value={isRush ? "rush" : "standard"} />
       <input type="hidden" name="couponCode" value={coupon?.code ?? ""} />
@@ -116,7 +119,7 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
                       <span className="font-semibold">{formatCurrency(pkg.priceCents, pkg.currency, locale)}</span>
                     </span>
                     <span className="mt-1 block text-sm text-muted">{localized?.description ?? pkg.description}</span>
-                    <span className="mt-2 block text-xs font-medium text-navy">{pkg.deliveryHours}h · {pkg.revisionCredits} {copy.revisions}</span>
+                    <span className="mt-2 block text-xs font-medium text-navy">{copy.standardDelivery} · {pkg.deliveryHours}h</span>
                   </span>
                 </label>
               );
@@ -124,7 +127,7 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
           </div>
         </fieldset>
 
-        <fieldset>
+        {addOns.length > 0 && <fieldset>
           <legend className="mb-3 text-sm font-semibold">{copy.addOns}</legend>
           <div className="space-y-2">
             {addOns.map((addon) => (
@@ -137,9 +140,9 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
               </label>
             ))}
           </div>
-        </fieldset>
+        </fieldset>}
 
-        <div>
+        {allowCoupons && <div>
           <label className="mb-1.5 block text-sm font-medium" htmlFor="couponInput">{copy.coupon}</label>
           <div className="flex gap-2">
             <input
@@ -159,7 +162,7 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
             </button>
           </div>
           {couponMessage ? <p role="status" className={`mt-2 text-sm ${coupon ? "text-emerald-700" : "text-red-700"}`}>{couponMessage}</p> : null}
-        </div>
+        </div>}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -191,7 +194,7 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
           <input type="checkbox" name="termsAccepted" required className="mt-1" />
           <span>
             {copy.termsPrefix} <Link href="/legal/terms" className="underline">{copy.terms}</Link> {copy.and}{" "}
-            <Link href="/legal/refunds" className="underline">{copy.refunds}</Link>. {copy.termsSuffix}
+            <Link href="/legal/refunds" className="underline">{copy.refunds}</Link>.
           </span>
         </label>
         {state?.error ? (
@@ -206,17 +209,15 @@ export function CheckoutForm({ projectId, idempotencyKey, packages, addOns, user
         <div className="space-y-2 text-sm">
           <div className="flex justify-between gap-3"><span>{copy.subtotal}</span><span>{formatCurrency(totals.subtotal, selectedPackage?.currency, locale)}</span></div>
           {totals.discount ? <div className="flex justify-between gap-3 text-emerald-700"><span>{copy.discount}</span><span>−{formatCurrency(totals.discount, selectedPackage?.currency, locale)}</span></div> : null}
-          <div className="flex justify-between gap-3"><span>{copy.estimatedTax}</span><span>{formatCurrency(totals.tax, selectedPackage?.currency, locale)}</span></div>
-          <div className="border-t border-border pt-3 text-base font-bold text-navy"><div className="flex justify-between gap-3"><span>{copy.total}</span><span>{formatCurrency(totals.total, selectedPackage?.currency, locale)}</span></div></div>
+          <div className="flex justify-between gap-3"><span>{copy.estimatedTax}</span><span>{messages.v1.stripeTax}</span></div>
+          <div className="border-t border-border pt-3 text-base font-bold text-navy"><div className="flex justify-between gap-3"><span>{messages.v1.beforeTax}</span><span>{formatCurrency(totals.total, selectedPackage?.currency, locale)}</span></div></div>
         </div>
         <p className="rounded-2xl bg-cream px-3 py-2 text-xs text-muted">
           {copy.delivery}: {isRush ? copy.rushDelivery : copy.standardDelivery} · {isRush ? Math.max(6, Math.floor((selectedPackage?.deliveryHours ?? 0) / 2)) : selectedPackage?.deliveryHours}h
         </p>
         <ul className="space-y-2 rounded-2xl border border-border bg-surface px-4 py-3 text-xs text-muted">
-          <li>✓ One-time payment — no subscription</li>
-          <li>✓ {selectedPackage?.revisionCredits ?? 0} guided revision credit(s)</li>
-          <li>✓ Private listening page and MP3 download</li>
-          <li>✓ Secure checkout powered by Stripe</li>
+          <li>✓ {messages.v1.oneTime}</li>
+          {messages.v1.trust.map(item => <li key={item}>✓ {item}</li>)}
         </ul>
         <div className="flex flex-col gap-3">
           <button type="submit" disabled={pending || !selectedPackage} className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60">

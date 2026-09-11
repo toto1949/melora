@@ -1,7 +1,8 @@
 import type { Package } from "@/types";
+import { SONG_PRICE_CENTS } from "@/lib/pricing";
 
 export const AUDIO_LAUNCH_SLUG = "essential-song";
-export const AUDIO_LAUNCH_PRICE_CENTS = 1900;
+export const AUDIO_LAUNCH_PRICE_CENTS = SONG_PRICE_CENTS;
 export const AUDIO_LAUNCH_NAME = "Personalized Audio Song";
 export const AUDIO_LAUNCH_DESCRIPTION =
   "A complete personalized audio song created from your memories, with private listening, MP3 download, and one guided revision.";

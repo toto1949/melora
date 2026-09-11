@@ -30,7 +30,7 @@ export function ListenExperience({
   canManage,
   videoEnabled,
 }: {
-  order: Order;
+  order: Pick<Order, "id" | "shareToken" | "status" | "progress" | "estimatedDeliveryAt" | "updatedAt" | "giftRevealEnabled" | "giftRevealMessage" | "privacyMode"> & { project?: { occasion: string | null; recipient: { name: string; fromName: string | null } | null; preferences: { genre: string | null; mood: string | null } | null } };
   version: SongVersion | null;
   canManage: boolean;
   videoEnabled: boolean;

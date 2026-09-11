@@ -1,11 +1,11 @@
 -- Single-product launch for Memories to Melody.
--- Keep one personalized audio song at $19 and retire all other packages/add-ons for now.
+-- Keep one personalized audio song at $19.99 and retire all other packages/add-ons for now.
 
 update public.packages
 set
   name = 'Personalized Audio Song',
   description = 'A complete personalized audio song created from your memories, with private listening, MP3 download, and one guided revision.',
-  price_cents = 1900,
+  price_cents = 1999,
   features = '["Personalized lyrics built from your memories","One complete personalized audio song","Choice of genre, mood, vocal style, and language","Private listening page","MP3 download","One guided revision","Standard delivery"]'::jsonb,
   revision_credits = 1,
   includes_video = false,

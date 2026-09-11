@@ -1,7 +1,8 @@
 import type { FaqItem, Package } from "@/types";
 import { AUDIO_LAUNCH_SLUG } from "@/lib/launch-catalog";
 
-export function packageAvailableForRelease(pkg: Package, _videoEnabled: boolean) {
+export function packageAvailableForRelease(pkg: Package, videoEnabled: boolean) {
+  void videoEnabled;
   return pkg.slug === AUDIO_LAUNCH_SLUG && !pkg.includesVideo && !pkg.includesLyricVideo;
 }
 
@@ -9,7 +10,8 @@ export function filterPackagesForRelease(packages: Package[], videoEnabled: bool
   return packages.filter((pkg) => packageAvailableForRelease(pkg, videoEnabled));
 }
 
-export function filterFaqsForRelease(faqs: FaqItem[], _videoEnabled: boolean) {
+export function filterFaqsForRelease(faqs: FaqItem[], videoEnabled: boolean) {
+  void videoEnabled;
   return faqs
     .map((faq) => {
       if (/how long until my song is ready/i.test(faq.question) || /how long does delivery take/i.test(faq.question)) {
@@ -23,7 +25,7 @@ export function filterFaqsForRelease(faqs: FaqItem[], _videoEnabled: boolean) {
         return {
           ...faq,
           answer:
-            "Your $19 launch song includes one guided revision. From your dashboard you can request a focused change to lyrics, pronunciation, tempo, mood, vocals, or instrumentation, and we will prepare an updated version.",
+            "Your $19.99 launch song includes one guided revision. From your dashboard you can request a focused change to lyrics, pronunciation, tempo, mood, vocals, or instrumentation, and we will prepare an updated version.",
         };
       }
       if (/how do i give the song as a gift/i.test(faq.question)) {
@@ -40,12 +42,12 @@ export function filterFaqsForRelease(faqs: FaqItem[], _videoEnabled: boolean) {
             "Yes. The story details you provide are used to create and support your song. Listening pages are private by default, and you control how the private link is shared.",
         };
       }
-      if (/what is included in each package/i.test(faq.question) || /what is included in the \$19 launch offer/i.test(faq.question)) {
+      if (/what is included in each package/i.test(faq.question) || /what is included in the \$19(?:\.99)? launch offer/i.test(faq.question)) {
         return {
           ...faq,
-          question: "What is included in the $19 launch offer?",
+          question: "What is included in the $19.99 launch offer?",
           answer:
-            "The launch offer includes personalized lyrics, one complete personalized audio song, your choice of genre, mood, vocal style and language, an MP3 download, a private listening link, one guided revision, and automatic progress updates while your song is created. It is a one-time $19 payment with no subscription.",
+            "The launch offer includes personalized lyrics, one complete personalized audio song, your choice of genre, mood, vocal style and language, an MP3 download, a private listening link, one guided revision, and automatic progress updates while your song is created. It is a one-time $19.99 payment with no subscription.",
         };
       }
       if (/can i download the song and keep it forever/i.test(faq.question)) {

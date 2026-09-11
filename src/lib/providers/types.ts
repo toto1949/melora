@@ -59,7 +59,10 @@ export interface MusicProvider {
     title: string;
     /** Stable key so provider retries resume the same generation instead of paying for a new one. */
     idempotencyKey?: string;
+    providerJobId?: string;
     onProviderJobId?: (providerJobId: string) => void | Promise<void>;
+    /** Called only after the provider confirms that its saved job ended in failure. */
+    onProviderTerminalFailure?: () => void | Promise<void>;
     /** Reports provider progress on the pipeline job's 0-100 scale. */
     onProgress?: (progress: number) => void | Promise<void>;
   }): Promise<MusicResult>;

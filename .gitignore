@@ -45,3 +45,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*
+
+# Keep the secret-free setup template tracked.
+!.env.example
+
+# Local agent and service CLI state.
+.agents/
+skills-lock.json
+supabase/.temp/

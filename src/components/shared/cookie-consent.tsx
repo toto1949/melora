@@ -33,26 +33,26 @@ export function CookieConsent({ initialConsent }: { initialConsent: CookieConsen
       role="region"
       aria-label={copy.aria}
       aria-live="polite"
-      className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-xl rounded-3xl border border-border bg-surface p-5 shadow-[var(--shadow-lift)]"
+      className="fixed inset-x-3 bottom-3 z-50 rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-lift)] sm:inset-x-auto sm:end-5 sm:bottom-5 sm:max-w-sm"
     >
-      <p className="font-display text-xl text-navy">{copy.title}</p>
+      <p className="text-sm font-semibold text-navy">{copy.title}</p>
       <p className="mt-2 text-sm prose-muted">
         {copy.body}{" "}
         <Link href="/legal/privacy" className="underline">
           {copy.privacy}
         </Link>
       </p>
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 grid grid-cols-2 gap-2">
         <button
           type="button"
-          className="btn-primary !py-2"
+          className="btn-secondary !px-3 !py-2 text-sm"
           onClick={() => choose("all")}
         >
           {copy.accept}
         </button>
         <button
           type="button"
-          className="btn-secondary !py-2"
+          className="btn-secondary !px-3 !py-2 text-sm"
           onClick={() => choose("essential")}
         >
           {copy.essential}

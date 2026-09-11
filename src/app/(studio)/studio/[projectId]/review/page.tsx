@@ -1,3 +1,4 @@
+import { v1Packages } from "@/lib/release";
 import Link from "next/link";
 import { StudioShell } from "@/components/studio/studio-shell";
 import { FormError } from "@/components/studio/form-error";
@@ -5,8 +6,6 @@ import { confirmReviewAction } from "@/lib/actions/studio";
 import { loadStudioProject } from "@/lib/studio/load-project";
 import { listPackages } from "@/lib/db/repository";
 import { formatCurrency } from "@/lib/utils";
-import { getEnv } from "@/lib/env";
-import { filterPackagesForRelease } from "@/lib/features";
 import { getLocale, getMessages } from "@/lib/i18n";
 import { SubmitButton } from "@/components/studio/submit-button";
 
@@ -25,7 +24,7 @@ export default async function ReviewStep({
     getMessages(),
     getLocale(),
   ]);
-  const packages = filterPackagesForRelease(allPackages, getEnv().VIDEO_FEATURE_ENABLED);
+  const packages = v1Packages(allPackages);
   const pkg = packages.find((p) => p.id === project.packageId) || packages[0];
   const copy = messages.studio.review;
   const occasion = project.occasion
@@ -57,7 +56,7 @@ export default async function ReviewStep({
           <div key={String(path)} className="surface-card flex items-start justify-between gap-4 p-5">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-gold">{label}</p>
-              <p className="mt-1 text-navy">{value || messages.common.notProvided}</p>
+              <p className="mt-1 break-words text-navy">{value || messages.common.notProvided}</p>
             </div>
             <Link href={`/studio/${projectId}/${path}`} className="text-sm font-semibold text-rose underline">{messages.common.edit}</Link>
           </div>

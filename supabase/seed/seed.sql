@@ -8,7 +8,7 @@ on conflict (key) do update set value = excluded.value;
 
 insert into public.packages (id, slug, name, description, price_cents, features, revision_credits, includes_video, includes_wav, includes_lyric_video, song_variations, delivery_hours, sort_order)
 values
-  ('11111111-1111-1111-1111-111111111111', 'essential-song', 'Personalized Audio Song', 'A complete personalized audio song created from your memories, with private listening, MP3 download, and one guided revision.', 1900, '["Personalized lyrics built from your memories","One complete personalized audio song","Choice of genre, mood, vocal style, and language","Private listening page","MP3 download","One guided revision","Standard delivery"]', 1, false, false, false, 1, 48, 1),
+  ('11111111-1111-1111-1111-111111111111', 'essential-song', 'Personalized Audio Song', 'A complete personalized audio song created from your memories, with private listening, MP3 download, and one guided revision.', 1999, '["Personalized lyrics built from your memories","One complete personalized audio song","Choice of genre, mood, vocal style, and language","Private listening page","MP3 download","One guided revision","Standard delivery"]', 1, false, false, false, 1, 48, 1),
   ('22222222-2222-2222-2222-222222222222', 'premium-story', 'Premium Story', 'Reserved for a future release.', 7900, '["Future release"]', 3, false, false, false, 1, 24, 2),
   ('33333333-3333-3333-3333-333333333333', 'cinematic-memory', 'Cinematic Memory', 'Reserved for a future release.', 14900, '["Future release"]', 5, true, true, true, 3, 18, 3)
 on conflict (slug) do nothing;
@@ -17,7 +17,7 @@ update public.packages
 set
   name = 'Personalized Audio Song',
   description = 'A complete personalized audio song created from your memories, with private listening, MP3 download, and one guided revision.',
-  price_cents = 1900,
+  price_cents = 1999,
   features = '["Personalized lyrics built from your memories","One complete personalized audio song","Choice of genre, mood, vocal style, and language","Private listening page","MP3 download","One guided revision","Standard delivery"]'::jsonb,
   revision_credits = 1,
   includes_video = false,

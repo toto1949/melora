@@ -29,16 +29,20 @@ import {
 } from "@/lib/validation/studio";
 import { getEnv } from "@/lib/env";
 import { processMediaUpload } from "@/lib/uploads/process-upload";
+import { ownsProject } from "@/lib/security/ownership";
+import { rateLimit } from "@/lib/security/rate-limit";
+import { logEvent } from "@/lib/observability/logger";
 import { packageAvailableForRelease } from "@/lib/features";
 
-async function assertProjectAccess(projectId: string) {
+async function assertProjectAccess(projectId: string, checkout = false) {
   const guestToken = await getGuestToken();
   const user = await getCurrentUser();
   const project = await getProject(projectId, guestToken);
   if (!project) throw new Error("Project not found");
-  if (project.userId && user?.id !== project.userId && user?.role === "customer") {
+  if (!ownsProject(project, user, guestToken)) {
     throw new Error("Forbidden");
   }
+  if (!checkout && project.status !== "draft") throw new Error("This order is locked for checkout. Start a new song to change its story.");
   return { project, user, guestToken };
 }
 
@@ -239,9 +243,9 @@ export async function saveLyricsAction(projectId: string, formData: FormData) {
     desiredLength: parsed.desiredLength ?? null,
     videoStyle: existing?.videoStyle ?? null,
   });
-  await updateProjectStep(projectId, 6);
+  await updateProjectStep(projectId, getEnv().VIDEO_FEATURE_ENABLED ? 6 : 7);
   await trackEvent("studio_step_completed", { step: 5 }, { projectId });
-  redirect(`/studio/${projectId}/media`);
+  redirect(`/studio/${projectId}/${getEnv().VIDEO_FEATURE_ENABLED ? "media" : "review"}`);
 }
 
 export async function saveMediaAction(projectId: string, formData: FormData) {
@@ -317,7 +321,13 @@ export async function checkoutAction(
 ): Promise<CheckoutState> {
   let checkoutUrl: string | null = null;
   try {
-    const { user } = await assertProjectAccess(projectId);
+    const { user, project } = await assertProjectAccess(projectId, true);
+    if (!(await rateLimit(`checkout:${projectId}`, 10, 60_000)).success) return { error: "Please wait a minute before retrying checkout." };
+    recipientSchema.parse(project.recipient);
+    storySchema.parse(project.story);
+    styleSchema.parse(project.preferences);
+    occasionSchema.parse({ occasion: project.occasion });
+    lyricsDirectionSchema.parse(project.preferences);
     const parsed = checkoutSchema.parse({
       packageId: formData.get("packageId"),
       addOnIds: formData.getAll("addOnIds"),
@@ -337,6 +347,7 @@ export async function checkoutAction(
       return { error: "That package is not available in this release. Please choose an available song package." };
     }
 
+    if (!getEnv().USE_MOCK_PROVIDERS && (selectedPackage.slug !== "essential-song" || parsed.addOnIds.length || parsed.couponCode)) return { error: "Checkout currently supports the $19.99 personalized song without add-ons or coupons." };
     if (parsed.couponCode && !(await findCoupon(parsed.couponCode))) {
       return { error: "That coupon is invalid or expired. Remove it or apply a valid coupon before continuing." };
     }
@@ -379,6 +390,7 @@ export async function checkoutAction(
       idempotencyKey: parsed.idempotencyKey,
     });
 
+    logEvent("info", "order_created", { orderId: order.id });
     await trackEvent(
       "checkout_started",
       { packageId: parsed.packageId, total: order.totalCents },
@@ -388,19 +400,17 @@ export async function checkoutAction(
     const env = getEnv();
     const session = await createCheckoutSession(
       order,
-      `${env.NEXT_PUBLIC_APP_URL}/studio/${projectId}/success?orderId=${order.id}`,
-      `${env.NEXT_PUBLIC_APP_URL}/studio/${projectId}/checkout`,
+      `${env.NEXT_PUBLIC_APP_URL}/payment-success?order_id=${order.id}`,
+      `${env.NEXT_PUBLIC_APP_URL}/payment-cancelled?order_id=${order.id}`,
     );
 
-    const { updateOrderStatus } = await import("@/lib/db/repository");
-    await updateOrderStatus(order.id, order.status, { stripeCheckoutSessionId: session.id });
 
     checkoutUrl = session.url ?? null;
   } catch (error) {
     if (error instanceof ZodError) {
       return { error: error.issues[0]?.message ?? "Please review the form and try again." };
     }
-    console.error("checkoutAction failed", error);
+    logEvent("error", "checkout_failed", { projectId });
     return { error: "Something went wrong starting your checkout. Please try again." };
   }
 
@@ -410,16 +420,17 @@ export async function checkoutAction(
 
 export async function completeMockPaymentAction(orderId: string) {
   const { isMockMode } = await import("@/lib/env");
-  if (!isMockMode()) {
+  if (!isMockMode() || process.env.NODE_ENV === "production" || process.env.VERCEL) {
     throw new Error("Mock payments are disabled in production");
   }
 
   const { updateOrderStatus, getOrder, trackEvent } = await import("@/lib/db/repository");
   const order = await getOrder(orderId);
   if (!order) throw new Error("Order not found");
+  await assertProjectAccess(order.projectId, true);
   if (order.status !== "awaiting_payment") return { ok: true };
 
-  await updateOrderStatus(orderId, "payment_confirmed");
+  await updateOrderStatus(orderId, "payment_confirmed", { paymentStatus: "paid" });
   await sendEmail({
     to: order.email,
     template: "order-confirmation",

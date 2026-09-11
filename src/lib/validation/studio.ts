@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const occasionSchema = z.object({
-  occasion: z.string().min(2, "Please choose an occasion"),
+  occasion: z.string().min(2, "Please choose an occasion").max(80),
 });
 
 export const recipientSchema = z
@@ -37,24 +37,24 @@ export const storySchema = z.object({
 });
 
 export const styleSchema = z.object({
-  genre: z.string().min(1, "Please choose a genre"),
+  genre: z.string().min(1, "Please choose a genre").max(100),
   customStyle: z.string().max(200).optional().nullable(),
-  mood: z.string().min(1, "Please choose a mood"),
-  energy: z.string().optional().nullable(),
-  tempo: z.string().optional().nullable(),
-  vocalType: z.string().min(1, "Please choose a vocal type"),
-  duetPreference: z.string().optional().nullable(),
-  language: z.string().min(2),
+  mood: z.string().min(1, "Please choose a mood").max(100),
+  energy: z.string().max(100).optional().nullable(),
+  tempo: z.string().max(100).optional().nullable(),
+  vocalType: z.string().min(1, "Please choose a vocal type").max(100),
+  duetPreference: z.string().max(100).optional().nullable(),
+  language: z.string().min(2).max(12),
   explicitContent: z.boolean(),
-  instruments: z.array(z.string()).default([]),
+  instruments: z.array(z.string().max(200)).max(30).default([]),
 });
 
 export const lyricsDirectionSchema = z.object({
-  lyricTone: z.string().min(1, "Please choose a lyric tone"),
-  mustInclude: z.array(z.string()).default([]),
-  mustExclude: z.array(z.string()).default([]),
+  lyricTone: z.string().min(1, "Please choose a lyric tone").max(100),
+  mustInclude: z.array(z.string().max(200)).max(30).default([]),
+  mustExclude: z.array(z.string().max(200)).max(30).default([]),
   chorusMessage: z.string().max(280).optional().nullable(),
-  desiredLength: z.string().optional().nullable(),
+  desiredLength: z.string().max(100).optional().nullable(),
 });
 
 export const mediaSchema = z.object({
@@ -69,24 +69,24 @@ export const reviewConfirmSchema = z.object({
 
 export const checkoutSchema = z.object({
   packageId: z.string().min(1),
-  addOnIds: z.array(z.string()).default([]),
+  addOnIds: z.array(z.string().max(200)).max(30).default([]),
   deliverySpeed: z.enum(["standard", "rush"]).default("standard"),
   couponCode: z.string().optional().nullable(),
-  email: z.string().email(),
-  phone: z.string().optional().nullable(),
+  email: z.string().email().max(254),
+  phone: z.string().max(40).optional().nullable(),
   createAccount: z.boolean().default(true),
   password: z.string().min(8).optional().nullable(),
   termsAccepted: z.literal(true),
-  idempotencyKey: z.string().min(8),
+  idempotencyKey: z.string().min(8).max(128),
 });
 
 export const revisionSchema = z.object({
   categories: z.array(z.string()).min(1),
   notes: z.string().min(10).max(4000),
-  timestamps: z.array(z.string()).default([]),
+  timestamps: z.array(z.string().max(200)).max(30).default([]),
 });
 
 export const trackOrderSchema = z.object({
   orderNumber: z.string().min(3),
-  email: z.string().email(),
+  email: z.string().email().max(254),
 });

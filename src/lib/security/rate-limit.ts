@@ -23,10 +23,10 @@ export async function rateLimit(
       logEvent("warn", "distributed_rate_limit_error", {
         error: error instanceof Error ? error.message : "Unknown Upstash error",
       });
-      return localRateLimit(key, limit, windowMs);
+      return process.env.NODE_ENV === "production" ? { success: false, remaining: 0 } : localRateLimit(key, limit, windowMs);
     }
   }
-  return localRateLimit(key, limit, windowMs);
+  return process.env.NODE_ENV === "production" ? { success: false, remaining: 0 } : localRateLimit(key, limit, windowMs);
 }
 
 async function upstashRateLimit(
@@ -41,6 +41,7 @@ async function upstashRateLimit(
   const res = await fetch(`${url}/pipeline`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    signal: AbortSignal.timeout(5000),
     body: JSON.stringify([
       ["INCR", redisKey],
       ["EXPIRE", redisKey, windowSec.toString(), "NX"],
@@ -48,10 +49,11 @@ async function upstashRateLimit(
   });
   if (!res.ok) {
     logEvent("warn", "distributed_rate_limit_unavailable", { status: res.status });
-    return localRateLimit(key, limit, windowMs);
+    return process.env.NODE_ENV === "production" ? { success: false, remaining: 0 } : localRateLimit(key, limit, windowMs);
   }
   const data = (await res.json()) as Array<{ result: number }>;
-  const count = data[0]?.result ?? 0;
+  const count = data[0]?.result;
+  if (!Number.isFinite(count)) return { success: false, remaining: 0 };
   return { success: count <= limit, remaining: Math.max(0, limit - count) };
 }
 

@@ -1,4 +1,6 @@
 import { Hero } from "@/components/marketing/hero";
+import { getMessages } from "@/lib/i18n";
+import { localizeReleaseFaqs } from "@/lib/release";
 import { AudioLaunchOffer } from "@/components/marketing/audio-launch-offer";
 import { AudioLaunchFinalCta } from "@/components/marketing/audio-launch-final-cta";
 import { AudioLaunchTrustBar } from "@/components/marketing/audio-launch-trust-bar";
@@ -33,7 +35,10 @@ export default async function HomePage() {
     listReviews(8),
     listFaqs(),
   ]);
-  const releaseFaqs = filterFaqsForRelease(faqs, videoEnabled);
+  const releaseFaqs = localizeReleaseFaqs(
+    filterFaqsForRelease(faqs, videoEnabled),
+    await getMessages(),
+  );
   const launchPackage = filterPackagesForRelease(packages, videoEnabled)[0];
 
   const jsonLd = {
@@ -71,8 +76,8 @@ export default async function HomePage() {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd).replace(/</g, "\\u003c") }} />
       <Hero settings={settings} sample={samples[0]} />
       <AudioLaunchTrustBar settings={settings} />
       <ReactionGallery reactions={reactions} />
