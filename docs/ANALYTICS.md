@@ -59,6 +59,22 @@ Keep these unset in Preview and Development so those deployments cannot pollute 
 
 ## Provider setup
 
+### Vercel Speed Insights
+
+The root layout mounts `VercelAnalytics` after the visitor accepts analytics
+cookies. This component includes both Web Analytics and the Next.js
+`SpeedInsights` component. Both respect the existing private-page exclusions.
+
+After deploying, open a public production page, accept analytics cookies, and
+interact with the page. In browser developer tools, verify the Speed Insights
+script loads and performance requests reach Vercel. Then open the `melora`
+project's Speed Insights dashboard and select Production and the matching
+device type. Metrics accumulate from eligible visits after installation;
+historical visits are not backfilled. If the dashboard asks to enable Speed
+Insights, enable it for this project and redeploy.
+
+### Advertising and conversion providers
+
 1. In GA4, verify `begin_checkout` and `purchase` in DebugView, then mark `purchase` as a key event.
 2. In Meta Events Manager, verify `InitiateCheckout` and `Purchase` against the production domain.
 3. In TikTok Events Manager, create or select the production web pixel, put its ID in `NEXT_PUBLIC_TIKTOK_PIXEL_ID`, and verify `InitiateCheckout` and `CompletePayment` with Test Events.
