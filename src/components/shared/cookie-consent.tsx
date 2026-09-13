@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { COOKIE_CONSENT, type CookieConsentValue } from "@/lib/cookie-consent";
+import { ensureAnalyticsIdentity } from "@/lib/analytics/client";
 
 export function CookieConsent({ initialConsent }: { initialConsent: CookieConsentValue | null }) {
   const [visible, setVisible] = useState(initialConsent === null);
@@ -16,6 +17,10 @@ export function CookieConsent({ initialConsent }: { initialConsent: CookieConsen
 
   const choose = (value: "all" | "essential") => {
     document.cookie = `${COOKIE_CONSENT}=${value}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+
+    // Preserve the original landing URL and social referrer before refreshing
+    // into the consented analytics tree.
+    if (value === "all") ensureAnalyticsIdentity();
 
     window.gtag?.("consent", "update", {
       analytics_storage: value === "all" ? "granted" : "denied",

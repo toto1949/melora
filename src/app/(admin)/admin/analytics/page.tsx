@@ -49,7 +49,7 @@ export default async function AdminAnalyticsPage({
         <div>
           <h1 className="font-display text-4xl">Analytics</h1>
           <p className="mt-2 max-w-3xl text-sm text-muted">
-            Consent-based acquisition and conversion data joined to webhook-confirmed orders. Staff, Preview, fixture, and tagged test traffic are excluded.
+            Consented acquisition and conversion data joined to webhook-confirmed orders. A browser counts once as a unique visitor even across repeat page views; sessions and page views remain separate. Staff, Preview, fixture, and tagged test traffic are excluded. Vercel Analytics provides the independent cookieless site-traffic view.
           </p>
         </div>
         <nav className="flex rounded-full border border-border bg-surface p-1" aria-label="Analytics date range">
