@@ -13,7 +13,7 @@ function event(
     id,
     eventName,
     visitorId,
-    sessionId: visitorId ? `session-${visitorId}` : null,
+    sessionId: overrides.sessionId ?? (visitorId ? `session-${visitorId}` : null),
     userId: null,
     projectId: overrides.projectId ?? null,
     orderId: overrides.orderId ?? null,
@@ -37,6 +37,19 @@ describe("campaign attribution", () => {
     expect(parseAttributionCookie(encodeAttributionCookie(result.touch))).toEqual(result.touch);
   });
 
+  it("keeps Instagram traffic separate when Meta also supplies fbclid", () => {
+    const result = captureAttribution(
+      "?fbclid=meta_click_123",
+      "/",
+      "https://l.instagram.com/",
+    );
+    expect(result.touch).toMatchObject({ source: "instagram", fbclid: "meta_click_123" });
+  });
+
+  it("normalizes mobile TikTok referrers", () => {
+    expect(captureAttribution("", "/", "https://m.tiktok.com/").touch.source).toBe("tiktok");
+  });
+
   it("normalizes private dynamic paths before analytics storage", () => {
     expect(safePagePath("/studio/11111111-1111-4111-8111-111111111111/story?utm_source=x")).toBe("/studio/[project]/story");
     expect(safePagePath("https://attacker.test/path")).toBeNull();
@@ -44,6 +57,17 @@ describe("campaign attribution", () => {
 });
 
 describe("analytics dashboard", () => {
+  it("counts one browser visitor once across repeated views and sessions", () => {
+    const views = [
+      event("view-1", "page_view", "visitor-1", { sessionId: "session-1", pagePath: "/" }),
+      event("view-2", "page_view", "visitor-1", { sessionId: "session-1", pagePath: "/pricing" }),
+      event("view-3", "page_view", "visitor-1", { sessionId: "session-2", pagePath: "/reviews" }),
+    ];
+    const summary = buildAnalyticsDashboard("7d", "2026-09-04T00:00:00.000Z", views, []);
+
+    expect(summary).toMatchObject({ uniqueVisitors: 1, sessions: 2, pageViews: 3 });
+  });
+
   it("answers the paid-social funnel per 100 visitors and excludes internal traffic", () => {
     const views = Array.from({ length: 100 }, (_, index) => event(`view-${index}`, "page_view", `visitor-${index}`, { pagePath: index < 60 ? "/" : "/pricing" }));
     const studio = Array.from({ length: 25 }, (_, index) => event(`studio-${index}`, "studio_started", `visitor-${index}`, { projectId: `project-${index}` }));

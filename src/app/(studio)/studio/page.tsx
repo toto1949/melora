@@ -27,7 +27,6 @@ export default async function StudioEntryPage({
           {occasionName ? copy.occasionBody.replace("{occasion}", occasionName) : copy.body}
         </p>
         <ol className="mt-6 grid gap-3 text-start text-sm text-navy">{messages.v1.steps.map((step, index) => <li key={step} className="flex items-center gap-3"><span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-cream-deep text-xs font-semibold">{index+1}</span>{step}</li>)}</ol>
-        <p className="mt-6 border-t border-border pt-5 text-sm font-semibold text-navy">{messages.v1.entryPrice}</p>
         <form action={startStudioAction} className="mt-8">
           {params.occasion ? <input type="hidden" name="occasion" value={params.occasion} /> : null}
           {params.package ? <input type="hidden" name="package" value={params.package} /> : null}

@@ -90,9 +90,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <CookieConsent initialConsent={consent} />
         </LocaleProvider>
         <GoogleAnalytics measurementId={gaMeasurementId} initialConsent={consent} />
+        <VercelAnalytics />
         {consent === "all" ? (
           <>
-            <VercelAnalytics />
             <AnalyticsTracker />
             <MetaPixel pixelId={metaPixelId} />
             <TikTokPixel pixelId={tiktokPixelId} />

@@ -34,9 +34,9 @@ function clean(value: string | null | undefined, maxLength: number) {
 
 export function normalizeTrafficSource(value: string | undefined) {
   const source = value?.trim().toLowerCase() || "direct";
-  if (["ig", "instagram", "instagram.com", "l.instagram.com"].includes(source)) return "instagram";
-  if (["fb", "facebook", "facebook.com", "m.facebook.com", "l.facebook.com"].includes(source)) return "facebook";
-  if (["tt", "tiktok", "tiktok.com"].includes(source)) return "tiktok";
+  if (["ig", "instagram"].includes(source) || source === "instagram.com" || source.endsWith(".instagram.com")) return "instagram";
+  if (["fb", "facebook"].includes(source) || source === "facebook.com" || source.endsWith(".facebook.com")) return "facebook";
+  if (["tt", "tiktok"].includes(source) || source === "tiktok.com" || source.endsWith(".tiktok.com")) return "tiktok";
   if (["google", "google.com"].includes(source)) return "google";
   return clean(source, 80) || "direct";
 }
@@ -61,11 +61,16 @@ export function captureAttribution(
     referrerHost = undefined;
   }
 
+  const referrerSource = referrerHost ? normalizeTrafficSource(referrerHost) : undefined;
+  const socialReferrer = referrerSource && ["instagram", "facebook", "tiktok"].includes(referrerSource)
+    ? referrerSource
+    : undefined;
   const inferred = values.utm_source
     || (values.ttclid ? "tiktok" : undefined)
+    || socialReferrer
     || (values.fbclid ? "facebook" : undefined)
     || (values.gclid ? "google" : undefined)
-    || referrerHost
+    || referrerSource
     || "direct";
 
   return {
