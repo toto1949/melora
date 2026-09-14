@@ -15,15 +15,15 @@ import { createCheckoutSession } from "@/lib/stripe/client";
 import { POST } from "@/app/api/stripe/webhook/route";
 import { ownsOrder, ownsProject } from "@/lib/security/ownership";
 const oid = "11111111-1111-4111-8111-111111111111";
-const order = { id: oid, subtotalCents: 1999, discountCents: 0, totalCents: 1999, currency: "usd", email: "buyer@example.test", paymentStatus: "pending", stripeCheckoutSessionId: "cs_song", stripePriceId: "price_song", checkoutAttempt: 1, checkoutExpiresAt: new Date(Date.now()+1860_000).toISOString() } as Order;
-function session(overrides = {}) { return { id: "cs_song", object: "checkout.session", mode: "payment", status: "complete", payment_status: "paid", livemode: false, metadata: { order_id: oid }, amount_subtotal: 1999, amount_total: 2159, currency: "usd", total_details: { amount_tax: 160, amount_discount: 0 }, payment_intent: { id: "pi_song", metadata: { order_id: oid }, currency: "usd", amount: 2159, amount_received: 2159, status: "succeeded", livemode: false, latest_charge: { amount_refunded: 0, refunded: false, disputed: false } }, line_items: { data: [{ quantity: 1, price: { id: "price_song", unit_amount: 1999 } }], has_more: false }, ...overrides }; }
+const order = { id: oid, subtotalCents: 999, discountCents: 0, totalCents: 999, currency: "usd", email: "buyer@example.test", paymentStatus: "pending", stripeCheckoutSessionId: "cs_song", stripePriceId: "price_song", checkoutAttempt: 1, checkoutExpiresAt: new Date(Date.now()+1860_000).toISOString() } as Order;
+function session(overrides = {}) { return { id: "cs_song", object: "checkout.session", mode: "payment", status: "complete", payment_status: "paid", livemode: false, metadata: { order_id: oid }, amount_subtotal: 999, amount_total: 1159, currency: "usd", total_details: { amount_tax: 160, amount_discount: 0 }, payment_intent: { id: "pi_song", metadata: { order_id: oid }, currency: "usd", amount: 1159, amount_received: 1159, status: "succeeded", livemode: false, latest_charge: { amount_refunded: 0, refunded: false, disputed: false } }, line_items: { data: [{ quantity: 1, price: { id: "price_song", unit_amount: 999 } }], has_more: false }, ...overrides }; }
 async function webhook(type = "checkout.session.completed", object = { object: "checkout.session", id: "cs_song" }, signature?: string) {
   const payload = JSON.stringify({ id: "evt_fixture", object: "event", type, livemode: false, data: { object } });
   const stripe = new Stripe("sk_test_fixture");
   const header = signature ?? stripe.webhooks.generateTestHeaderString({ payload, secret: mocks.env.STRIPE_WEBHOOK_SECRET });
   return POST(new Request("http://localhost/api/stripe/webhook", { method: "POST", body: payload, headers: { "stripe-signature": header } }));
 }
-beforeEach(() => { vi.clearAllMocks(); mocks.getOrder.mockResolvedValue(order); mocks.rpc.mockResolvedValue({ data: true, error: null }); mocks.retrieve.mockResolvedValue(session()); mocks.price.mockResolvedValue({ id: "price_song", active: true, unit_amount: 1999, currency: "usd", type: "one_time", tax_behavior: "exclusive" }); mocks.create.mockResolvedValue({ id: "cs_song", url: "https://checkout.stripe.com/test" }); });
+beforeEach(() => { vi.clearAllMocks(); mocks.getOrder.mockResolvedValue(order); mocks.rpc.mockResolvedValue({ data: true, error: null }); mocks.retrieve.mockResolvedValue(session()); mocks.price.mockResolvedValue({ id: "price_song", active: true, unit_amount: 999, currency: "usd", type: "one_time", tax_behavior: "exclusive" }); mocks.create.mockResolvedValue({ id: "cs_song", url: "https://checkout.stripe.com/test" }); });
 describe("Stripe payment boundary", () => {
   it("creates Checkout with the existing price, automatic tax and identifier-only metadata", async () => {
     await createCheckoutSession({ ...order, stripeCheckoutSessionId: null, firstTouch: { source: "instagram" }, lastTouch: { source: "tiktok", utm_medium: "paid_social", utm_campaign: "launch", utm_content: "video-a", ttclid: "private-click-id" } }, "http://localhost/payment-success", "http://localhost/payment-cancelled");
@@ -36,18 +36,33 @@ describe("Stripe payment boundary", () => {
     await createCheckoutSession(order, "success", "cancel"); expect(mocks.create).not.toHaveBeenCalled();
   });
   it("rejects a misconfigured price", async () => {
-    mocks.price.mockResolvedValue({ active: true, type: "one_time", unit_amount: 999, currency: "usd" });
+    mocks.price.mockResolvedValue({ active: true, type: "one_time", unit_amount: 1999, currency: "usd", tax_behavior: "exclusive" });
     await expect(createCheckoutSession({ ...order, stripeCheckoutSessionId: null }, "success", "cancel")).rejects.toThrow(); expect(mocks.create).not.toHaveBeenCalled();
   });
+  it("accepts a delayed payment for a historical 19.99 order", async () => {
+    mocks.getOrder.mockResolvedValue({ ...order, subtotalCents: 1999, totalCents: 1999 });
+    const old = session({ amount_subtotal: 1999, amount_total: 2159 });
+    old.line_items.data[0].price.unit_amount = 1999;
+    old.payment_intent.amount = 2159;
+    old.payment_intent.amount_received = 2159;
+    mocks.retrieve.mockResolvedValue(old);
+    expect((await webhook()).status).toBe(200);
+    expect(mocks.rpc).toHaveBeenCalledWith("apply_stripe_event", expect.objectContaining({ p_total: 2159 }));
+  });
+  it("rejects a 9.99 payment presented for a historical 19.99 order", async () => {
+    mocks.getOrder.mockResolvedValue({ ...order, subtotalCents: 1999, totalCents: 1999 });
+    expect((await webhook()).status).toBe(500);
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
   it("rejects an invalid cryptographic webhook signature", async () => { expect((await webhook(undefined, undefined, "t=1,v1=invalid")).status).toBe(400); expect(mocks.rpc).not.toHaveBeenCalled(); });
-  it("accepts a valid raw signed event and transactionally confirms payment", async () => { expect((await webhook()).status).toBe(200); expect(mocks.rpc).toHaveBeenCalledWith("apply_stripe_event", expect.objectContaining({ p_state: "paid", p_total: 2159, p_tax: 160, p_intent: "pi_song" })); });
+  it("accepts a valid raw signed event and transactionally confirms payment", async () => { expect((await webhook()).status).toBe(200); expect(mocks.rpc).toHaveBeenCalledWith("apply_stripe_event", expect.objectContaining({ p_state: "paid", p_total: 1159, p_tax: 160, p_intent: "pi_song" })); });
   it("never authorizes unpaid completed sessions", async () => { mocks.retrieve.mockResolvedValue(session({ payment_status: "unpaid" })); expect((await webhook()).status).toBe(200); expect(mocks.rpc).not.toHaveBeenCalled(); });
   it("rejects another order's payment", async () => { mocks.retrieve.mockResolvedValue(session({ metadata: { order_id: "other" } })); expect((await webhook()).status).toBe(500); expect(mocks.rpc).not.toHaveBeenCalled(); });
   it("returns 500 for transactional failures so Stripe retries", async () => { mocks.rpc.mockResolvedValue({ error: { message: "db offline" } }); expect((await webhook()).status).toBe(500); });
   it("acknowledges a duplicate without side effects outside the database", async () => { mocks.rpc.mockResolvedValue({ data: false }); expect((await webhook()).status).toBe(200); expect(mocks.create).not.toHaveBeenCalled(); });
   it("handles async success", async () => { expect((await webhook("checkout.session.async_payment_succeeded")).status).toBe(200); });
-  it("uses current refund state even when a delayed paid event arrives", async () => { const s=session(); s.payment_intent.latest_charge={ amount_refunded: 2159, refunded: true, disputed: false }; mocks.retrieve.mockResolvedValue(s); await webhook(); expect(mocks.rpc).toHaveBeenCalledWith("apply_stripe_event", expect.objectContaining({ p_state: "refunded" })); });
-  it("handles charge.refunded via the authoritative PaymentIntent association", async () => { const s=session(); s.payment_intent.latest_charge={ amount_refunded: 2159, refunded: true, disputed: false }; mocks.intent.mockResolvedValue(s.payment_intent); mocks.retrieve.mockResolvedValue(s); await webhook("charge.refunded", { object: "charge", id: "ch_song", payment_intent: "pi_song" } as never); expect(mocks.rpc).toHaveBeenCalledWith("apply_stripe_event", expect.objectContaining({ p_state: "refunded" })); });
+  it("uses current refund state even when a delayed paid event arrives", async () => { const s=session(); s.payment_intent.latest_charge={ amount_refunded: 1159, refunded: true, disputed: false }; mocks.retrieve.mockResolvedValue(s); await webhook(); expect(mocks.rpc).toHaveBeenCalledWith("apply_stripe_event", expect.objectContaining({ p_state: "refunded" })); });
+  it("handles charge.refunded via the authoritative PaymentIntent association", async () => { const s=session(); s.payment_intent.latest_charge={ amount_refunded: 1159, refunded: true, disputed: false }; mocks.intent.mockResolvedValue(s.payment_intent); mocks.retrieve.mockResolvedValue(s); await webhook("charge.refunded", { object: "charge", id: "ch_song", payment_intent: "pi_song" } as never); expect(mocks.rpc).toHaveBeenCalledWith("apply_stripe_event", expect.objectContaining({ p_state: "refunded" })); });
 });
 describe("owner and guest authorization", () => {
   const user = { id: "owner" } as Profile;

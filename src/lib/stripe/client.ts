@@ -52,7 +52,7 @@ export async function createCheckoutSession(order: Order, successUrl: string, ca
   }
   const price = await stripe.prices.retrieve(env.STRIPE_PRICE_ID);
   if (!price.active || price.type !== "one_time" || price.currency !== SONG_CURRENCY || price.unit_amount !== SONG_PRICE_CENTS || price.tax_behavior !== "exclusive") {
-    throw new Error("Configured Stripe price must be active USD 19.99, one-time, tax exclusive");
+    throw new Error("Configured Stripe price must be active USD 9.99, one-time, tax exclusive");
   }
   if (order.subtotalCents !== SONG_PRICE_CENTS || order.discountCents !== 0 || order.currency !== SONG_CURRENCY) throw new Error("Order price mismatch");
   const expiresAt = Math.floor(new Date(order.checkoutExpiresAt!).getTime() / 1000);

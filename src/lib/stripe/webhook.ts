@@ -3,7 +3,7 @@ import { getStripe } from "./client";
 import { getOrder } from "@/lib/db/repository";
 import { getSupabaseAdmin } from "@/lib/db/client";
 import { logEvent } from "@/lib/observability/logger";
-import { SONG_CURRENCY, SONG_PRICE_CENTS } from "@/lib/pricing";
+import { SONG_CURRENCY } from "@/lib/pricing";
 
 const idOf = (value: string | { id: string } | null) => typeof value === "string" ? value : value?.id ?? null;
 export const handledEvents = ["checkout.session.completed", "checkout.session.async_payment_succeeded", "checkout.session.async_payment_failed", "payment_intent.payment_failed", "charge.refunded", "charge.dispute.created", "charge.dispute.closed"];
@@ -45,9 +45,9 @@ export async function processStripeEvent(event: Stripe.Event) {
       intent.currency !== order.currency || intent.amount < order.subtotalCents ||
       session.livemode !== event.livemode || intent.livemode !== event.livemode) throw new Error("Payment association mismatch");
   const line = session.line_items?.data;
-  if (session.mode !== "payment" || !line || line.length !== 1 || session.line_items?.has_more ||
-      line[0].price?.id !== order.stripePriceId || line[0].quantity !== 1 || line[0].price?.unit_amount !== SONG_PRICE_CENTS ||
-      session.amount_subtotal !== SONG_PRICE_CENTS || session.currency !== SONG_CURRENCY || session.total_details?.amount_discount !== 0) throw new Error("Checkout price mismatch");
+  if (![999, 1999].includes(order.subtotalCents) || order.discountCents !== 0 || session.mode !== "payment" || !line || line.length !== 1 || session.line_items?.has_more ||
+      line[0].price?.id !== order.stripePriceId || line[0].quantity !== 1 || line[0].price?.unit_amount !== order.subtotalCents ||
+      session.amount_subtotal !== order.subtotalCents || session.currency !== SONG_CURRENCY || session.total_details?.amount_discount !== 0) throw new Error("Checkout price mismatch");
   if (state === "paid" && (intent.status !== "succeeded" || intent.amount_received !== session.amount_total || session.status !== "complete")) throw new Error("Payment is not settled");
   const charge = typeof intent.latest_charge === "string" ? await stripe.charges.retrieve(intent.latest_charge) : intent.latest_charge;
   // Read current Stripe state to survive delayed/out-of-order refund and dispute events.
