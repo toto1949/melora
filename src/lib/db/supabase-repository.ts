@@ -1109,11 +1109,13 @@ export async function trackEvent(
     dedupe_key: ids.dedupeKey,
     properties,
   };
-  const query = ids.dedupeKey
-    ? sb.from("analytics_events").upsert(row, { onConflict: "dedupe_key", ignoreDuplicates: true })
-    : sb.from("analytics_events").insert(row);
-  const { data, error } = await query.select().maybeSingle();
-  if (error || !data) return null;
+  // The existing unique index on dedupe_key is partial. PostgreSQL cannot infer
+  // a partial index from PostgREST's onConflict=dedupe_key upsert, so insert and
+  // treat only a true duplicate as an idempotent replay.
+  const { data, error } = await sb.from("analytics_events").insert(row).select().maybeSingle();
+  if (error?.code === "23505" && ids.dedupeKey) return null;
+  if (error) throw new Error(`Unable to save analytics event: ${error.message}`);
+  if (!data) return null;
   return {
     id: data.id,
     eventName: data.event_name,

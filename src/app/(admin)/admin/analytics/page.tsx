@@ -25,8 +25,9 @@ export default async function AdminAnalyticsPage({
   const summary = await getAnalyticsSummary(range);
 
   const cards = [
-    ["Unique visitors", summary.uniqueVisitors.toLocaleString(), `${summary.sessions.toLocaleString()} sessions`],
-    ["Page views", summary.pageViews.toLocaleString(), `${summary.topPages.length} active pages`],
+    ["Unique visitors", summary.uniqueVisitors.toLocaleString(), "Distinct consented browsers"],
+    ["Sessions", summary.sessions.toLocaleString(), "30-minute activity windows"],
+    ["Page views", summary.pageViews.toLocaleString(), `${summary.topPages.filter((page) => page.views > 0).length} active routes`],
     ["Studio starts", summary.studioStarts.toLocaleString(), `${summary.visitorToStudioRate}% of visitors`],
     ["Stripe opens", summary.stripeCheckoutStarts.toLocaleString(), `${summary.checkoutViews.toLocaleString()} checkout views`],
     ["Purchases", summary.purchases.toLocaleString(), `${summary.attributedPurchases.toLocaleString()} attributed · ${summary.visitorToPurchaseRate}% of visitors`],
@@ -49,7 +50,7 @@ export default async function AdminAnalyticsPage({
         <div>
           <h1 className="font-display text-4xl">Analytics</h1>
           <p className="mt-2 max-w-3xl text-sm text-muted">
-            Consented acquisition and conversion data joined to webhook-confirmed orders. A browser counts once as a unique visitor even across repeat page views; sessions and page views remain separate. Staff, Preview, fixture, and tagged test traffic are excluded. Vercel Analytics provides the independent cookieless site-traffic view.
+            Consented client-side visits stored in Supabase, joined to webhook-confirmed orders. Visitors, sessions, and page views are counted separately for every route, including /studio. Staff, Preview, fixture, and tagged test traffic are excluded.
           </p>
         </div>
         <nav className="flex rounded-full border border-border bg-surface p-1" aria-label="Analytics date range">
@@ -140,15 +141,24 @@ export default async function AdminAnalyticsPage({
           </div>
         </section>
 
-        <section className="surface-card p-5">
-          <h2 className="font-display text-2xl text-navy">Top pages</h2>
-          <div className="mt-4 space-y-3">
-            {summary.topPages.length ? summary.topPages.map((page) => (
-              <div key={page.path} className="flex items-center justify-between gap-4 border-b border-border/60 pb-3 text-sm last:border-0">
-                <span className="min-w-0 truncate text-navy">{page.path}</span>
-                <span className="shrink-0 font-semibold">{page.views.toLocaleString()} views</span>
-              </div>
-            )) : <p className="py-6 text-center text-sm text-muted">Page data will appear after consented visits arrive.</p>}
+        <section className="surface-card overflow-hidden p-5">
+          <h2 className="font-display text-2xl text-navy">Traffic by route</h2>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[500px] text-left text-sm">
+              <thead className="border-b border-border text-xs uppercase tracking-wide text-muted">
+                <tr><th className="py-3 pe-3">Route</th><th className="px-3 py-3 text-right">Unique visitors</th><th className="px-3 py-3 text-right">Sessions</th><th className="py-3 ps-3 text-right">Page views</th></tr>
+              </thead>
+              <tbody>
+                {summary.topPages.length ? summary.topPages.map((page) => (
+                  <tr key={page.path} className="border-b border-border/60 last:border-0">
+                    <td className="py-3 pe-3 text-navy">{page.path}</td>
+                    <td className="px-3 py-3 text-right">{page.uniqueVisitors.toLocaleString()}</td>
+                    <td className="px-3 py-3 text-right">{page.sessions.toLocaleString()}</td>
+                    <td className="py-3 ps-3 text-right font-semibold">{page.views.toLocaleString()}</td>
+                  </tr>
+                )) : <tr><td colSpan={4} className="py-6 text-center text-muted">Page data will appear after consented visits arrive.</td></tr>}
+              </tbody>
+            </table>
           </div>
         </section>
       </div>

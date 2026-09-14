@@ -75,3 +75,18 @@ it("silently ignores requests without a consented analytics identity", async () 
   expect(mocks.limit).not.toHaveBeenCalled();
   expect(mocks.track).not.toHaveBeenCalled();
 });
+
+it("accepts /studio while refusing private route page views", async () => {
+  const studio = await POST(makeRequest({
+    eventId: crypto.randomUUID(), eventName: "page_view", properties: { path: "/studio" },
+  }));
+  expect(studio.status).toBe(202);
+  expect(mocks.track).toHaveBeenCalledWith("page_view", { path: "/studio" }, expect.objectContaining({ pagePath: "/studio" }));
+
+  mocks.track.mockClear();
+  const admin = await POST(makeRequest({
+    eventId: crypto.randomUUID(), eventName: "page_view", properties: { path: "/admin/analytics" },
+  }));
+  expect(admin.status).toBe(400);
+  expect(mocks.track).not.toHaveBeenCalled();
+});
