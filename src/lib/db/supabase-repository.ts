@@ -19,6 +19,7 @@ import type {
   UserRole,
 } from "@/types";
 import { getSupabaseAdmin } from "./client";
+import { retryDatabaseRead } from "./retry-read";
 import {
   mapFaq,
   mapJob,
@@ -800,12 +801,12 @@ export async function listJobs(status?: GenerationJob["status"]) {
 
 export async function listRunnableJobs(limit = 500) {
   const sb = getSupabaseAdmin();
-  const { data, error } = await sb
+  const { data, error } = await retryDatabaseRead("list_runnable_jobs", () => sb
     .from("generation_jobs")
     .select("*")
     .in("status", ["queued", "failed", "running"])
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .limit(limit));
   if (error) throw new Error(`Failed to list runnable jobs: ${error.message}`);
   return (data ?? []).map(mapJob);
 }
