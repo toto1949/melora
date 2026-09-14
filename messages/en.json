@@ -260,7 +260,7 @@
       "faq-7": { "question": "Who owns the song — can I share it online?", "answer": "You receive a lifetime personal-use license: listen, download, gift it, play the song at your event, and share it with friends and family, including on your personal social media. Commercial use such as ads or monetized content requires a separate license — just contact us." },
       "faq-8": { "question": "How do I give the song as a gift?", "answer": "Every order includes a private listening page with cover artwork, synchronized lyrics, and an optional gift-reveal mode that builds anticipation before the song plays. Share the link by text or email — or play it in person and watch their reaction." },
       "faq-9": { "question": "Is my story kept private?", "answer": "Completely. Your answers and uploaded files are used only to create your song and live in private storage. Listening pages are private by default, and you control how they are shared." },
-      "faq-10": { "question": "What is included in each package?", "answer": "The $19.99 USD personalized song includes custom lyrics, one AI-generated song, a listening link, and an MP3 download. Applicable tax is calculated at checkout. It is a one-time payment, with no subscription." },
+      "faq-10": { "question": "What is included in each package?", "answer": "The $9.99 USD personalized song includes custom lyrics, one AI-generated song, a listening link, and an MP3 download. Applicable tax is calculated at checkout. It is a one-time payment, with no subscription." },
       "faq-11": { "question": "Can I download the song and keep it forever?", "answer": "Yes. Download your MP3 from the listening page and save a copy for yourself. You can replay it and share your listening link with the people you choose." },
       "faq-12": { "question": "What if I am not happy with the result?", "answer": "We will make it right. Start with your included revision credits — most concerns are solved with a lyric or vocal change. If a verified quality issue cannot be resolved through revisions, our refund policy applies within 14 days of delivery." }
     }
@@ -541,7 +541,7 @@
     "headline": "A song only you could give.",
     "supporting": "Your stories, their personality, a sound they love. Create a personalized AI song for someone who matters.",
     "badge": "Made from your memories",
-    "priceNote": "One song · $19.99 USD + applicable tax",
+    "priceNote": "One song · $9.99 USD + applicable tax",
     "assurance": "No subscription. No account needed to begin.",
     "pricingTitle": "One meaningful gift. One simple price.",
     "pricingBody": "Everything you need to turn your memories into a song. Pay once, then listen, download, and share.",
