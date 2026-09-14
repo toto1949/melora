@@ -29,7 +29,7 @@ The client captures these URL parameters after analytics consent:
 - `fbclid`
 - `ttclid`
 
-First-touch and last-touch values live in first-party cookies for 180 days, then copy into the Studio project and order. A 30-minute first-party session cookie supports session counts. Stripe metadata receives only `order_id`, first/last source, medium, campaign, and creative. Click IDs and all customer song content remain in the application database and never enter Stripe metadata.
+First-touch and last-touch values live in first-party cookies for 180 days, then copy into the Studio project and order. A persistent first-party visitor cookie (180 days) identifies unique browsers. A sliding 30-minute session cookie identifies sessions. With consent, the browser sends one `page_view` for the initial route and each client-side route transition. React rerenders, router.refresh(), document reloads of the same route, prefetching, middleware, and server rendering do not create page views. Reloading a route is intentionally treated as the same visit; navigating away and returning starts a new page view. Supabase `analytics_events` stores the event and its visitor, session, and normalized path, with a unique event dedupe key. The ingestion code inserts against the existing partial unique index and ignores only duplicate-key replays; unrelated Supabase errors are logged. The dashboard counts distinct visitor IDs, distinct session IDs, and page-view rows separately for each route, including `/studio`. Stripe metadata receives only `order_id`, first/last source, medium, campaign, and creative. Click IDs and all customer song content remain in the application database and never enter Stripe metadata.
 
 Dynamic project and listening identifiers are normalized out of analytics paths. The ingestion endpoint accepts a small event allowlist, validates project ownership, enforces same-origin requests and rate limits, and discards all unexpected properties.
 
@@ -41,7 +41,7 @@ The business dashboard excludes:
 - Vercel Preview and local environments;
 - orders using `@example.test` or `+test@` email addresses;
 - production QA sessions opened with `?analytics_test=1` for the following 24 hours;
-- admin, dashboard, auth, listening, API, and payment-status page views.
+- admin, dashboard, auth, listening, API, and payment-status page views. Studio entry and normalized studio steps are included.
 
 Use a separate browser profile when validating paid campaign behavior. Clear the `mtm_analytics_test` cookie after intentional production QA if the same browser will later be used for real campaign testing.
 

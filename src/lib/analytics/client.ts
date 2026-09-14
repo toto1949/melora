@@ -24,6 +24,8 @@ declare global {
   }
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 function readCookie(name: string) {
   if (typeof document === "undefined") return null;
   const prefix = `${name}=`;
@@ -60,8 +62,10 @@ export function ensureAnalyticsIdentity(): {
     writeCookie(ANALYTICS_TEST_COOKIE, "1", 60 * 60 * 24);
   }
 
-  const visitorId = readCookie(ANALYTICS_VISITOR_COOKIE) || crypto.randomUUID();
-  const sessionId = readCookie(ANALYTICS_SESSION_COOKIE) || crypto.randomUUID();
+  const storedVisitorId = readCookie(ANALYTICS_VISITOR_COOKIE);
+  const storedSessionId = readCookie(ANALYTICS_SESSION_COOKIE);
+  const visitorId = storedVisitorId && UUID_PATTERN.test(storedVisitorId) ? storedVisitorId : crypto.randomUUID();
+  const sessionId = storedSessionId && UUID_PATTERN.test(storedSessionId) ? storedSessionId : crypto.randomUUID();
   writeCookie(ANALYTICS_VISITOR_COOKIE, visitorId, 60 * 60 * 24 * 180);
   writeCookie(ANALYTICS_SESSION_COOKIE, sessionId, 60 * 30);
 

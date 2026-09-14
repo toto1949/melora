@@ -47,10 +47,17 @@ export function buildAnalyticsDashboard(
     ? 0
     : Math.max(0, order.totalCents - order.refundedCents);
 
-  const pageCounts = new Map<string, number>();
+  const pageCounts = new Map<string, { visitors: Set<string>; sessions: Set<string>; views: number }>([
+    ["/studio", { visitors: new Set<string>(), sessions: new Set<string>(), views: 0 }],
+  ]);
   for (const event of pageViewEvents) {
     const path = event.pagePath || (typeof event.properties.path === "string" ? event.properties.path : null);
-    if (path) pageCounts.set(path, (pageCounts.get(path) || 0) + 1);
+    if (!path) continue;
+    const page = pageCounts.get(path) || { visitors: new Set<string>(), sessions: new Set<string>(), views: 0 };
+    if (event.visitorId) page.visitors.add(event.visitorId);
+    if (event.sessionId) page.sessions.add(event.sessionId);
+    page.views++;
+    pageCounts.set(path, page);
   }
 
   const sourceNames = new Set<string>(["tiktok", "instagram", "facebook"]);
@@ -145,7 +152,9 @@ export function buildAnalyticsDashboard(
     checkoutConversionRate: percent(attributedPurchases, stripeCheckoutStarts),
     checkoutAbandonment: abandonment,
     checkoutAbandonmentRate: percent(abandonment, stripeCheckoutStarts),
-    topPages: [...pageCounts.entries()].map(([path, views]) => ({ path, views })).sort((a, b) => b.views - a.views).slice(0, 10),
+    topPages: [...pageCounts.entries()].map(([path, page]) => ({
+      path, uniqueVisitors: page.visitors.size, sessions: page.sessions.size, views: page.views,
+    })).sort((a, b) => b.views - a.views || a.path.localeCompare(b.path)),
     sources,
     campaigns,
   };
