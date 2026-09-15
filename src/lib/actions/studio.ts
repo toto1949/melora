@@ -441,7 +441,10 @@ export async function checkoutAction(
     if (error instanceof ZodError) {
       return { error: error.issues[0]?.message ?? "Please review the form and try again." };
     }
-    logEvent("error", "checkout_failed", { projectId });
+    logEvent("error", "checkout_failed", {
+      projectId,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return { error: "Something went wrong starting your checkout. Please try again." };
   }
 

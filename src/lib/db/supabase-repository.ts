@@ -678,7 +678,8 @@ export async function createOrder(input: {
     p_project: input.projectId, p_package: input.packageId,
     p_email: input.email, p_phone: input.phone ?? null, p_user: input.userId ?? null,
   });
-  if (error || !data) throw new Error("Unable to create order");
+  if (error) throw new Error(`Unable to create order: ${error.message}`);
+  if (!data) throw new Error("Unable to create order: create_paid_order returned no order ID");
   const order = await getOrder(data as string);
   if (!order) throw new Error("Order not found");
   return order;
