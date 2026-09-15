@@ -11,6 +11,19 @@ const ranges = [
 
 const percent = (value: number, total: number) => total ? `${Math.round((value / total) * 1000) / 10}%` : "—";
 
+const studioPageLabels: Record<string, string> = {
+  "/studio": "Studio entry",
+  "/studio/[project]/recipient": "Recipient",
+  "/studio/[project]/occasion": "Occasion",
+  "/studio/[project]/story": "Story",
+  "/studio/[project]/style": "Sound and style",
+  "/studio/[project]/lyrics": "Lyrics",
+  "/studio/[project]/media": "Media",
+  "/studio/[project]/review": "Review",
+  "/studio/[project]/checkout": "Checkout",
+  "/studio/[project]/success": "Studio complete",
+};
+
 function StageValue({ value, visitors }: { value: number; visitors: number }) {
   return <span className="whitespace-nowrap font-medium">{value.toLocaleString()} <span className="text-xs font-normal text-muted">({percent(value, visitors)} per 100)</span></span>;
 }
@@ -92,6 +105,31 @@ export default async function AdminAnalyticsPage({
               </div>
             );
           })}
+        </div>
+      </section>
+
+      <section className="surface-card overflow-hidden p-5">
+        <h2 className="font-display text-2xl text-navy">Studio page telemetry</h2>
+        <p className="mt-1 text-sm text-muted">
+          Project identifiers are removed before storage. Each browser counts once per page, while sessions and total views remain separate.
+        </p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead className="border-b border-border text-xs uppercase tracking-wide text-muted">
+              <tr><th className="py-3 pe-4">Studio page</th><th className="px-3 py-3">Unique visitors</th><th className="px-3 py-3">Sessions</th><th className="px-3 py-3">Page views</th><th className="py-3 ps-3 text-right">Studio reach</th></tr>
+            </thead>
+            <tbody>
+              {summary.studioPages.length ? summary.studioPages.map((page) => (
+                <tr key={page.path} className="border-b border-border/60 last:border-0">
+                  <td className="py-4 pe-4"><span className="block font-semibold text-navy">{studioPageLabels[page.path] || page.path}</span><span className="text-xs text-muted">{page.path}</span></td>
+                  <td className="px-3 py-4 font-medium">{page.uniqueVisitors.toLocaleString()}</td>
+                  <td className="px-3 py-4">{page.sessions.toLocaleString()}</td>
+                  <td className="px-3 py-4">{page.views.toLocaleString()}</td>
+                  <td className="py-4 ps-3 text-right font-semibold">{page.reachRate}%</td>
+                </tr>
+              )) : <tr><td colSpan={5} className="py-8 text-center text-muted">Studio telemetry will appear after new consented visits reach the Studio.</td></tr>}
+            </tbody>
+          </table>
         </div>
       </section>
 

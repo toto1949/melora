@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { AnalyticsEvent } from "@/types";
-import { captureAttribution, encodeAttributionCookie, isPrivateAnalyticsPath, isPublicAnalyticsPage, parseAttributionCookie, safePagePath } from "@/lib/analytics/attribution";
+import { captureAttribution, encodeAttributionCookie, isPrivateAnalyticsPath, isPublicAnalyticsPage, parseAttributionCookie, safePagePath, sanitizeAnalyticsUrl } from "@/lib/analytics/attribution";
 import { buildAnalyticsDashboard } from "@/lib/analytics/dashboard";
 import { createPageVisitGuard } from "@/lib/analytics/page-visit";
 
@@ -56,6 +56,12 @@ describe("campaign attribution", () => {
     expect(safePagePath("https://attacker.test/path")).toBeNull();
     expect(isPrivateAnalyticsPath("/studio")).toBe(false);
     expect(isPublicAnalyticsPage("/studio")).toBe(false);
+  });
+
+  it("tracks Studio routes in Vercel without exposing project identifiers", () => {
+    expect(sanitizeAnalyticsUrl("https://memoriestomelody.com/studio/11111111-1111-4111-8111-111111111111/story?utm_source=tiktok"))
+      .toBe("https://memoriestomelody.com/studio/[project]/story");
+    expect(sanitizeAnalyticsUrl("https://memoriestomelody.com/admin/analytics")).toBeNull();
   });
 });
 
@@ -121,5 +127,21 @@ describe("client page visits", () => {
     expect(summary.topPages.find((page) => page.path === "/studio")).toEqual({
       path: "/studio", uniqueVisitors: 2, sessions: 3, views: 4,
     });
+  });
+
+  it("shows unique visitors and reach for every Studio page", () => {
+    const views = [
+      event("entry-1", "page_view", "visitor-1", { sessionId: "session-1", pagePath: "/studio" }),
+      event("story-1", "page_view", "visitor-1", { sessionId: "session-1", pagePath: "/studio/[project]/story" }),
+      event("story-2", "page_view", "visitor-1", { sessionId: "session-2", pagePath: "/studio/[project]/story" }),
+      event("story-3", "page_view", "visitor-2", { sessionId: "session-3", pagePath: "/studio/[project]/story" }),
+    ];
+    const summary = buildAnalyticsDashboard("7d", "2026-09-04T00:00:00.000Z", views, []);
+
+    expect(summary.uniqueVisitors).toBe(2);
+    expect(summary.studioPages).toEqual([
+      { path: "/studio", views: 1, uniqueVisitors: 1, sessions: 1, reachRate: 50 },
+      { path: "/studio/[project]/story", views: 3, uniqueVisitors: 2, sessions: 3, reachRate: 100 },
+    ]);
   });
 });

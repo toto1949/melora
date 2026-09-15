@@ -133,6 +133,35 @@ export function buildAnalyticsDashboard(
   const purchases = purchaseOrders.length;
   const attributedPurchases = purchaseOrders.filter((order) => Boolean(order.visitorId)).length;
   const abandonment = Math.max(0, stripeCheckoutStarts - attributedPurchases);
+  const studioVisitorIds = new Set(
+    pageViewEvents.flatMap((event) => {
+      const path = event.pagePath || (typeof event.properties.path === "string" ? event.properties.path : null);
+      return path && (path === "/studio" || path.startsWith("/studio/")) && event.visitorId ? [event.visitorId] : [];
+    }),
+  );
+  const studioPathOrder = [
+    "/studio",
+    "/studio/[project]/recipient",
+    "/studio/[project]/occasion",
+    "/studio/[project]/story",
+    "/studio/[project]/style",
+    "/studio/[project]/lyrics",
+    "/studio/[project]/media",
+    "/studio/[project]/review",
+    "/studio/[project]/checkout",
+    "/studio/[project]/success",
+  ];
+  const pageMetrics = [...pageCounts.entries()].map(([path, page]) => ({
+    path, uniqueVisitors: page.visitors.size, sessions: page.sessions.size, views: page.views,
+  }));
+  const studioPages = pageMetrics
+    .filter((page) => page.path === "/studio" || page.path.startsWith("/studio/"))
+    .map((page) => ({ ...page, reachRate: percent(page.uniqueVisitors, studioVisitorIds.size) }))
+    .sort((a, b) => {
+      const aOrder = studioPathOrder.indexOf(a.path);
+      const bOrder = studioPathOrder.indexOf(b.path);
+      return (aOrder < 0 ? 99 : aOrder) - (bOrder < 0 ? 99 : bOrder) || b.views - a.views;
+    });
 
   return {
     range,
@@ -152,9 +181,8 @@ export function buildAnalyticsDashboard(
     checkoutConversionRate: percent(attributedPurchases, stripeCheckoutStarts),
     checkoutAbandonment: abandonment,
     checkoutAbandonmentRate: percent(abandonment, stripeCheckoutStarts),
-    topPages: [...pageCounts.entries()].map(([path, page]) => ({
-      path, uniqueVisitors: page.visitors.size, sessions: page.sessions.size, views: page.views,
-    })).sort((a, b) => b.views - a.views || a.path.localeCompare(b.path)),
+    topPages: pageMetrics.sort((a, b) => b.views - a.views || a.path.localeCompare(b.path)),
+    studioPages,
     sources,
     campaigns,
   };

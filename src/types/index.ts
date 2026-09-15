@@ -469,6 +469,13 @@ export interface AnalyticsDashboard {
   checkoutAbandonment: number;
   checkoutAbandonmentRate: number;
   topPages: Array<{ path: string; uniqueVisitors: number; sessions: number; views: number }>;
+  studioPages: Array<{
+    path: string;
+    views: number;
+    uniqueVisitors: number;
+    sessions: number;
+    reachRate: number;
+  }>;
   sources: Array<{
     source: string;
     visitors: number;
