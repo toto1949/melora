@@ -19,6 +19,7 @@ import type {
   UserRole,
 } from "@/types";
 import { getSupabaseAdmin } from "./client";
+import { retryDatabaseRead } from "./retry-read";
 import {
   mapFaq,
   mapJob,
@@ -677,7 +678,8 @@ export async function createOrder(input: {
     p_project: input.projectId, p_package: input.packageId,
     p_email: input.email, p_phone: input.phone ?? null, p_user: input.userId ?? null,
   });
-  if (error || !data) throw new Error("Unable to create order");
+  if (error) throw new Error(`Unable to create order: ${error.message}`);
+  if (!data) throw new Error("Unable to create order: create_paid_order returned no order ID");
   const order = await getOrder(data as string);
   if (!order) throw new Error("Order not found");
   return order;
@@ -800,12 +802,12 @@ export async function listJobs(status?: GenerationJob["status"]) {
 
 export async function listRunnableJobs(limit = 500) {
   const sb = getSupabaseAdmin();
-  const { data, error } = await sb
+  const { data, error } = await retryDatabaseRead("list_runnable_jobs", () => sb
     .from("generation_jobs")
     .select("*")
     .in("status", ["queued", "failed", "running"])
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .limit(limit));
   if (error) throw new Error(`Failed to list runnable jobs: ${error.message}`);
   return (data ?? []).map(mapJob);
 }
@@ -1108,11 +1110,13 @@ export async function trackEvent(
     dedupe_key: ids.dedupeKey,
     properties,
   };
-  const query = ids.dedupeKey
-    ? sb.from("analytics_events").upsert(row, { onConflict: "dedupe_key", ignoreDuplicates: true })
-    : sb.from("analytics_events").insert(row);
-  const { data, error } = await query.select().maybeSingle();
-  if (error || !data) return null;
+  // The existing unique index on dedupe_key is partial. PostgreSQL cannot infer
+  // a partial index from PostgREST's onConflict=dedupe_key upsert, so insert and
+  // treat only a true duplicate as an idempotent replay.
+  const { data, error } = await sb.from("analytics_events").insert(row).select().maybeSingle();
+  if (error?.code === "23505" && ids.dedupeKey) return null;
+  if (error) throw new Error(`Unable to save analytics event: ${error.message}`);
+  if (!data) return null;
   return {
     id: data.id,
     eventName: data.event_name,

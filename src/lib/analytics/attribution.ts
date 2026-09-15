@@ -122,7 +122,7 @@ export function safePagePath(value: string | null | undefined) {
 }
 
 export function isPrivateAnalyticsPath(pathname: string) {
-  return ["/admin", "/dashboard", "/api", "/auth", "/listen"]
+  return ["/admin", "/dashboard", "/api", "/auth", "/listen", "/payment-success", "/payment-cancelled"]
     .some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 

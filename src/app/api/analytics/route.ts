@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getCurrentUser, getGuestToken } from "@/lib/auth/session";
 import { readServerAnalyticsContext, safeTrackEvent } from "@/lib/analytics/server";
-import { safePagePath } from "@/lib/analytics/attribution";
+import { isPrivateAnalyticsPath, safePagePath } from "@/lib/analytics/attribution";
 import { getProject } from "@/lib/db/repository";
 import { ownsProject } from "@/lib/security/ownership";
 import { rateLimit } from "@/lib/security/rate-limit";
@@ -22,7 +22,7 @@ function sameOrigin(req: NextRequest) {
 
 function safeProperties(eventName: z.infer<typeof bodySchema>["eventName"], input: Record<string, string | number | boolean>) {
   const path = safePagePath(typeof input.path === "string" ? input.path : null);
-  if (eventName === "page_view") return path ? { path } : null;
+  if (eventName === "page_view") return path && !isPrivateAnalyticsPath(path) ? { path } : null;
   if (eventName === "create_song_clicked") return path ? { path, destination: "/studio" } : null;
   if (eventName === "checkout_viewed") return path ? { path } : { path: "/studio/checkout" };
   const value = typeof input.value_cents === "number" && Number.isInteger(input.value_cents)

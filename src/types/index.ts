@@ -468,7 +468,7 @@ export interface AnalyticsDashboard {
   checkoutConversionRate: number;
   checkoutAbandonment: number;
   checkoutAbandonmentRate: number;
-  topPages: Array<{ path: string; views: number; uniqueVisitors: number; sessions: number }>;
+  topPages: Array<{ path: string; uniqueVisitors: number; sessions: number; views: number }>;
   studioPages: Array<{
     path: string;
     views: number;

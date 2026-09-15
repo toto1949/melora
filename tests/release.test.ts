@@ -4,9 +4,9 @@ import { seedPackages } from "@/lib/db/seed-data";
 import en from "../messages/en.json";
 
 describe("v1 public offer", () => {
-  it("offers only the configured 1999 USD song without mutating historical catalog prices", () => {
+  it("offers only the configured 999 USD song without mutating historical catalog prices", () => {
     const catalog = seedPackages.map(p => ({ ...p, priceCents: 3900 }));
-    expect(v1Packages(catalog).map(p => [p.slug, p.priceCents, p.currency])).toEqual([["essential-song",1999,"usd"]]);
+    expect(v1Packages(catalog).map(p => [p.slug, p.priceCents, p.currency])).toEqual([["essential-song",999,"usd"]]);
     expect(catalog.every(p => p.priceCents === 3900)).toBe(true);
   });
   it("respects an inactive base product", () => {

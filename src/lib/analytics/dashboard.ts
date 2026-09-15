@@ -47,15 +47,17 @@ export function buildAnalyticsDashboard(
     ? 0
     : Math.max(0, order.totalCents - order.refundedCents);
 
-  const pageCounts = new Map<string, { views: number; visitors: Set<string>; sessions: Set<string> }>();
+  const pageCounts = new Map<string, { visitors: Set<string>; sessions: Set<string>; views: number }>([
+    ["/studio", { visitors: new Set<string>(), sessions: new Set<string>(), views: 0 }],
+  ]);
   for (const event of pageViewEvents) {
     const path = event.pagePath || (typeof event.properties.path === "string" ? event.properties.path : null);
     if (!path) continue;
-    const metric = pageCounts.get(path) || { views: 0, visitors: new Set<string>(), sessions: new Set<string>() };
-    metric.views += 1;
-    if (event.visitorId) metric.visitors.add(event.visitorId);
-    if (event.sessionId) metric.sessions.add(event.sessionId);
-    pageCounts.set(path, metric);
+    const page = pageCounts.get(path) || { visitors: new Set<string>(), sessions: new Set<string>(), views: 0 };
+    if (event.visitorId) page.visitors.add(event.visitorId);
+    if (event.sessionId) page.sessions.add(event.sessionId);
+    page.views++;
+    pageCounts.set(path, page);
   }
 
   const sourceNames = new Set<string>(["tiktok", "instagram", "facebook"]);
@@ -149,18 +151,12 @@ export function buildAnalyticsDashboard(
     "/studio/[project]/checkout",
     "/studio/[project]/success",
   ];
-  const pageMetrics = [...pageCounts.entries()].map(([path, metric]) => ({
-    path,
-    views: metric.views,
-    uniqueVisitors: metric.visitors.size,
-    sessions: metric.sessions.size,
+  const pageMetrics = [...pageCounts.entries()].map(([path, page]) => ({
+    path, uniqueVisitors: page.visitors.size, sessions: page.sessions.size, views: page.views,
   }));
   const studioPages = pageMetrics
     .filter((page) => page.path === "/studio" || page.path.startsWith("/studio/"))
-    .map((page) => ({
-      ...page,
-      reachRate: percent(page.uniqueVisitors, studioVisitorIds.size),
-    }))
+    .map((page) => ({ ...page, reachRate: percent(page.uniqueVisitors, studioVisitorIds.size) }))
     .sort((a, b) => {
       const aOrder = studioPathOrder.indexOf(a.path);
       const bOrder = studioPathOrder.indexOf(b.path);
@@ -185,7 +181,7 @@ export function buildAnalyticsDashboard(
     checkoutConversionRate: percent(attributedPurchases, stripeCheckoutStarts),
     checkoutAbandonment: abandonment,
     checkoutAbandonmentRate: percent(abandonment, stripeCheckoutStarts),
-    topPages: pageMetrics.sort((a, b) => b.views - a.views).slice(0, 10),
+    topPages: pageMetrics.sort((a, b) => b.views - a.views || a.path.localeCompare(b.path)),
     studioPages,
     sources,
     campaigns,

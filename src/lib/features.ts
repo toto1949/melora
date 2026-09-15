@@ -25,7 +25,7 @@ export function filterFaqsForRelease(faqs: FaqItem[], videoEnabled: boolean) {
         return {
           ...faq,
           answer:
-            "Your $19.99 launch song includes one guided revision. From your dashboard you can request a focused change to lyrics, pronunciation, tempo, mood, vocals, or instrumentation, and we will prepare an updated version.",
+            "Your $9.99 launch song includes one guided revision. From your dashboard you can request a focused change to lyrics, pronunciation, tempo, mood, vocals, or instrumentation, and we will prepare an updated version.",
         };
       }
       if (/how do i give the song as a gift/i.test(faq.question)) {
@@ -42,12 +42,12 @@ export function filterFaqsForRelease(faqs: FaqItem[], videoEnabled: boolean) {
             "Yes. The story details you provide are used to create and support your song. Listening pages are private by default, and you control how the private link is shared.",
         };
       }
-      if (/what is included in each package/i.test(faq.question) || /what is included in the \$19(?:\.99)? launch offer/i.test(faq.question)) {
+      if (/what is included in each package/i.test(faq.question) || /what is included in the \$(?:9|19)(?:\.99)? launch offer/i.test(faq.question)) {
         return {
           ...faq,
-          question: "What is included in the $19.99 launch offer?",
+          question: "What is included in the $9.99 launch offer?",
           answer:
-            "The launch offer includes personalized lyrics, one complete personalized audio song, your choice of genre, mood, vocal style and language, an MP3 download, a private listening link, one guided revision, and automatic progress updates while your song is created. It is a one-time $19.99 payment with no subscription.",
+            "The launch offer includes personalized lyrics, one complete personalized audio song, your choice of genre, mood, vocal style and language, an MP3 download, a private listening link, one guided revision, and automatic progress updates while your song is created. It is a one-time $9.99 payment with no subscription.",
         };
       }
       if (/can i download the song and keep it forever/i.test(faq.question)) {

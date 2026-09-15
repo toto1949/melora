@@ -29,7 +29,14 @@ function safeEqual(left: string, right: string) {
 async function runWorker(orderId?: string) {
   const startedAt = Date.now();
   logEvent("info", "generation_worker_started", { orderId: orderId ?? null });
-  await processEmailOutbox();
+  try {
+    await processEmailOutbox();
+  } catch (error) {
+    // The outbox remains pending for the next run; song generation is independent.
+    logEvent("error", "email_outbox_processing_failed", {
+      error: error instanceof Error ? error.message : "Unknown email outbox error",
+    });
+  }
   const results = await processQueuedJobs(orderId);
   const failures = results.filter((result) => "error" in result);
   logEvent(failures.length ? "warn" : "info", "generation_worker_completed", {

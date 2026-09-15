@@ -369,7 +369,7 @@ export async function checkoutAction(
       return { error: "That package is not available in this release. Please choose an available song package." };
     }
 
-    if (!getEnv().USE_MOCK_PROVIDERS && (selectedPackage.slug !== "essential-song" || parsed.addOnIds.length || parsed.couponCode)) return { error: "Checkout currently supports the $19.99 personalized song without add-ons or coupons." };
+    if (!getEnv().USE_MOCK_PROVIDERS && (selectedPackage.slug !== "essential-song" || parsed.addOnIds.length || parsed.couponCode)) return { error: "Checkout currently supports the $9.99 personalized song without add-ons or coupons." };
     if (parsed.couponCode && !(await findCoupon(parsed.couponCode))) {
       return { error: "That coupon is invalid or expired. Remove it or apply a valid coupon before continuing." };
     }
@@ -441,7 +441,10 @@ export async function checkoutAction(
     if (error instanceof ZodError) {
       return { error: error.issues[0]?.message ?? "Please review the form and try again." };
     }
-    logEvent("error", "checkout_failed", { projectId });
+    logEvent("error", "checkout_failed", {
+      projectId,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     return { error: "Something went wrong starting your checkout. Please try again." };
   }
 

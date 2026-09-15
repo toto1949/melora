@@ -47,12 +47,12 @@ export async function createCheckoutSession(order: Order, successUrl: string, ca
     if (previous.status === "complete") return { id: previous.id, url: successUrl, mocked: false };
     if (previous.status !== "expired") throw new Error("Checkout requires reconciliation");
     const { error } = await getSupabaseAdmin().rpc("rotate_checkout", { p_order: order.id, p_expired_session: previous.id });
-    if (error) throw new Error("Checkout retry unavailable");
+    if (error) throw new Error(`Checkout retry unavailable: ${error.message}`);
     order = (await getOrder(order.id))!;
   }
   const price = await stripe.prices.retrieve(env.STRIPE_PRICE_ID);
   if (!price.active || price.type !== "one_time" || price.currency !== SONG_CURRENCY || price.unit_amount !== SONG_PRICE_CENTS || price.tax_behavior !== "exclusive") {
-    throw new Error("Configured Stripe price must be active USD 19.99, one-time, tax exclusive");
+    throw new Error("Configured Stripe price must be active USD 9.99, one-time, tax exclusive");
   }
   if (order.subtotalCents !== SONG_PRICE_CENTS || order.discountCents !== 0 || order.currency !== SONG_CURRENCY) throw new Error("Order price mismatch");
   const expiresAt = Math.floor(new Date(order.checkoutExpiresAt!).getTime() / 1000);
@@ -76,7 +76,7 @@ export async function createCheckoutSession(order: Order, successUrl: string, ca
   const { error } = await getSupabaseAdmin().rpc("bind_checkout", {
     p_order: order.id, p_attempt: order.checkoutAttempt, p_session: session.id, p_price: price.id,
   });
-  if (error) throw new Error("Checkout persistence failed");
+  if (error) throw new Error(`Checkout persistence failed: ${error.message}`);
   if (!session.url) throw new Error("Checkout URL unavailable");
   logEvent("info", "checkout_created", { orderId: order.id, sessionId: session.id });
   return { id: session.id, url: session.url, mocked: false };

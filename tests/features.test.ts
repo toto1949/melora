@@ -54,13 +54,13 @@ describe("single audio launch gating", () => {
   it("selects only Essential from the current seed catalog", () => {
     const packages = filterPackagesForRelease(seedPackages, false);
     expect(packages.map((item) => item.slug)).toEqual(["essential-song"]);
-    expect(packages[0]?.priceCents).toBe(1999);
+    expect(packages[0]?.priceCents).toBe(999);
   });
 
   it("advertises the exact v1 price in release FAQ copy", () => {
     const [faq] = filterFaqsForRelease([
       { id: "price", question: "What is included in each package?", answer: "Old copy", category: "product", sortOrder: 1 },
     ], false);
-    expect(`${faq.question} ${faq.answer}`).toContain("$19.99");
+    expect(`${faq.question} ${faq.answer}`).toContain("$9.99");
   });
 });
