@@ -47,10 +47,15 @@ export function buildAnalyticsDashboard(
     ? 0
     : Math.max(0, order.totalCents - order.refundedCents);
 
-  const pageCounts = new Map<string, number>();
+  const pageCounts = new Map<string, { views: number; visitors: Set<string>; sessions: Set<string> }>();
   for (const event of pageViewEvents) {
     const path = event.pagePath || (typeof event.properties.path === "string" ? event.properties.path : null);
-    if (path) pageCounts.set(path, (pageCounts.get(path) || 0) + 1);
+    if (!path) continue;
+    const metric = pageCounts.get(path) || { views: 0, visitors: new Set<string>(), sessions: new Set<string>() };
+    metric.views += 1;
+    if (event.visitorId) metric.visitors.add(event.visitorId);
+    if (event.sessionId) metric.sessions.add(event.sessionId);
+    pageCounts.set(path, metric);
   }
 
   const sourceNames = new Set<string>(["tiktok", "instagram", "facebook"]);
@@ -126,6 +131,41 @@ export function buildAnalyticsDashboard(
   const purchases = purchaseOrders.length;
   const attributedPurchases = purchaseOrders.filter((order) => Boolean(order.visitorId)).length;
   const abandonment = Math.max(0, stripeCheckoutStarts - attributedPurchases);
+  const studioVisitorIds = new Set(
+    pageViewEvents.flatMap((event) => {
+      const path = event.pagePath || (typeof event.properties.path === "string" ? event.properties.path : null);
+      return path && (path === "/studio" || path.startsWith("/studio/")) && event.visitorId ? [event.visitorId] : [];
+    }),
+  );
+  const studioPathOrder = [
+    "/studio",
+    "/studio/[project]/recipient",
+    "/studio/[project]/occasion",
+    "/studio/[project]/story",
+    "/studio/[project]/style",
+    "/studio/[project]/lyrics",
+    "/studio/[project]/media",
+    "/studio/[project]/review",
+    "/studio/[project]/checkout",
+    "/studio/[project]/success",
+  ];
+  const pageMetrics = [...pageCounts.entries()].map(([path, metric]) => ({
+    path,
+    views: metric.views,
+    uniqueVisitors: metric.visitors.size,
+    sessions: metric.sessions.size,
+  }));
+  const studioPages = pageMetrics
+    .filter((page) => page.path === "/studio" || page.path.startsWith("/studio/"))
+    .map((page) => ({
+      ...page,
+      reachRate: percent(page.uniqueVisitors, studioVisitorIds.size),
+    }))
+    .sort((a, b) => {
+      const aOrder = studioPathOrder.indexOf(a.path);
+      const bOrder = studioPathOrder.indexOf(b.path);
+      return (aOrder < 0 ? 99 : aOrder) - (bOrder < 0 ? 99 : bOrder) || b.views - a.views;
+    });
 
   return {
     range,
@@ -145,7 +185,8 @@ export function buildAnalyticsDashboard(
     checkoutConversionRate: percent(attributedPurchases, stripeCheckoutStarts),
     checkoutAbandonment: abandonment,
     checkoutAbandonmentRate: percent(abandonment, stripeCheckoutStarts),
-    topPages: [...pageCounts.entries()].map(([path, views]) => ({ path, views })).sort((a, b) => b.views - a.views).slice(0, 10),
+    topPages: pageMetrics.sort((a, b) => b.views - a.views).slice(0, 10),
+    studioPages,
     sources,
     campaigns,
   };

@@ -122,8 +122,23 @@ export function safePagePath(value: string | null | undefined) {
 }
 
 export function isPrivateAnalyticsPath(pathname: string) {
-  return ["/admin", "/dashboard", "/api", "/auth", "/listen", "/studio", "/payment-success", "/payment-cancelled"]
+  return ["/admin", "/dashboard", "/api", "/auth", "/listen"]
     .some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+export function sanitizeAnalyticsUrl(value: string) {
+  try {
+    const url = new URL(value);
+    if (isPrivateAnalyticsPath(url.pathname)) return null;
+    const path = safePagePath(url.pathname);
+    if (!path) return null;
+    url.pathname = path;
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return null;
+  }
 }
 
 export function isExternalAnalyticsPath(pathname: string) {

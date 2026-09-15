@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { AnalyticsEvent } from "@/types";
-import { captureAttribution, encodeAttributionCookie, parseAttributionCookie, safePagePath } from "@/lib/analytics/attribution";
+import { captureAttribution, encodeAttributionCookie, isPrivateAnalyticsPath, parseAttributionCookie, safePagePath, sanitizeAnalyticsUrl } from "@/lib/analytics/attribution";
 import { buildAnalyticsDashboard } from "@/lib/analytics/dashboard";
 
 function event(
@@ -54,6 +54,13 @@ describe("campaign attribution", () => {
     expect(safePagePath("/studio/11111111-1111-4111-8111-111111111111/story?utm_source=x")).toBe("/studio/[project]/story");
     expect(safePagePath("https://attacker.test/path")).toBeNull();
   });
+
+  it("tracks Studio routes without exposing project identifiers to Vercel", () => {
+    expect(isPrivateAnalyticsPath("/studio/11111111-1111-4111-8111-111111111111/story")).toBe(false);
+    expect(sanitizeAnalyticsUrl("https://memoriestomelody.com/studio/11111111-1111-4111-8111-111111111111/story?utm_source=tiktok"))
+      .toBe("https://memoriestomelody.com/studio/[project]/story");
+    expect(sanitizeAnalyticsUrl("https://memoriestomelody.com/admin/analytics")).toBeNull();
+  });
 });
 
 describe("analytics dashboard", () => {
@@ -82,6 +89,22 @@ describe("analytics dashboard", () => {
 
     expect(summary).toMatchObject({ uniqueVisitors: 100, sessions: 100, pageViews: 100, studioStarts: 25, checkoutViews: 10, stripeCheckoutStarts: 8, purchases: 2, revenueCents: 3998, visitorToStudioRate: 25, visitorToPurchaseRate: 2 });
     expect(summary.sources.find((row) => row.source === "tiktok")).toMatchObject({ visitors: 100, studioStarts: 25, checkoutViews: 10, stripeCheckoutStarts: 8, purchases: 2, revenueCents: 3998 });
-    expect(summary.topPages[0]).toEqual({ path: "/", views: 60 });
+    expect(summary.topPages[0]).toEqual({ path: "/", views: 60, uniqueVisitors: 60, sessions: 60 });
+  });
+
+  it("shows unique Studio visitors separately from repeat views", () => {
+    const views = [
+      event("entry-1", "page_view", "visitor-1", { sessionId: "session-1", pagePath: "/studio" }),
+      event("story-1", "page_view", "visitor-1", { sessionId: "session-1", pagePath: "/studio/[project]/story" }),
+      event("story-2", "page_view", "visitor-1", { sessionId: "session-2", pagePath: "/studio/[project]/story" }),
+      event("story-3", "page_view", "visitor-2", { sessionId: "session-3", pagePath: "/studio/[project]/story" }),
+    ];
+    const summary = buildAnalyticsDashboard("7d", "2026-09-04T00:00:00.000Z", views, []);
+
+    expect(summary.uniqueVisitors).toBe(2);
+    expect(summary.studioPages).toEqual([
+      { path: "/studio", views: 1, uniqueVisitors: 1, sessions: 1, reachRate: 50 },
+      { path: "/studio/[project]/story", views: 3, uniqueVisitors: 2, sessions: 3, reachRate: 100 },
+    ]);
   });
 });
