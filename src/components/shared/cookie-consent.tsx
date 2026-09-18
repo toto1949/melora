@@ -7,6 +7,8 @@ import { useLocale } from "@/components/i18n/locale-provider";
 import { COOKIE_CONSENT, type CookieConsentValue } from "@/lib/cookie-consent";
 import { ensureAnalyticsIdentity } from "@/lib/analytics/client";
 
+const ANALYTICS_CONSENT_EVENT = "mtm:analytics-consent";
+
 export function CookieConsent({ initialConsent }: { initialConsent: CookieConsentValue | null }) {
   const [visible, setVisible] = useState(initialConsent === null);
   const { messages } = useLocale();
@@ -18,9 +20,13 @@ export function CookieConsent({ initialConsent }: { initialConsent: CookieConsen
   const choose = (value: "all" | "essential") => {
     document.cookie = `${COOKIE_CONSENT}=${value}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
 
-    // Preserve the original landing URL and social referrer before refreshing
-    // into the consented analytics tree.
-    if (value === "all") ensureAnalyticsIdentity();
+    // Preserve the original landing URL and social referrer, then notify the
+    // already-mounted first-party tracker so the consented landing visit is
+    // recorded immediately instead of waiting for a later navigation.
+    if (value === "all") {
+      ensureAnalyticsIdentity();
+      window.dispatchEvent(new Event(ANALYTICS_CONSENT_EVENT));
+    }
 
     window.gtag?.("consent", "update", {
       analytics_storage: value === "all" ? "granted" : "denied",
